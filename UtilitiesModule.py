@@ -585,7 +585,8 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 # End of GetData
 
 
-def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100 ):
+def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
+             linthresh = 1.0e-2 ):
 
     import matplotlib.pyplot as plt
     from matplotlib.colors import LogNorm, SymLogNorm
@@ -595,10 +596,10 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100 ):
 
     if( UseLogScale ):
 
-        if( np.any( Data <= 0.0 ) ):
+        if np.any( Data <= 0.0 ):
 
             Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
-                               linthresh = 1.0e-2, base = 10 )
+                               linthresh = linthresh, base = 10 )
 
         else:
 
