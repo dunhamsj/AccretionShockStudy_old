@@ -6,25 +6,42 @@ from os import listdir
 from os.path import isfile
 from sys import exit
 
-from UtilitiesModule import GetData, GetFileArray, OverwriteFile
+from UtilitiesModule import GetData
 
 def MakeDataFile( Field, DataDirectory, DataFileName, \
                   PlotFileBaseName, UsePhysicalUnits = True, \
-                  SSi = -1, SSf = -1, nSS = -1, Verbose = False ):
+                  WriteExtras = False, SSi = -1, SSf = -1 ):
 
-    if Verbose: print( '\nRunning MakeDataFile...\n' )
+    print( '\nRunning MakeDataFile...\n' )
 
-    if Verbose: print( 'DataDirectory: {:}\n'.format( DataDirectory ) )
+    print( 'DataDirectory: {:}\n'.format( DataDirectory ) )
 
     if( not DataFileName[0] == '.' ): DataFileName = '.' + DataFileName
-    if( not DataDirectory[-1] == '/' ): DataDirectory = DataDirectory + '/'
 
     yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 
     c = 2.99792458e10
     if( not UsePhysicalUnits ): c = 1.0
 
-    FileArray = GetFileArray( DataDirectory, PlotFileBaseName, Verbose )
+    # Get array of all plot-files
+
+    # Append "/" to DataDirectory, if not present
+    if( not DataDirectory[-1] == '/' ): DataDirectory += '/'
+
+    FileArray \
+      = np.sort( np.array( [ file for file in listdir( DataDirectory ) ] ) )
+
+    FileList = []
+
+    for iFile in range( FileArray.shape[0] ):
+
+        sFile = FileArray[iFile]
+
+        if( sFile[0:len(PlotFileBaseName)+1] == PlotFileBaseName + '_' \
+              and sFile[len(PlotFileBaseName)+1].isdigit() ):
+            FileList.append( sFile )
+
+    FileArray = np.array( FileList )
 
     # Get some general info about the computational domain
 
@@ -43,45 +60,81 @@ def MakeDataFile( Field, DataDirectory, DataFileName, \
       print( 'FATAL ERROR: MakeDataFile not implemented for nDimsX = 3' )
       exit( 'Exiting...' )
 
+    if( WriteExtras ):
+
+        # This is if you're running on a computing cluster and don't want
+        # to copy the files to your local machine
+
+        with open( 'FileArray.txt', 'w' ) as f:
+            for i in FileArray:
+                f.write( i )
+                f.write( '\n' )
+        with open( 'Numbers.txt', 'w' ) as f:
+            for i in nX:
+                f.write( str(i) )
+                f.write( ' ' )
+            f.write( '\n' )
+            for i in xL.to_ndarray():
+                f.write( str(i) )
+                f.write( ' ' )
+            f.write( '\n' )
+            for i in xU.to_ndarray():
+                f.write( str(i) )
+                f.write( ' ' )
+            f.write( '\n' )
+
+        exit()
+
     if SSi < 0: SSi = 0
     if SSf < 0: SSf = FileArray.shape[0]
-    if nSS < 0: nSS = SSf - SSi
 
-    ind = np.linspace( SSi, SSf, nSS, dtype = np.int64 )
+    nSS = SSf - SSi
 
     GenerateFile = True
 
-    if isfile( DataFileName ):
+   # if( isfile( DataFileName ) ):
 
-        Overwrite = OverwriteFile( DataFileName )
+   #     YN = input( 'File: "{:}" exists. overwrite? (Y/N): '.format \
+   #            ( DataFileName ) )
 
-        GenerateFile = False
-        if Overwrite: GenerateFile = True
+   #     Overwrite = True
+   #     if( not YN == 'Y' ):
+   #         print( 'Not overwriting file' )
+   #         Overwrite = False
 
-    if GenerateFile:
+   #     GenerateFile = False
+   #     if( Overwrite ):
+   #         GenerateFile = True
+
+    FileList = []
+    for i in range( SSi, SSf ):
+        ds = yt.load( '{:}'.format( DataDirectory + FileArray[i] ) )
+        FileList.append( FileArray[i] )
+
+    FileArray = np.array( FileList )
+
+    if( GenerateFile ):
 
         # Put all time-slices into one array to use for movie making
 
-        if   nDimsX == 1: DataShape = (nSS,nX[0])
-        elif nDimsX == 2: DataShape = (nSS,nX[0],nX[1])
+        if  ( nDimsX == 1 ): DataShape = (nSS,nX[0])
+        elif( nDimsX == 2 ): DataShape = (nSS,nX[0],nX[1])
 
         Data = np.empty( DataShape, np.float64 )
         Time = np.empty( nSS, np.float64 )
 
-        if Verbose:
-
-            print( 'Generating data file: {:}...'.format( DataFileName ) )
+        print( 'Generating data file: {:}...'.format( DataFileName ) )
 
         for i in range( nSS ):
 
             if i % 10 == 0:
                 print( '{:}/{:}'.format( i, nSS ) )
 
-            ds = yt.load( '{:}'.format( DataDirectory + FileArray[ind[i]] ) )
+            ds = yt.load( '{:}'.format( DataDirectory + FileArray[i] ) )
 
-            Data[i], DataUnit, r, theta, t, xL, xU \
+            Data[i], DataUnit, r, theta, tt, xx, xl \
               = GetData( DataDirectory, PlotFileBaseName, \
-                         [ 'a', FileArray[ind[i]] ], Field )
+                         [ 'a', FileArray[i] ], Field )
 
             Time[i] = ds.current_time
 

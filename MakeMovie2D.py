@@ -21,8 +21,8 @@ def MakeMovie2D( ID, Field ):
 
     ############# User input #############
 
-    DataDirectory \
-      = HOME + 'Research/Data/AccretionShockParameterStudy/{:}/'.format( ID )
+    DataDirectory  = '/home/dunhamsj/Research/thornado/SandBox/AMReX/'
+    DataDirectory += 'Euler_Relativistic_IDEAL/{:}/'.format( ID )
 
     cmap = 'RdBu' # Color scheme for movie
 
@@ -174,11 +174,13 @@ def MakeMovie2D( ID, Field ):
           ( fig, UpdateFrame, \
             frames = nFrames, blit = True )
 
+    #writervideo = animation.FFMpegWriter( fps = fps ) 
     anim.save( MovieName, fps = fps )
+
     plt.close()
 
     os.system( 'rm -rf __pycache__ ' )
 
 Field = 'DivV2'
-ID = 'GR2D_M1.4_Mdot0.3_Rs180_PA0.000_nX640x064'
+ID = 'GR2D_M1.4_Mdot0.3_Rs180_PA0.001_nX640x064'
 MakeMovie2D( ID, Field )

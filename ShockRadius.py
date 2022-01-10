@@ -11,7 +11,8 @@ yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 
 class ShockRadius:
 
-    def __init__( self, Root, ID, Field, EntropyThreshold = 1.0e15 ):
+    def __init__( self, Root, ID, Field, \
+                  EntropyThreshold = 1.0e15, suffix = '' ):
 
         print( '\nCreating instance of ShockRadius class...\n' )
 
@@ -37,13 +38,12 @@ class ShockRadius:
         self.SaveFigAs                 \
           = 'fig.ShockRadiusVsTime_{:}_{:}.png'.format( ID, Field )
 
-        self.DataDirectory = self.Root + '/'
+        self.DataDirectory = self.Root + self.ID + '{:}/'.format( suffix )
 
         self.PlotFileBaseName = self.ID + '.plt'
 
         self.FileArray \
           = GetFileArray( self.DataDirectory, self.PlotFileBaseName )
-
         File \
           = ChoosePlotFile( self.DataDirectory, self.PlotFileBaseName )
 
@@ -130,7 +130,7 @@ class ShockRadius:
             if (i+1) % 10 == 0:
                 print( 'File {:}/{:}'.format( i+1, FileArray.shape[0] ) )
 
-            Data[i], DataUnit, r, theta, Time[i], xL, xU \
+            Data[i], DataUnit, r, theta, Time[i], ggg, hhh \
               = GetData( DataDirectory, PlotFileBaseName, \
                          [ 'a', FileArray[i] ], Field, \
                          Verbose = False )
@@ -210,8 +210,6 @@ class ShockRadius:
 
             # Sum volumes of elements containing shocked fluid
 
-            print( Data.min() )
-            print( Data.max() );exit()
             ind = np.where( Data[iT] < self.EntropyThreshold )
             Min[iT] = X1[ind[0].min()]
 
@@ -252,12 +250,12 @@ class ShockRadius:
 
         t, r, Min, Max = np.loadtxt( self.ShockRadiusVsTimeFileName )
 
-        r0 = 1.0#[0]
+        r0 = r[0]
 
-        plt.plot( t, r  /r0, 'ko', label = 'Average' )
-        plt.plot( t, Max/r0, 'bo', label = 'Max' )
-        plt.plot( t, Min/r0, 'ro', label = 'Min' )
-        #plt.xlim( t[0], t[-1] )
+        plt.plot( t, r  /r0, 'k-', label = 'Average' )
+        plt.plot( t, Max/r0, 'b-', label = 'Max' )
+        plt.plot( t, Min/r0, 'r-', label = 'Min' )
+        plt.xlim( t[0], t[-1] )
         plt.xlabel( 'Time [ms]' )
         plt.ylabel( r'$R_{s}/R_{s,0}$' )
         plt.legend()
@@ -268,11 +266,11 @@ class ShockRadius:
 
 if __name__ == "__main__":
 
-    Root = '.'#'/Users/dunhamsj/Research/Data/AccretionShockParameterStudy/'
+    Root = '/Users/dunhamsj/Research/Data/AccretionShockParameterStudy/'
     EntropyThreshold = 1.0e15
 
-    ID = 'NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-04_nX640x064'
-    Field = 'Entropy2'
+    ID = 'GR2D_M1.4_Mdot0.3_Rs180_PA0.000_nX320x064'
+    Field = 'PolytropicConstant'
 
     SR = ShockRadius( Root, ID, Field, EntropyThreshold )
 

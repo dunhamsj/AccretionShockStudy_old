@@ -6,6 +6,16 @@ def OverwriteFile( FileName, ForceChoice = False, Overwrite = False ):
 
     from os.path import isfile
 
+    if( isfile( FileName ) ):
+
+        Overwrite = False
+
+    else:
+
+        Overwrite = True
+
+    return Overwrite
+
     if ForceChoice: return Overwrite
 
     Overwrite = True
@@ -60,7 +70,8 @@ def GetFileArray( DataDirectory, PlotFileBaseName, Verbose = False ):
 
 
 def ChoosePlotFile \
-      ( DataDirectory, PlotFileBaseName, argv = ['a'], Verbose = False ):
+      ( DataDirectory, PlotFileBaseName, argv = ['a'], \
+        Verbose = False ):
 
     if Verbose: print( '\nCalling ChoosePlotFile...\n' )
 
@@ -287,16 +298,6 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         AF_Gm = CoveringGrid['AF_Gm'].to_ndarray()
 
         Data  = AF_P / PF_D**AF_Gm
-
-        DataUnit = 'erg/cm**3/(g/cm**3)**(4/3)'
-
-    elif( Field == 'Entropy2' ):
-
-        CF_D  = CoveringGrid['CF_D' ].to_ndarray()
-        CF_E  = CoveringGrid['CF_E' ].to_ndarray()
-        AF_Gm = CoveringGrid['AF_Gm'].to_ndarray()
-
-        Data  = ( AF_Gm - 1.0 ) * CF_E / CF_D**AF_Gm
 
         DataUnit = 'erg/cm**3/(g/cm**3)**(4/3)'
 

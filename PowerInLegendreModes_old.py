@@ -17,7 +17,7 @@ TwoPi = 2.0 * np.pi
 class PowersInLegendreModes:
 
     def __init__( self, Root, ID, \
-                  Field = 'Entropy', \
+                  Field = 'Entropy', t0 = 0.0, t1 = 300.0, \
                   Rs = 1.80e2, fL = 0.90, fU = 0.95, R0 = -1.0, \
                   suffix = '' ):
 
@@ -26,6 +26,8 @@ class PowersInLegendreModes:
         self.Root = Root
         self.ID = ID
         self.Field = Field
+        self.t0 = t0
+        self.t1 = t1
         self.Rs = Rs * 1.0e5
         self.fL = fL
         self.fU = fU
@@ -67,6 +69,8 @@ class PowersInLegendreModes:
         print( '    Root:     {:s}'.format( self.Root ) )
         print( '    ID:       {:s}'.format( self.ID ) )
         print( '    Field:    {:s}'.format( self.Field ) )
+        print( '    t0:       {:.3e} ms'.format( self.t0 ) )
+        print( '    t1:       {:.3e} ms'.format( self.t1 ) )
         print( '    Rs:       {:.3e} km'.format( self.Rs / 1.0e5 ) )
         print( '    fL:       {:.2f}'.format( self.fL ) )
         print( '    fU:       {:.2f}'.format( self.fU ) )
@@ -219,6 +223,9 @@ class PowersInLegendreModes:
         PlotFileBaseName = ID + '.plt'
 
         FileArray = GetFileArray( self.DataDirectory, PlotFileBaseName )
+        File \
+          = ChoosePlotFile( self.DataDirectory, PlotFileBaseName, argv, \
+                            Verbose = False )
 
         nFiles = FileArray.shape[0]
 
@@ -227,6 +234,7 @@ class PowersInLegendreModes:
         ds = yt.load( '{:}'.format( self.DataDirectory + FileArray[0] ) )
 
         MaxLevel = ds.index.max_level
+        Time     = ds.current_time
         nX       = ds.domain_dimensions
         xL       = ds.domain_left_edge.to_ndarray()
         xH       = ds.domain_right_edge.to_ndarray()
@@ -237,6 +245,8 @@ class PowersInLegendreModes:
         xH[0] *= CentimetersPerKilometer
 
         dX = ( xH - xL ) / np.float64( nX )
+
+        Time = np.empty( nFiles )
 
         X1 = np.linspace( xL[0] + dX[0] / 2.0, xH[0] - dX[0] / 2.0, nX[0] )
         X2 = np.linspace( xL[1] + dX[1] / 2.0, xH[1] - dX[1] / 2.0, nX[1] )
@@ -287,9 +297,7 @@ class PowersInLegendreModes:
 
         if Overwrite:
 
-            Time = np.empty( nFiles )
-
-            for i in range( nFiles ):
+            for i in range( FileArray.shape[0] ):
 
                 if (i+1) % 10 == 0:
                     print( 'File {:}/{:}'.format( i+1, nFiles ) )
@@ -492,9 +500,12 @@ class PowersInLegendreModes:
         return Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4
 
 
-    def FitPowerInLegendreModes( self, t, t0, t1, P1 ):
+    def FitPowerInLegendreModes( self, t, P1 ):
 
         print( '\nCalling PowersInLegendreModes.FitPowerInLegendreModes...\n' )
+
+        t0 = self.t0
+        t1 = self.t1
 
         # --- Slice data for fitting ---
 
@@ -518,14 +529,14 @@ class PowersInLegendreModes:
 
         self.beta = beta
 
-        F = np.exp( self.FittingFunction( tFit, beta ) )
+        F = np.empty( P1.shape[0], np.float64 )
 
-        return tFit+t0, F
+        F[ind] = np.exp( self.FittingFunction( tFit, beta ) )
+
+        return F
 
 
-    def PlotData \
-          ( self, t0, t1, \
-            Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4, tF, F ):
+    def PlotPowers( self, Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4, F ):
 
         fig, axs = plt.subplots( 2, 1 )
 
@@ -539,9 +550,8 @@ class PowersInLegendreModes:
             fig.suptitle( '{:s}\n{:s}, {:.2f}km'.format \
                           ( self.ID, self.Field, self.R0 / 1.0e5 ) )
 
-        ind = np.where( ( Time >= t0 ) & ( Time <= t1 ) )[0]
-
-        t = np.copy( Time )
+        ind = np.where( ( Time > self.t0 ) & ( Time < self.t1 ) )[0]
+#        ind = np.where( ( Time > 0.0 ) & ( Time < 300.0 ) )[0]
 
         yScale = RsAve[0]
 
@@ -555,6 +565,8 @@ class PowersInLegendreModes:
         P3    = P3   [ind]
         P4    = P4   [ind]
 
+        xlim = ( Time.min(), Time.max() )
+
         axs[0].plot( Time, RsMax / yScale, label = 'Max' )
         axs[0].plot( Time, RsAve / yScale, label = 'ShockRadius' )
         axs[0].plot( Time, RsMin / yScale, label = 'Min' )
@@ -567,15 +579,22 @@ class PowersInLegendreModes:
 
         axs[1].set_yscale( 'log' )
 
-        yMax = P1.max()
+#        yMax = P1[ind].max()
 
         if type( F ) == np.ndarray:
 
-            ind = np.where( ( t >= tFit[0] ) & ( t <= tFit[-1] ) )[0]
+            F = F[ind]
 
-            Time = t[ind]
+            print( Time.shape )
+            print( Time[ind].shape )
+            print( F.shape )
+            axs[1].semilogy( Time[ind], F, label = 'Fit' )
 
-            axs[1].semilogy( Time, F, label = 'Fit' )
+            beta = self.beta
+
+            ylim = np.array( [ F.min(), F.max() ], np.float64 )
+
+            Height = np.abs( np.log10( ylim[1] ) - np.log10( ylim[0] ) )
 
             txt = r'$F_0$ = {:.3e}, $\delta$ = {:.3e}'.format \
                     ( np.exp( self.beta[0] ), self.beta[3] )
@@ -590,10 +609,14 @@ class PowersInLegendreModes:
 
             yMax = max( yMax, F.max() )
 
-        xlim = ( t.min(), t.max() )
-
+        xlim = ( self.t0, self.t1 )
         axs[0].set_xlim( xlim )
         axs[1].set_xlim( xlim )
+
+        axs[0].grid()
+        axs[1].grid()
+        axs[0].legend()
+        axs[1].legend()
 
         axs[0].set_ylabel( r'$R_{s}/R_{s,0}$' )
         axs[1].set_ylabel( r'Power [cgs]' )
@@ -601,15 +624,8 @@ class PowersInLegendreModes:
 #        axs[1].set_ylim( top = yMax )
 #        axs[1].set_ylim( 1.0e17, 1.0e27 )
 
-        #axs[0].xaxis.set_visible( False )
-        axs[0].xaxis.set_ticklabels([])
-        #axs[0].xaxis.set_ticks([])
+        axs[0].xaxis.set_visible( False )
         axs[1].set_xlabel( 'Time [ms]' )
-
-        axs[0].grid()
-        axs[1].grid()
-        axs[0].legend()
-        axs[1].legend()
 
         plt.subplots_adjust( hspace = 0.0 )
 
@@ -631,34 +647,81 @@ class PowersInLegendreModes:
         return
 
 
+def AddPlot( ax, Time, Power, label ):
+
+    ax.plot( Time, P1, label = label )
+
+    return
+
 if __name__ == "__main__":
 
-    Root = '/home/dunhamsj/AccretionShockData/'
-    #Root = '/home/dunhamsj/Research/thornado/SandBox/AMReX/Euler_NonRelativistic_IDEAL/'
+    Root = '/scratch/dunhamsj/'
 
     Field = 'DivV2'
-    t0    = 000.0
-    t1    = 600.0
+    t0    = 5.0
+    t1    = 295.0
     Rs    = 1.80e2
     fL    = 0.8
     fU    = 0.9
     R0    = -1.7e2
     suffix = ''
 
-    ID = np.array( [ 'NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-06_nX640x064' ], np.str )
+    ID = np.array( [ 'NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-04_nX640x064' ], np.str )
 
-    P = PowersInLegendreModes( Root, ID[0], Field, \
+    P = PowersInLegendreModes( Root, ID[0], Field, t0 = t0, t1 = t1, \
                                Rs = Rs, fL = fL, fU = fU, R0 = R0, \
                                suffix = suffix )
-
     Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
       = P.ComputePowerInLegendreModes()
 
-#    tFit, F = P.FitPowerInLegendreModes( Time, 80.0, 250.0, P1 )
-    tFit, F = 0.0, ''
+    F = P.FitPowerInLegendreModes( Time, P1 )
+#    F = ''
 
-    P.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                P0, P1, P2, P3, P4, tFit, F )
+    fig, ax = plt.subplots( 1, 1 )
+
+    if R0 < 0.0:
+
+        fig.suptitle( '{:s}, {:.2f}-{:.2f}'.format( Field, fL, fU ) )
+
+    else:
+
+        fig.suptitle( '{:s}, {:.2f}km'.format( Field, R0 ) )
+
+#    ind = np.where( ( Time > t0 ) & ( Time < t1 ) )[0]
+#
+#    Time = Time[ind]
+#
+#    P1 = P1[ind]
+
+    xlim = ( Time.min(), Time.max() )
+
+    P.PlotPowers( Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4, F )
+
+#    AddPlot( ax, Time, P1, ID[0] )
+#
+#    ax.set_yscale( 'log' )
+#
+#    xlim = ( t0, t1 )
+#    ax.set_xlim( xlim )
+#
+#    ax.legend()
+#
+#    ax.set_xlabel( 'Time [ms]' )
+#    ax.set_ylabel( 'Power [cgs]' )
+#
+#    if R0 < 0.0:
+#
+#        plt.savefig( \
+#          'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}-{:.2f}.png'.format \
+#          ( ID[0], Field, fL, fU ), dpi = 300 )
+#
+#    else:
+#
+#        plt.savefig( \
+#          'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}km.png'.format \
+#          ( ID[0], Field, R0 ), dpi = 300 )
+#
+#    plt.close()
 
     import os
     os.system( 'rm -rf __pycache__ ' )
