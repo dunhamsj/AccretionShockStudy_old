@@ -3,15 +3,15 @@
 #SBATCH --mail-type=END
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --mem-per-cpu=128G
+#SBATCH --mem-per-cpu=240G
 #SBATCH --time=1-00:00:00
-#SBATCH --output=Relax.out
-#SBATCH --job-name=Relax
+#SBATCH --output=RelaxM.out
+#SBATCH --job-name=RelaxM
 
 module restore DataAnalysis
 
 source ${HOME}/AccretionShockDataAnalysis/bin/activate
 
-python3 Relaxation.py
+python3 Relaxation_MultipleRuns.py
 
 deactivate

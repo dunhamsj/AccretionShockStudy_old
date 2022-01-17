@@ -35,7 +35,7 @@ def MakeMovie2D( ID1, ID2, Field1, Field2, MovieName = 'TwoFields.mp4' ):
     cmap2 = 'RdBu' # Color scheme for movie
 
     UseLogScale1 = True # Use log scale for field?
-    UseLogScale2 = False # Use log scale for field?
+    UseLogScale2 = True # Use log scale for field?
 
     MovieRunTime = 10.0 # seconds
 
@@ -169,8 +169,8 @@ def MakeMovie2D( ID1, ID2, Field1, Field2, MovieName = 'TwoFields.mp4' ):
 
     vmin1 = 1.0e+14
     vmax1 = 1.0e+16
-    vmin2 = -1.5e2
-    vmax2 = +1.5e2
+    vmin2 = -1.5e3
+    vmax2 = +1.5e3
 
     if vmin1 < 0.0 and UseLogScale1: UseCustomTicks1 = False
     if vmin2 < 0.0 and UseLogScale2: UseCustomTicks2 = False
@@ -265,8 +265,8 @@ def MakeMovie2D( ID1, ID2, Field1, Field2, MovieName = 'TwoFields.mp4' ):
         cbar2.set_ticks( ticks2 )
         cbar2.ax.set_yticklabels( ticklabels2 )
 
-    cbar1.set_label( 'Entropy' )
-    cbar2.set_label( 'V2' )
+    cbar1.set_label( 'Entropy [{:}]'.format( Field1Unit ) )
+    cbar2.set_label( 'V2 [{:}]'.format( Field2Unit ) )
 
     cb2axes.yaxis.set_ticks_position( 'left' )
     cb2axes.yaxis.set_label_position( 'left' )

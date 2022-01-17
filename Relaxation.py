@@ -7,7 +7,7 @@ from matplotlib import animation
 
 class Relaxation:
 
-    Root = '/scratch/dunhamsj/'
+    Root = '/home/dunhamsj/AccretionShockData/'
 
     def __init__( self, nX, SSi, SSf, nSS = -1, \
                   ForceChoice = False, Overwrite = False ):
@@ -110,7 +110,7 @@ class Relaxation:
                  markersize = 2.0, markevery = 1, label = label )
 
         ax.set_xlabel( 'Time [ms]' )
-        ax.set_ylabel( 'max( |d{:s}/dt / {:s}| )'.format( Field ) )
+        ax.set_ylabel( 'max( |d{:s}/dt / {:s}| )'.format( Field, Field ) )
 
         if UseLogScale: ax.set_yscale( 'log' )
 
@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
     UseLogScale = True
 
-    ID = 'NR1D_M1.4_Mdot0.3_Rs180_PA1.00e-04_nX640'
+    ID = 'NR1D_M1.4_Mdot0.3_Rs180_PA0.00e-00_nX640'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 

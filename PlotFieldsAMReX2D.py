@@ -8,7 +8,7 @@ from sys import argv
 from UtilitiesModule import GetData as GD
 from UtilitiesModule import GetNorm
 
-Root = '/Users/dunhamsj/Research/Data/AccretionShockParameterStudy/'
+Root = '/home/dunhamsj/AccretionShockData/'
 
 class PlotFieldsAMReX2D:
 
@@ -68,14 +68,14 @@ class PlotFieldsAMReX2D:
         ax.set_theta_direction( -1 )
         ax.set_theta_zero_location( 'W' )
 
-        for iX2 in range( self.nX[1] ):
-
-            self.Data[:,iX2] = ( self.Data[:,iX2] - self.uK ) / self.uK
+#        for iX2 in range( self.nX[1] ):
+#
+#            self.Data[:,iX2] = ( self.Data[:,iX2] - self.uK ) / self.uK
 
         self.vmin = self.Data.min()
         self.vmax = self.Data.max()
-        self.vmin = min( self.Data.min(), -self.Data.max() )
-        self.vmax = max( self.Data.max(), -self.Data.min() )
+#        self.vmin = min( self.Data.min(), -self.Data.max() )
+#        self.vmax = max( self.Data.max(), -self.Data.min() )
         self.Norm = GetNorm( self.UseLogScale, self.Data, \
                              vmin = self.vmin, vmax = self.vmax )
 
@@ -92,7 +92,7 @@ class PlotFieldsAMReX2D:
                         ' / ' + '<' + self.Field + '>' )
 
         ax.set_rmin( 0.0 )
-        ax.set_rmax( 185.0 )
+        ax.set_rmax( 360.0 )
 
         plt.savefig( 'fig.{:}_{:}.png'.format( ID, Field ), dpi = 300 )
         #plt.show()
@@ -101,9 +101,9 @@ class PlotFieldsAMReX2D:
 if __name__ == '__main__':
 
     ID = 'NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-04_nX640x064'
-    Field = 'AF_P'
+    Field = 'PF_V1'
 
-    PlotFields = PlotFieldsAMReX2D( ID, Field, cmap = 'RdBu' )
+    PlotFields = PlotFieldsAMReX2D( ID, Field, cmap = 'viridis', UseLogScale = False )
 
     PlotFields.GetData()
 
