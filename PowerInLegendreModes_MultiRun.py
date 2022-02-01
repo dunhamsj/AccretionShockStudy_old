@@ -9,7 +9,7 @@ if __name__ == '__main__':
     Root = './'
 
     IDs = np.array( ['NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-06_nX640x064', \
-                     'GR2D_M1.4_Mdot0.3_Rs180_PA1.00e-06_nX640x064' ], np.str )
+                     'GR2D_M1.4_Mdot0.3_Rs180_PA1.00e-06_nX640x064' ], str )
 
     fig, axs = plt.subplots( 2, 1 )
 
@@ -31,14 +31,17 @@ if __name__ == '__main__':
         axs[1].semilogy( tS, P1 )
 
     axs[0].legend()
-    axs[0].xaxis.set_visible( False )
+    axs[0].xaxis.set_ticklabels([])
+    axs[0].set_ylim( 179.0, 182.0 )
+    axs[0].grid()
+    axs[1].grid()
     axs[1].set_xlabel( 'Time [ms]' )
     axs[1].set_ylabel( r'$P_{1}$ [cgs]' )
     axs[0].set_ylabel( r'$\left<R_{s}\right>$ [km]' )
 
     plt.subplots_adjust( hspace = 0.0 )
 
-    plt.show()
-#    plt.savefig( 'fig.PowerInLegendreModes_MultiRun.png', dpi = 300 )
+#    plt.show()
+    plt.savefig( 'fig.PowerInLegendreModes_MultiRun.png', dpi = 300 )
     plt.close()
 
