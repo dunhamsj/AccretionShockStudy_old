@@ -20,12 +20,11 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 
 #### ========== User Input ==========
 
-DataDirectory = HOME + 'Research/Data/AccretionShockParameterStudy/'
-#DataDirectory = '/Users/dunhamsj/Research/Codes/thornado/SandBox/AMReX/Euler_NonRelativistic_IDEAL/'
+DataDirectory = '/lump/data/AccretionShockStudy/'
 
-ID = 'NR1D_M1.4_Mdot0.3_Rs180_PA1.00e-01_nX640'
+ID = 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640'
 
-Field = 'AF_P'
+Field = 'Entropy'
 
 UseLogScale = True
 
