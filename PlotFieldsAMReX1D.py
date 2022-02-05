@@ -24,9 +24,9 @@ DataDirectory = '/lump/data/AccretionShockStudy/'
 
 ID = 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640'
 
-Field = 'Entropy'
+Field = 'PF_V1'
 
-UseLogScale = True
+UseLogScale = False
 
 SaveFileAs = 'fig.' + ID + '.png'
 
