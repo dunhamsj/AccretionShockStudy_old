@@ -6,7 +6,7 @@ from os import listdir
 from os.path import isfile
 from sys import exit
 
-from UtilitiesModule import GetData
+from UtilitiesModule import GetData, OverwriteFile
 
 def MakeDataFile( Field, DataDirectory, DataFileName, \
                   PlotFileBaseName, UsePhysicalUnits = True, \
@@ -90,26 +90,15 @@ def MakeDataFile( Field, DataDirectory, DataFileName, \
 
     nSS = SSf - SSi
 
-    GenerateFile = True
-
-   # if( isfile( DataFileName ) ):
-
-   #     YN = input( 'File: "{:}" exists. overwrite? (Y/N): '.format \
-   #            ( DataFileName ) )
-
-   #     Overwrite = True
-   #     if( not YN == 'Y' ):
-   #         print( 'Not overwriting file' )
-   #         Overwrite = False
-
-   #     GenerateFile = False
-   #     if( Overwrite ):
-   #         GenerateFile = True
+    GenerateFile = OverwriteFile( DataFileName )
 
     FileList = []
-    for i in range( SSi, SSf ):
-        ds = yt.load( '{:}'.format( DataDirectory + FileArray[i] ) )
-        FileList.append( FileArray[i] )
+    if GenerateFile:
+        for i in range( SSi, SSf ):
+            ds = yt.load( '{:}'.format( DataDirectory + FileArray[i] ) )
+    else:
+        for i in range( SSi, SSf ):
+            FileList.append( 'a' )
 
     FileArray = np.array( FileList )
 

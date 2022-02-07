@@ -8,7 +8,7 @@ import os
 
 from MakeDataFile import MakeDataFile
 
-def MakeMovie1D( SSi = -1, SSf = -1, nSS = -1 ):
+def MakeMovie1D( SSi = -1, SSf = -1 ):
 
     # === User input ===
 
@@ -17,10 +17,12 @@ def MakeMovie1D( SSi = -1, SSf = -1, nSS = -1 ):
     Field = [ 'AF_P' ]
 
     global ID
-    ID = [ 'NR1D_M1.4_Mdot0.3_Rs180_PA1.00e-05_nX640' ]
+    ID = [ 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
 
     DataDirectory \
-      = '/Users/dunhamsj/Research/Data/AccretionShockParameterStudy/'
+      = '/home/dunhamsj/AccretionShockData/'
+#    DataDirectory \
+#      = '/lump/data/AccretionShockStudy/'
 
     labels = ID
 
@@ -47,7 +49,7 @@ def MakeMovie1D( SSi = -1, SSf = -1, nSS = -1 ):
 
     if( UseLogScale ): ax.set_yscale( 'log' )
 
-    def GetData( i, SSi, SSf, nSS ):
+    def GetData( i, SSi, SSf ):
 
         global ID
 
@@ -65,7 +67,7 @@ def MakeMovie1D( SSi = -1, SSf = -1, nSS = -1 ):
         xL, xU, nX, FileArray \
           = MakeDataFile( iField, iDataDirectory, \
                           DataFileName, PlotFileBaseName, \
-                          SSi = SSi, SSf = SSf, nSS = nSS )
+                          SSi = SSi, SSf = SSf )
 
         if( nX[1] > 1 or nX[2] > 1 ):
 
@@ -98,11 +100,10 @@ def MakeMovie1D( SSi = -1, SSf = -1, nSS = -1 ):
 
     if SSi < 0: SSi = 0
     if SSf < 0: SSf = 100
-    if nSS < 0: nSS = SSf - SSi + 1
 
     for i in range( nLines ):
 
-        xL, xU, nX, FileArray = GetData( i, SSi, SSf, nSS )
+        xL, xU, nX, FileArray = GetData( i, SSi, SSf )
 
         if( i == 0 ):
 
@@ -111,7 +112,7 @@ def MakeMovie1D( SSi = -1, SSf = -1, nSS = -1 ):
             dr    = Width / np.float64( nX[0] )
             r     = np.linspace( xlim[0] + dr / 2.0, xlim[1] - dr / 2.0, nX[0] )
 
-            nFiles = nSS
+            nFiles = FileArray.shape[0]
 
     ax.set_xlim( xlim )
     ax.set_ylim( ylim )
@@ -170,4 +171,4 @@ def MakeMovie1D( SSi = -1, SSf = -1, nSS = -1 ):
 
     return
 
-MakeMovie1D( SSi = 0, SSf = 1999, nSS = 2000 )
+MakeMovie1D( SSi = 0, SSf = 1999 )
