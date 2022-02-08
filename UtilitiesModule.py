@@ -291,6 +291,38 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
         DataUnit = 'cm**2/s**2'
 
+    elif( Field == 'BernoulliConstant_NR' ):
+
+        c = 2.99792458e10
+
+        rho   = CoveringGrid['PF_D'    ].to_ndarray()
+        v1    = CoveringGrid['PF_V1'   ].to_ndarray() * 1.0e5
+        v2    = CoveringGrid['PF_V2'   ].to_ndarray()
+        p     = CoveringGrid['AF_P'    ].to_ndarray()
+        Phi   = CoveringGrid['GF_Phi_N'].to_ndarray()
+        Gm11  = CoveringGrid['GF_Gm_11' ].to_ndarray()
+        Gm22  = CoveringGrid['GF_Gm_22' ].to_ndarray() * ( 1.0e5 )**2
+        Gamma = CoveringGrid['AF_Gm'   ].to_ndarray()
+
+        VSq = Gm11 * v1**2 + Gm22 * v2**2
+
+        tau = Gamma / ( Gamma - 1.0 )
+
+        B = 1.0 / 2.0 * VSq + tau * p / rho + Phi
+
+        Data = B / c**2
+
+        DataUnit = ''
+
+    elif( Field == 'MassConstant_NR' ):
+
+        rho = CoveringGrid['PF_D' ].to_ndarray()
+        v   = CoveringGrid['PF_V1'].to_ndarray() * 1.0e5
+
+        Data = X1**2 * rho * v
+
+        DataUnit = 'g/s'
+
     elif( Field == 'PolytropicConstant' or Field == 'Entropy' ):
 
         PF_D  = CoveringGrid['PF_D' ].to_ndarray()
@@ -558,6 +590,8 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         print( '  DF_TCI' )
         print( '  pr4' )
         print( '  BernoulliConstant' )
+        print( '  BernoulliConstant_NR' )
+        print( '  MassConstant_NR' )
         print( '  PolytropicConstant' )
         print( '  NonRelativisticSpecificEnthalpy' )
         print( '  SpecificEnthalpy' )

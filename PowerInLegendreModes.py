@@ -19,6 +19,7 @@ class PowersInLegendreModes:
     def __init__( self, Root, ID, \
                   Field = 'Entropy', \
                   Rs = 1.80e2, fL = 0.90, fU = 0.95, R0 = -1.0, \
+                  EntropyThreshold = 1.0e15, \
                   suffix = '' ):
 
         print( '\nCreating instance of PowersInLegendreModes class...\n' )
@@ -30,6 +31,7 @@ class PowersInLegendreModes:
         self.fL = fL
         self.fU = fU
         self.R0 = R0 * 1.0e5
+        self.EntropyThreshold = EntropyThreshold
 
         fMin = 40.0  / Rs
         fMax = 360.0 / Rs
@@ -199,6 +201,7 @@ class PowersInLegendreModes:
 
                 from ShockRadius import ShockRadius
                 SR = ShockRadius( self.Root, self.ID, 'Entropy', \
+                                  EntropyThreshold = self.EntropyThreshold, \
                                   suffix = self.suffix )
                 SR.ComputeShockRadius()
 
@@ -645,10 +648,12 @@ if __name__ == "__main__":
     R0    = -1.7e2
     suffix = ''
 
-    ID = np.array( [ 'NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-06_nX640x064' ], np.str )
+    ID = np.array( [ 'NR2D_M0.14_Mdot0.03_Rs180_PA1.00e-06_nX640x064' ], np.str )
+#    ID = np.array( [ 'GR2D_M1.4_Mdot0.3_Rs180_PA1.00e-07_nX640x064' ], np.str )
 
     P = PowersInLegendreModes( Root, ID[0], Field, \
                                Rs = Rs, fL = fL, fU = fU, R0 = R0, \
+                               EntropyThreshold = 4.0e14, \
                                suffix = suffix )
 
     Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
