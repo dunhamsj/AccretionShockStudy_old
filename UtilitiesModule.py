@@ -630,8 +630,29 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
 
     if( UseLogScale ):
 
-        if np.any( Data <= 0.0 ):
+        if np.all( Data <= 0.0 ):
 
+            Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
+                               linthresh = linthresh, base = 10 )
+
+        elif np.any( Data <= 0.0 ):
+
+            vmn = min( vmin, -vmax )
+            vmx = max( -vmin, vmax )
+
+            print( 'vmin0 = ', vmin )
+            print( 'vmax0 = ', vmax )
+
+            if vmx > -vmin:
+
+                vmin = -vmax
+
+            else:
+
+                vmax = -vmin
+
+            print( 'vmin1 = ', vmin )
+            print( 'vmax1 = ', vmax )
             Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
                                linthresh = linthresh, base = 10 )
 

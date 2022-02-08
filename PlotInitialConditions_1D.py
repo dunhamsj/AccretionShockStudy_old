@@ -38,7 +38,10 @@ SaveFileAs = 'fig.' + 'IC' + '.png'
 
 #### ====== End of User Input =======
 
-fig, axs = plt.subplots( Fields.shape[0], 1, figsize = (8,6) )
+fig, axs = plt.subplots( Fields.shape[0], 2, figsize = (14,6) )
+
+Data = np.empty( (IDs.shape[0],Fields.shape[0],640), np.float64 )
+DataUnit = []
 
 for iF in range( Fields.shape[0] ):
 
@@ -52,23 +55,42 @@ for iF in range( Fields.shape[0] ):
 
         DataDirectory = Root + ID + '/'
 
-        Data, DataUnit, r, theta, Time, xL, xU \
+        Data[iID,iF], DataUnitt, r, theta, Time, xL, xU \
           = GetData( DataDirectory, PlotFileBaseName, \
                      argv, Field, Verbose = False )
 
-        Norm = GetNorm( UseLogScales[iF], Data )
+        if iID == 0: DataUnit.append( DataUnitt )
 
-        if( UseLogScales[iF] ): axs[iF].set_yscale( 'log' )
+DataUnit = np.array( DataUnit )
+
+for iF in range( Fields.shape[0] ):
+
+    Field = Fields[iF]
+
+    for iID in range( IDs.shape[0] ):
+
+        ID = IDs[iID]
+
+        Norm = GetNorm( UseLogScales[iF], Data[iID] )
+
+        if( UseLogScales[iF] ): axs[iF,0].set_yscale( 'log' )
 
         if iF == 0:
-            axs[iF].plot( r, Data, c[iID], label = ID[0:-23] )
+            axs[iF,0].plot( r, Data[iID,iF], c[iID], label = ID[0:-23] )
         else:
-            axs[iF].plot( r, Data, c[iID] )
+            axs[iF,0].plot( r, Data[iID,iF], c[iID] )
 
-        axs[iF].set_ylabel( Field + ' ' + DataUnit )
+        axs[iF,0].set_ylabel( Field + ' ' + DataUnit[iF] )
 
-axs[0].legend()
-axs[-1].set_xlabel( r'$r\,\left[\mathrm{km}\right]$' )
+    axs[iF,1].semilogy( r, np.abs( ( Data[1,iF] - Data[0,iF] ) / Data[1,iF] ), 'k-' )
+    axs[iF,1].semilogy( r, np.abs( ( Data[3,iF] - Data[2,iF] ) / Data[3,iF] ), 'k--' )
+axs[0,1].set_ylabel( r'$|(\rho_{NR}-\rho_{GR})/\rho_{NR}|$' )
+axs[1,1].set_ylabel( r'$|(v_{NR}-v_{GR})/v_{NR}|$' )
+axs[2,1].set_ylabel( r'$|(p_{NR}-p_{GR})/p_{NR}|$' )
+
+axs[0,0].legend()
+axs[-1,0].set_xlabel( r'$r\,\left[\mathrm{km}\right]$' )
+axs[-1,1].set_xlabel( r'$r\,\left[\mathrm{km}\right]$' )
 
 plt.savefig( SaveFileAs, dpi = 300 )
 #plt.show()
