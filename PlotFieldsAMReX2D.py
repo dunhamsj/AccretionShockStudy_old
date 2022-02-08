@@ -8,7 +8,9 @@ from sys import argv
 from UtilitiesModule import GetData as GD
 from UtilitiesModule import GetNorm
 
-Root = '/home/dunhamsj/AccretionShockData/'
+#Root = '/home/dunhamsj/AccretionShockData/'
+#Root = '/lump/data/AccretionShockStudy/'
+Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Euler_Relativistic_IDEAL/'
 
 class PlotFieldsAMReX2D:
 
@@ -55,7 +57,31 @@ class PlotFieldsAMReX2D:
 
         return
 
+    def PlotWhat( self, ys, yN, iX2, UseLogScale ):
+
+        if UseLogScale:
+            plt.semilogy( self.r[:,iX2], \
+                          np.abs( self.Data[:,iX2] - ys ) / yN, \
+                          label = 'iX2 = {:}'.format( iX2 ) )
+        else:
+            plt.plot( self.r[:,iX2], \
+                          np.abs( self.Data[:,iX2] - ys ) / yN, \
+                          label = 'iX2 = {:}'.format( iX2 ) )
+
+        return
+
     def PlotData( self ):
+
+        UseLogScale = False
+        ys = self.uK
+        yN = self.uK
+        iX2 = np.array( [ 0, 16, 32, 48, 63 ], np.int64 )
+        for i in range( iX2.shape[0] ):
+            self.PlotWhat( ys, yN, iX2[i], UseLogScale )
+        plt.legend()
+        plt.suptitle( self.Field )
+        plt.show()
+        exit()
 
         fig = plt.figure( figsize = (16,9) )
         ax  = fig.add_subplot( 111, polar = True )
@@ -68,14 +94,14 @@ class PlotFieldsAMReX2D:
         ax.set_theta_direction( -1 )
         ax.set_theta_zero_location( 'W' )
 
-#        for iX2 in range( self.nX[1] ):
-#
-#            self.Data[:,iX2] = ( self.Data[:,iX2] - self.uK ) / self.uK
+        for iX2 in range( self.nX[1] ):
+
+            self.Data[:,iX2] \
+              = ( self.Data[:,iX2] - self.uK ) / self.uK
 
         self.vmin = self.Data.min()
         self.vmax = self.Data.max()
-#        self.vmin = min( self.Data.min(), -self.Data.max() )
-#        self.vmax = max( self.Data.max(), -self.Data.min() )
+
         self.Norm = GetNorm( self.UseLogScale, self.Data, \
                              vmin = self.vmin, vmax = self.vmax )
 
@@ -89,21 +115,22 @@ class PlotFieldsAMReX2D:
         #cbar = fig.colorbar( im, cax = cax )
         cbar = fig.colorbar( im )
         cbar.set_label( '(' + self.Field + ' - <' + self.Field + '>)' \
-                        ' / ' + '<' + self.Field + '>' )
+                        ' / ' + '|<' + self.Field + '>|' )
 
         ax.set_rmin( 0.0 )
-        ax.set_rmax( 360.0 )
+        ax.set_rmax( 179.0 )
 
-        plt.savefig( 'fig.{:}_{:}.png'.format( ID, Field ), dpi = 300 )
-        #plt.show()
+        #plt.savefig( 'fig.{:}_{:}.png'.format( ID, Field ), dpi = 300 )
+        plt.show()
         plt.close()
 
 if __name__ == '__main__':
 
-    ID = 'NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-04_nX640x064'
+    ID = 'test'
     Field = 'PF_V1'
 
-    PlotFields = PlotFieldsAMReX2D( ID, Field, cmap = 'viridis', UseLogScale = False )
+    PlotFields \
+      = PlotFieldsAMReX2D( ID, Field, cmap = 'RdBu', UseLogScale = True )
 
     PlotFields.GetData()
 

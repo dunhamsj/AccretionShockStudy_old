@@ -19,10 +19,10 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
     global ID
     ID = [ 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
 
-    DataDirectory \
-      = '/home/dunhamsj/AccretionShockData/'
 #    DataDirectory \
-#      = '/lump/data/AccretionShockStudy/'
+#      = '/home/dunhamsj/AccretionShockData/'
+    DataDirectory \
+      = '/lump/data/AccretionShockStudy/'
 
     labels = ID
 
@@ -119,6 +119,8 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
 
     ax.set_xlabel( 'Radial Coordinate [km]' )
     ax.set_ylabel( yLabel )
+
+    ax.axvline( 180.0 )
 
     Height    = ylim[1] - ylim[0]
     time_text = plt.text( xlim[0] + 0.5 * Width, \
