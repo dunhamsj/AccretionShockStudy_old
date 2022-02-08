@@ -310,16 +310,16 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
         B = 1.0 / 2.0 * VSq + tau * p / rho + Phi
 
-        Data = B / c**2
+        Data = B
 
-        DataUnit = ''
+        DataUnit = 'cm**2/s**2'
 
     elif( Field == 'MassConstant_NR' ):
 
         rho = CoveringGrid['PF_D' ].to_ndarray()
         v   = CoveringGrid['PF_V1'].to_ndarray() * 1.0e5
 
-        Data = X1**2 * rho * v
+        Data = ( X1 * 1.0e5 )**2 * rho * v
 
         DataUnit = 'g/s'
 
