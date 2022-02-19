@@ -254,6 +254,22 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
     # --- Derived Fields ---
 
+    elif( Field == 'MachNumber' ):
+
+        Cs = CoveringGrid['AF_Cs'].to_ndarray() * 1.0e5
+        V1 = CoveringGrid['PF_V1'].to_ndarray() * 1.0e5
+        V2 = CoveringGrid['PF_V2'].to_ndarray()
+        V3 = CoveringGrid['PF_V3'].to_ndarray()
+        Gm11  = CoveringGrid['GF_Gm11' ].to_ndarray()
+        Gm22  = CoveringGrid['GF_Gm22' ].to_ndarray()
+        Gm33  = CoveringGrid['GF_Gm33' ].to_ndarray()
+
+        VSq = Gm11 * V1**2 + Gm22 * V2**2 + Gm33 * V3**2
+
+        Data = np.sqrt( VSq ) / Cs
+
+        DataUnit = ''
+
     elif( Field == 'pr4' ):
 
         p = CoveringGrid['AF_P'].to_ndarray()
