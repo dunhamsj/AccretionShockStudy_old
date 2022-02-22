@@ -17,7 +17,7 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
     Field = [ 'AF_P' ]
 
     global ID
-    ID = [ 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
+    ID = [ 'GR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
 
 #    DataDirectory \
 #      = '/home/dunhamsj/AccretionShockData/'
@@ -173,4 +173,4 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
 
     return
 
-MakeMovie1D( SSi = 0, SSf = 1999 )
+MakeMovie1D( SSi = 0, SSf = 100 )

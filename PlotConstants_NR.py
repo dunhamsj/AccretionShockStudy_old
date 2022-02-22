@@ -21,11 +21,11 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 
 #### ========== User Input ==========
 
-#Root = '/lump/data/AccretionShockStudy/'
-Root = '/home/dunhamsj/AccretionShockData/'
+Root = '/lump/data/AccretionShockStudy/'
+#Root = '/home/dunhamsj/AccretionShockData/'
 
 IDs = np.array( [ 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640', \
-                  'NR1D_M1.4_Mdot0.3_Rs180_PA0.00e-00_nX640' ], str )
+                  'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ], str )
 c = np.array( [ 'k-', 'k--' ], str )
 
 Fields = np.array( [ 'BernoulliConstant_NR', 'MassConstant_NR' ], str )
@@ -50,6 +50,9 @@ for iF in range( Fields.shape[0] ):
 
         DataDirectory = Root + ID + '/'
 
+        suffix = ''
+        if iID == 1: suffix = '_jesse'
+
         Data, DataUnit, r, theta, Time, xL, xU \
           = GetData( DataDirectory, PlotFileBaseName, \
                      argv, Field, Verbose = False )
@@ -68,8 +71,8 @@ axs[0].set_ylabel( r'$(r^{2}\,\rho\,v)-(r^{2}\,\rho\,v)\left(0\right)$' )
 axs[0].legend()
 axs[-1].set_xlabel( r'$r\,\left[\mathrm{km}\right]$' )
 
-plt.savefig( SaveFileAs, dpi = 300 )
-#plt.show()
+#plt.savefig( SaveFileAs, dpi = 300 )
+plt.show()
 plt.close()
 
 import os

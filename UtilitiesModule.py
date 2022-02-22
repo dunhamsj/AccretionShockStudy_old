@@ -217,6 +217,11 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         Data = CoveringGrid[Field].to_ndarray()
         DataUnit = 'km/s'
 
+    elif( Field == 'GF_Phi_N' ):
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnit = 'erg/g'
+
     elif( Field == 'GF_Gm_11' ):
 
         Data = CoveringGrid[Field].to_ndarray()
@@ -598,6 +603,7 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         print( '  CF_E' )
         print( '  AF_P' )
         print( '  AF_Cs' )
+        print( '  GF_Phi_N' )
         print( '  GF_Gm_11' )
         print( '  GF_Gm_22' )
         print( '  GF_Gm_33' )
@@ -656,9 +662,6 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
             vmn = min( vmin, -vmax )
             vmx = max( -vmin, vmax )
 
-            print( 'vmin0 = ', vmin )
-            print( 'vmax0 = ', vmax )
-
             if vmx > -vmin:
 
                 vmin = -vmax
@@ -667,8 +670,6 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
 
                 vmax = -vmin
 
-            print( 'vmin1 = ', vmin )
-            print( 'vmax1 = ', vmax )
             Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
                                linthresh = linthresh, base = 10 )
 
