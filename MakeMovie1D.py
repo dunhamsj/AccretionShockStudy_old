@@ -14,10 +14,10 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
 
     nLines = 1
 
-    Field = [ 'AF_P' ]
+    Field = [ 'PF_V1' ]
 
     global ID
-    ID = [ 'GR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
+    ID = [ 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
 
 #    DataDirectory \
 #      = '/home/dunhamsj/AccretionShockData/'
@@ -28,7 +28,7 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
 
     yLabel = Field[0]
 
-    UseLogScale = True
+    UseLogScale = False
 
     MovieRunTime = 10.0 # [s]
 
@@ -173,4 +173,4 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
 
     return
 
-MakeMovie1D( SSi = 0, SSf = 100 )
+MakeMovie1D( SSi = 0, SSf = 1999 )
