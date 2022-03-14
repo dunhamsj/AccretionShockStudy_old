@@ -335,9 +335,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
     elif( Field == 'NonRelativisticSpecificEnthalpy' ):
 
-        e   = CoveringGrid['PF_D'].to_ndarray()
-        p   = CoveringGrid['PF_E'].to_ndarray()
-        rho = CoveringGrid['AF_P'].to_ndarray()
+        e   = CoveringGrid['PF_E'].to_ndarray()
+        p   = CoveringGrid['AF_P'].to_ndarray()
+        rho = CoveringGrid['PF_D'].to_ndarray()
 
         Data = ( e + p ) / rho
 
@@ -347,11 +347,13 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
         c = 2.99792458e10
 
-        e   = CoveringGrid['PF_D'].to_ndarray()
-        p   = CoveringGrid['PF_E'].to_ndarray()
-        rho = CoveringGrid['AF_P'].to_ndarray()
+        e   = CoveringGrid['PF_E'].to_ndarray()
+        p   = CoveringGrid['AF_P'].to_ndarray()
+        rho = CoveringGrid['PF_D'].to_ndarray()
 
-        Data = ( c**2 + ( e + p ) / rho ) / c**2
+        Data = c**2 + ( e + p ) / rho
+
+        Data = Data / c**2
 
         DataUnit = ''
 
@@ -640,9 +642,6 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
             vmn = min( vmin, -vmax )
             vmx = max( -vmin, vmax )
 
-            print( 'vmin0 = ', vmin )
-            print( 'vmax0 = ', vmax )
-
             if vmx > -vmin:
 
                 vmin = -vmax
@@ -651,8 +650,6 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
 
                 vmax = -vmin
 
-            print( 'vmin1 = ', vmin )
-            print( 'vmax1 = ', vmax )
             Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
                                linthresh = linthresh, base = 10 )
 
