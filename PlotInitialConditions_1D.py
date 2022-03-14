@@ -23,14 +23,12 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 
 Root = '/lump/data/AccretionShockStudy/'
 
-IDs = np.array( [ 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640', \
-                  'GR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640', \
-                  'NR1D_M1.4_Mdot0.3_Rs180_PA0.00e-00_nX640', \
-                  'GR1D_M1.4_Mdot0.3_Rs180_PA0.00e-00_nX640' ], str )
-c = np.array( [ 'r-', 'b-', 'r--', 'b--' ], str )
+IDs = np.array( [ 'GR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640', \
+                  'GR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ], str )
 
+c = np.array( [ 'rs', 'b.', 'r.-', 'b.-' ], str )
 
-Fields = np.array( [ 'PF_D', 'PF_V1', 'AF_P' ], str )
+Fields = np.array( [ 'Entropy', 'PF_V1', 'AF_P' ], str )
 
 UseLogScales = np.array( [ True, False, True ], bool )
 
@@ -53,7 +51,9 @@ for iF in range( Fields.shape[0] ):
 
         PlotFileBaseName = ID + '.plt'
 
-        DataDirectory = Root + ID + '/'
+        suffix = ''
+        if iID == 1: suffix = '_old'
+        DataDirectory = Root + ID + suffix + '/'
 
         Data[iID,iF], DataUnitt, r, theta, Time, xL, xU \
           = GetData( DataDirectory, PlotFileBaseName, \
@@ -76,17 +76,24 @@ for iF in range( Fields.shape[0] ):
         if( UseLogScales[iF] ): axs[iF,0].set_yscale( 'log' )
 
         if iF == 0:
-            axs[iF,0].plot( r, Data[iID,iF], c[iID], label = ID[0:-23] )
+            if iID == 0:
+                axs[iF,0].plot( r, Data[iID,iF], c[iID], markerfacecolor = 'none', label = 'new' )
+            else:
+                axs[iF,0].plot( r, Data[iID,iF], c[iID], label = 'old' )
+        elif iF == 1:
+            axs[iF,0].plot( r, Data[iID,iF], c[iID] )
         else:
             axs[iF,0].plot( r, Data[iID,iF], c[iID] )
 
-        axs[iF,0].set_ylabel( Field + ' ' + DataUnit[iF] )
+    axs[0,0].set_ylabel( 'Polytropic Constant [cgs]' )
+    axs[1,0].set_ylabel( 'V [km/s]' )
+    axs[2,0].set_ylabel( 'P [erg/cc]' )
 
-    axs[iF,1].semilogy( r, np.abs( ( Data[1,iF] - Data[0,iF] ) / Data[1,iF] ), 'k-' )
-    axs[iF,1].semilogy( r, np.abs( ( Data[3,iF] - Data[2,iF] ) / Data[3,iF] ), 'k--' )
-axs[0,1].set_ylabel( r'$|(\rho_{NR}-\rho_{GR})/\rho_{NR}|$' )
-axs[1,1].set_ylabel( r'$|(v_{NR}-v_{GR})/v_{NR}|$' )
-axs[2,1].set_ylabel( r'$|(p_{NR}-p_{GR})/p_{NR}|$' )
+    axs[iF,1].semilogy( r, np.abs( ( Data[0,iF] - Data[1,iF] ) / Data[0,iF] ) )
+
+axs[0,1].set_ylabel( r'$|(K_{N}-K_{O})/K_{N}|$' )
+axs[1,1].set_ylabel( r'$|(v_{N}-v_{O})/v_{N}|$' )
+axs[2,1].set_ylabel( r'$|(p_{N}-p_{O})/p_{N}|$' )
 
 axs[0,0].legend()
 axs[-1,0].set_xlabel( r'$r\,\left[\mathrm{km}\right]$' )

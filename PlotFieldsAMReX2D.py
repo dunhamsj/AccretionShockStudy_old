@@ -9,8 +9,8 @@ from UtilitiesModule import GetData as GD
 from UtilitiesModule import GetNorm
 
 #Root = '/home/dunhamsj/AccretionShockData/'
-#Root = '/lump/data/AccretionShockStudy/'
-Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Euler_Relativistic_IDEAL/'
+Root = '/lump/data/AccretionShockStudy/'
+#Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Euler_Relativistic_IDEAL/'
 
 class PlotFieldsAMReX2D:
 
@@ -73,8 +73,8 @@ class PlotFieldsAMReX2D:
     def PlotData( self ):
 
         UseLogScale = False
-        ys = self.uK
-        yN = self.uK
+        ys = 0.0
+        yN = 1.0
         iX2 = np.array( [ 0, 16, 32, 48, 63 ], np.int64 )
         for i in range( iX2.shape[0] ):
             self.PlotWhat( ys, yN, iX2[i], UseLogScale )
@@ -97,7 +97,7 @@ class PlotFieldsAMReX2D:
         for iX2 in range( self.nX[1] ):
 
             self.Data[:,iX2] \
-              = ( self.Data[:,iX2] - self.uK ) / self.uK
+              = ( self.Data[:,iX2] )#- self.uK ) / self.uK
 
         self.vmin = self.Data.min()
         self.vmax = self.Data.max()
@@ -114,11 +114,12 @@ class PlotFieldsAMReX2D:
         #cax = fig.add_axes( [0.93,0.1,0.03,0.8] )
         #cbar = fig.colorbar( im, cax = cax )
         cbar = fig.colorbar( im )
-        cbar.set_label( '(' + self.Field + ' - <' + self.Field + '>)' \
-                        ' / ' + '|<' + self.Field + '>|' )
+        cbar.set_label( self.Field + ' ' + self.DataUnit )
+#        cbar.set_label( '(' + self.Field + ' - <' + self.Field + '>)' \
+#                        ' / ' + '|<' + self.Field + '>|' )
 
         ax.set_rmin( 0.0 )
-        ax.set_rmax( 179.0 )
+#        ax.set_rmax( 179.0 )
 
         #plt.savefig( 'fig.{:}_{:}.png'.format( ID, Field ), dpi = 300 )
         plt.show()
@@ -126,11 +127,12 @@ class PlotFieldsAMReX2D:
 
 if __name__ == '__main__':
 
-    ID = 'test'
-    Field = 'PF_V1'
+    ID = 'GR2D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640x064'
+    Field = 'MachNumber'
+    UseLogScale = False
 
     PlotFields \
-      = PlotFieldsAMReX2D( ID, Field, cmap = 'RdBu', UseLogScale = True )
+      = PlotFieldsAMReX2D( ID, Field, cmap = 'viridis', UseLogScale = UseLogScale )
 
     PlotFields.GetData()
 

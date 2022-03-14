@@ -8,8 +8,8 @@ if __name__ == '__main__':
 
     Root = './'
 
-    IDs = np.array( ['NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-07_nX640x064', \
-                     'GR2D_M1.4_Mdot0.3_Rs180_PA1.00e-07_nX640x064' ], str )
+    IDs = np.array( ['NR2D_M0.14_Mdot0.03_Rs180_PA1.00e-06_nX640x064', \
+                     'GR2D_M0.14_Mdot0.03_Rs180_PA1.00e-06_nX640x064' ], str )
 
     fig, axs = plt.subplots( 2, 1 )
 

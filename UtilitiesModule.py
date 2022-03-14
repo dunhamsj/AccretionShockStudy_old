@@ -217,6 +217,11 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         Data = CoveringGrid[Field].to_ndarray()
         DataUnit = 'km/s'
 
+    elif( Field == 'GF_Phi_N' ):
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnit = 'erg/g'
+
     elif( Field == 'GF_Gm_11' ):
 
         Data = CoveringGrid[Field].to_ndarray()
@@ -253,6 +258,22 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         DataUnit = ''
 
     # --- Derived Fields ---
+
+    elif( Field == 'MachNumber' ):
+
+        Cs = CoveringGrid['AF_Cs'].to_ndarray() * 1.0e5
+        V1 = CoveringGrid['PF_V1'].to_ndarray() * 1.0e5
+        V2 = CoveringGrid['PF_V2'].to_ndarray()
+        V3 = CoveringGrid['PF_V3'].to_ndarray()
+        Gm11  = CoveringGrid['GF_Gm11' ].to_ndarray()
+        Gm22  = CoveringGrid['GF_Gm22' ].to_ndarray()
+        Gm33  = CoveringGrid['GF_Gm33' ].to_ndarray()
+
+        VSq = Gm11 * V1**2 + Gm22 * V2**2 + Gm33 * V3**2
+
+        Data = np.sqrt( VSq ) / Cs
+
+        DataUnit = ''
 
     elif( Field == 'pr4' ):
 
@@ -584,6 +605,7 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         print( '  CF_E' )
         print( '  AF_P' )
         print( '  AF_Cs' )
+        print( '  GF_Phi_N' )
         print( '  GF_Gm_11' )
         print( '  GF_Gm_22' )
         print( '  GF_Gm_33' )
