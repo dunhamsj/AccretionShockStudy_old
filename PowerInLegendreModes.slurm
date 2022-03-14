@@ -4,7 +4,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=128G
-#SBATCH --time=0-01:00:00
+# #SBATCH --time=0-01:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH --output=LegPower.out
 #SBATCH --job-name=LegPower
 

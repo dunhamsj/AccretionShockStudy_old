@@ -88,7 +88,7 @@ def MakeDataFile( Field, DataDirectory, DataFileName, \
     if SSi < 0: SSi = 0
     if SSf < 0: SSf = FileArray.shape[0]
 
-    nSS = SSf - SSi
+    nSS = SSf - SSi + 1
 
     GenerateFile = OverwriteFile( DataFileName )
 
@@ -99,8 +99,7 @@ def MakeDataFile( Field, DataDirectory, DataFileName, \
     else:
         for i in range( SSi, SSf ):
             FileList.append( 'a' )
-
-    FileArray = np.array( FileList )
+        FileArray = np.array( FileList )
 
     if( GenerateFile ):
 

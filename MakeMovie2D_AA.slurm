@@ -6,13 +6,13 @@
 #SBATCH --mem-per-cpu=128G
 #SBATCH --time=1-00:00:00
 # #SBATCH --time=0-00:30:00
-#SBATCH --output=Mov1D.out
-#SBATCH --job-name=Mov1D
+#SBATCH --output=Mov2DAA.out
+#SBATCH --job-name=Mov2DAA
 
 module restore DataAnalysis
 
 source ${HOME}/AccretionShockDataAnalysis/bin/activate
 
-python3 MakeMovie1D.py
+python3 MakeMovie2D_AA.py
 
 deactivate

@@ -8,29 +8,29 @@ import os
 
 from MakeDataFile import MakeDataFile
 
-def MakeMovie1D( SSi = -1, SSf = -1 ):
+def MakeMovie1D( SSi = -1, SSf = -1, suffix = '' ):
 
     # === User input ===
 
     nLines = 1
 
-    Field = [ 'PF_V1' ]
+    Field = [ 'PF_D' ]
 
     global ID
-    ID = [ 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
+    ID = [ 'GR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
 
-#    DataDirectory \
-#      = '/home/dunhamsj/AccretionShockData/'
     DataDirectory \
-      = '/lump/data/AccretionShockStudy/'
+      = '/home/dunhamsj/AccretionShockData/'
+#    DataDirectory \
+#      = '/lump/data/AccretionShockStudy/'
 
     labels = ID
 
     yLabel = Field[0]
 
-    UseLogScale = False
+    UseLogScale = True
 
-    MovieRunTime = 10.0 # [s]
+    MovieRunTime = 30.0 # [s]
 
     SaveFileAs = 'mov.{:}_{:}.mp4'.format( ID[0], Field[0] )
 
@@ -58,7 +58,7 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
 
         PlotFileBaseName = iID + '.plt'
 
-        iDataDirectory = DataDirectory + iID
+        iDataDirectory = DataDirectory + iID + suffix
 
         DataFileName = '.' + iID + '_' + iField + '.dat'
 
@@ -112,15 +112,15 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
             dr    = Width / np.float64( nX[0] )
             r     = np.linspace( xlim[0] + dr / 2.0, xlim[1] - dr / 2.0, nX[0] )
 
-            nFiles = FileArray.shape[0]
+            nFiles = SSf - SSi + 1
 
-    ax.set_xlim( xlim )
+    ax.set_xlim( 40.0, 360.0 )
     ax.set_ylim( ylim )
 
     ax.set_xlabel( 'Radial Coordinate [km]' )
     ax.set_ylabel( yLabel )
 
-    ax.axvline( 180.0 )
+#    ax.axvline( 180.0 )
 
     Height    = ylim[1] - ylim[0]
     time_text = plt.text( xlim[0] + 0.5 * Width, \
@@ -130,7 +130,7 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
 
     for i in range( nLines ):
         lines[i], = ax.plot( [], [], '.', label = labels[i], \
-                             markersize = 1.0, linewidth = 1 )
+                             markersize = 1.0 )
 
     def InitializeFrame():
         ret = []
@@ -173,4 +173,4 @@ def MakeMovie1D( SSi = -1, SSf = -1 ):
 
     return
 
-MakeMovie1D( SSi = 0, SSf = 1999 )
+MakeMovie1D( SSi = 0, SSf = 100, suffix = '_00-10ms' )

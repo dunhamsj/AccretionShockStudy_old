@@ -641,15 +641,14 @@ if __name__ == "__main__":
 
     Field = 'DivV2'
     t0    = 000.0
-    t1    = 600.0
+    t1    = 300.0
     Rs    = 1.80e2
     fL    = 0.8
     fU    = 0.9
     R0    = -1.7e2
     suffix = ''
 
-    ID = np.array( [ 'NR2D_M0.14_Mdot0.03_Rs180_PA1.00e-06_nX640x064' ], np.str )
-#    ID = np.array( [ 'GR2D_M1.4_Mdot0.3_Rs180_PA1.00e-07_nX640x064' ], np.str )
+    ID = np.array( [ 'GR2D_M2.8_Mdot0.3_Rs180_PA1.00e-06' ], np.str )
 
     P = PowersInLegendreModes( Root, ID[0], Field, \
                                Rs = Rs, fL = fL, fU = fU, R0 = R0, \

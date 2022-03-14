@@ -8,8 +8,8 @@ if __name__ == '__main__':
 
     Root = './'
 
-    IDs = np.array( ['NR2D_M0.14_Mdot0.03_Rs180_PA1.00e-06_nX640x064', \
-                     'GR2D_M0.14_Mdot0.03_Rs180_PA1.00e-06_nX640x064' ], str )
+    IDs = np.array( ['NR2D_M2.8_Mdot0.3_Rs180_PA1.00e-06', \
+                     'GR2D_M2.8_Mdot0.3_Rs180_PA1.00e-06' ], str )
 
     fig, axs = plt.subplots( 2, 1 )
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     axs[0].legend()
     axs[0].xaxis.set_ticklabels([])
-    axs[0].set_ylim( 179.0, 182.0 )
+#    axs[0].set_ylim( 179.0, 182.0 )
     axs[0].grid()
     axs[1].grid()
     axs[1].set_xlabel( 'Time [ms]' )
