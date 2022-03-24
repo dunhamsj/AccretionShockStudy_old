@@ -11,32 +11,33 @@ yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 
 class ShockRadius:
 
-    def __init__( self, Root, ID, Field, \
-                  EntropyThreshold = 1.0e15, suffix = '' ):
+    def __init__( self, Root, ID, EntropyThreshold = 1.0e15, suffix = '' ):
 
         print( '\nCreating instance of ShockRadius class...\n' )
 
-        self.Root = Root
-        self.ID = ID
-        self.Field = Field
+        self.Root             = Root
+        self.ID               = ID
         self.EntropyThreshold = EntropyThreshold
 
         print( '  Variables:' )
         print( '  ----------' )
         print( '    Root:             {:s}'.format( self.Root ) )
         print( '    ID:               {:s}'.format( self.ID ) )
-        print( '    Field:            {:s}'.format( self.Field ) )
         print( '    EntropyThreshold: {:.3e}\n'.format \
           ( self.EntropyThreshold ) )
 
         self.DataFileName              \
-          = '.{:}_ShockRadiusVsTimeData_{:}.dat'.format( ID, Field )
+          = '.{:}_ShockRadiusVsTimeData_{:}.dat'.format \
+            ( ID, 'PolytropicConstant' )
         self.TimeFileName              \
-          = '.{:}_ShockRadiusVsTimeTime.dat'.format( ID )
+          = '.{:}_ShockRadiusVsTimeTime.dat'.format \
+            ( ID )
         self.ShockRadiusVsTimeFileName \
-          = '.{:}_ShockRadiusVsTime.dat'.format( ID )
+          = '.{:}_ShockRadiusVsTime.dat'.format \
+            ( ID )
         self.SaveFigAs                 \
-          = 'fig.ShockRadiusVsTime_{:}_{:}.png'.format( ID, Field )
+          = 'fig.ShockRadiusVsTime_{:}_{:}.png'.format \
+            ( ID, 'PolytropicConstant' )
 
         self.DataDirectory = self.Root + self.ID + '{:}/'.format( suffix )
 
@@ -44,6 +45,7 @@ class ShockRadius:
 
         self.FileArray \
           = GetFileArray( self.DataDirectory, self.PlotFileBaseName )
+
         File \
           = ChoosePlotFile( self.DataDirectory, self.PlotFileBaseName )
 
@@ -100,7 +102,7 @@ class ShockRadius:
 
         if OW_Option:
 
-            OW = True
+            OW = OW_Option
 
         else:
 
@@ -112,7 +114,6 @@ class ShockRadius:
         nX               = self.nX
         DataDirectory    = self.DataDirectory
         PlotFileBaseName = self.PlotFileBaseName
-        Field            = self.Field
         DataFileName     = self.DataFileName
         TimeFileName     = self.TimeFileName
 
@@ -132,7 +133,7 @@ class ShockRadius:
 
             Data[i], DataUnit, r, theta, Time[i], ggg, hhh \
               = GetData( DataDirectory, PlotFileBaseName, \
-                         [ 'a', FileArray[i] ], Field, \
+                         [ 'a', FileArray[i] ], 'PolytropicConstant', \
                          Verbose = False )
 
         np.savetxt( TimeFileName, Time )
@@ -163,7 +164,7 @@ class ShockRadius:
         return
 
 
-    def ComputeShockRadius( self, Rs0 = 1.80e2 ):
+    def ComputeShockRadius( self ):
 
         print( '\nCalling ShockRadius.ComputeShockRadius...\n' )
 
@@ -175,13 +176,13 @@ class ShockRadius:
 
         print( '\nComputing average shock radius...' )
 
-        FileArray        = self.FileArray
-        nX               = self.nX
-        DataFileName     = self.DataFileName
-        TimeFileName     = self.TimeFileName
-        X1               = self.X1
-        X2               = self.X2
-        dX               = self.dX
+        FileArray    = self.FileArray
+        nX           = self.nX
+        DataFileName = self.DataFileName
+        TimeFileName = self.TimeFileName
+        X1           = self.X1
+        X2           = self.X2
+        dX           = self.dX
 
         dX1 = dX[0]
         dX2 = dX[1]
@@ -200,8 +201,8 @@ class ShockRadius:
         Min    = np.empty( FileArray.shape[0], np.float64 )
         Max    = np.empty( FileArray.shape[0], np.float64 )
 
-        print( '\nComputing volume of shocked region...' )
-        print(   '-------------------------------------' )
+        print( '\nComputing shock radius...' )
+        print(   '-------------------------' )
 
         for iT in range( Data.shape[0] ):
 
@@ -266,13 +267,12 @@ class ShockRadius:
 
 if __name__ == "__main__":
 
-    Root = '/Users/dunhamsj/Research/Data/AccretionShockParameterStudy/'
+    Root = '/home/dunhamsj/AccretionShockData/'
     EntropyThreshold = 1.0e15
 
-    ID = 'GR2D_M1.4_Mdot0.3_Rs180_PA0.000_nX320x064'
-    Field = 'PolytropicConstant'
+    ID = 'GR1D_M2.0_Mdot0.3_Rs180'
 
-    SR = ShockRadius( Root, ID, Field, EntropyThreshold )
+    SR = ShockRadius( Root, ID, EntropyThreshold )
 
     SR.ComputeShockRadius()
     SR.PlotShockRadiusVsTime()
