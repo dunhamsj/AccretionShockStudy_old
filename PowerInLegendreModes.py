@@ -2,6 +2,7 @@
 
 import yt
 from scipy.integrate import simps
+from scipy.optimize import curve_fit
 import numpy as np
 from numpy.linalg import inv
 import matplotlib.pyplot as plt
@@ -14,23 +15,34 @@ from UtilitiesModule import ChoosePlotFile, OverwriteFile, GetFileArray
 yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 TwoPi = 2.0 * np.pi
 
+def FittingFunction2( t, F0, omega_r, omega_i, delta ):
+
+    # Modified fitting function
+    # (log of Eq. (9) in Blondin & Mezzacappa, (2006))
+
+    return F0 * np.exp( 2.0 * omega_r * t ) * np.sin( omega_i * t + delta )**2
+
 class PowersInLegendreModes:
 
     def __init__( self, Root, ID, \
                   Field = 'Entropy', \
                   Rs = 1.80e2, fL = 0.90, fU = 0.95, R0 = -1.0, \
                   EntropyThreshold = 1.0e15, \
+                  Verbose = True,
                   suffix = '' ):
 
-        print( '\nCreating instance of PowersInLegendreModes class...\n' )
+        self.Verbose = Verbose
 
-        self.Root = Root
-        self.ID = ID
+        if self.Verbose:
+            print( '\nCreating instance of PowersInLegendreModes class...\n' )
+
+        self.Root  = Root
+        self.ID    = ID
         self.Field = Field
-        self.Rs = Rs * 1.0e5
-        self.fL = fL
-        self.fU = fU
-        self.R0 = R0 * 1.0e5
+        self.Rs    = Rs * 1.0e5
+        self.fL    = fL
+        self.fU    = fU
+        self.R0    = R0 * 1.0e5
         self.EntropyThreshold = EntropyThreshold
 
         fMin = 40.0  / Rs
@@ -63,17 +75,17 @@ class PowersInLegendreModes:
         self.ShockRadiusVsTimeFileName \
           = '.{:}_ShockRadiusVsTime.dat'.format( self.ID )
 
-
-        print( '  Variables:' )
-        print( '  ----------' )
-        print( '    Root:     {:s}'.format( self.Root ) )
-        print( '    ID:       {:s}'.format( self.ID ) )
-        print( '    Field:    {:s}'.format( self.Field ) )
-        print( '    Rs:       {:.3e} km'.format( self.Rs / 1.0e5 ) )
-        print( '    fL:       {:.2f}'.format( self.fL ) )
-        print( '    fU:       {:.2f}'.format( self.fU ) )
-        print( '    R0:       {:.3e} km'.format( self.R0 / 1.0e5 ) )
-        print( '    Filename: {:s}\n'.format( self.FileName ) )
+        if self.Verbose:
+            print( '  Variables:' )
+            print( '  ----------' )
+            print( '    Root:     {:s}'.format( self.Root ) )
+            print( '    ID:       {:s}'.format( self.ID ) )
+            print( '    Field:    {:s}'.format( self.Field ) )
+            print( '    Rs:       {:.3e} km'.format( self.Rs / 1.0e5 ) )
+            print( '    fL:       {:.2f}'.format( self.fL ) )
+            print( '    fU:       {:.2f}'.format( self.fU ) )
+            print( '    R0:       {:.3e} km'.format( self.R0 / 1.0e5 ) )
+            print( '    Filename: {:s}\n'.format( self.FileName ) )
 
         self.suffix = suffix
 
@@ -83,7 +95,6 @@ class PowersInLegendreModes:
         self.ComputedPowers      = False
 
         return
-
 
     def FittingFunction( self, t, beta ):
 
@@ -97,7 +108,6 @@ class PowersInLegendreModes:
 
         return logF1 + 2.0 * omega_r * t \
                  + np.log( np.sin( omega_i * t + delta )**2 )
-
 
     def Jacobian( self, t, beta ):
 
@@ -122,20 +132,20 @@ class PowersInLegendreModes:
 
         return J
 
+    def CurveFit( self, t, logP, InitialGuess ):
 
-    def CurveFit( self, t, P, InitialGuess ):
+        if self.Verbose:
+            print( '\nCalling PowersInLegendreModes.CurveFit...\n' )
 
-        print( '\nCalling PowersInLegendreModes.CurveFit...\n' )
+        nIter = 1000
 
-        nIter = 100
+        beta_k = np.copy( InitialGuess )
 
-        beta_k = InitialGuess
-
-        eps  = 1.0e-16
+        eps  = 1.0e-10
         db   = 1.0
         iter = 0
 
-        alpha = 0.5
+        alpha = 1.0
 
         while( db > eps and iter < nIter ):
 
@@ -144,7 +154,7 @@ class PowersInLegendreModes:
             F = self.FittingFunction( t, beta_k )
             J = self.Jacobian       ( t, beta_k )
 
-            r = P - F # Residual
+            r = logP - F # Residual
 
             dbeta = alpha * np.dot( inv( np.dot( J.T, J ) ), \
                             np.dot( J.T, r ) )
@@ -161,10 +171,10 @@ class PowersInLegendreModes:
 
         return beta_k
 
-
     def GetPowersFromDiagnostics( self ):
 
-        print( '\nCalling PowersInLegendreModes.GetPowersFromDiagnostics...\n' )
+        if self.Verbose:
+            print( '\nCalling PowersInLegendreModes.GetPowersFromDiagnostics...\n' )
 
         ID = self.ID
 
@@ -173,26 +183,25 @@ class PowersInLegendreModes:
         Data = np.loadtxt( self.DataDirectory + ID + '.Diagnostics.dat', \
                            skiprows = 1 )
 
-        t     = Data[:,0]
-        P0    = Data[:,1]
-        P1    = Data[:,2]
-        P2    = Data[:,3]
-        RsAve = Data[:,4]
-        RsMin = Data[:,5]
-        RsMax = Data[:,6]
+        t     = np.copy( Data[:,0] )
+        P0    = np.copy( Data[:,1] )
+        P1    = np.copy( Data[:,2] )
+        P2    = np.copy( Data[:,3] )
+        RsAve = np.copy( Data[:,4] )
+        RsMin = np.copy( Data[:,5] )
+        RsMax = np.copy( Data[:,6] )
 
         return t, P0, P1, P2, RsAve, RsMin, RsMax
 
-
     def ComputeAngleAverage( self, Data, X2 ):
         return 1.0 / 2.0 * simps( Data * np.sin( X2 ), x = X2 )
-
 
     def GetShockRadiusVsTime( self ):
 
         if not self.ComputedShockRadius:
 
-            print( '\nCalling PowersInLegendreModes.GetShockRadiusVsTime...\n' )
+            if self.Verbose:
+                print( '\nCalling PowersInLegendreModes.GetShockRadiusVsTime...\n' )
 
             OW = OverwriteFile( self.ShockRadiusVsTimeFileName, \
                                 ForceChoice = True, Overwrite = True )
@@ -211,7 +220,6 @@ class PowersInLegendreModes:
           = np.loadtxt( self.ShockRadiusVsTimeFileName )
 
         return Time, RsAve, RsMin, RsMax
-
 
     def ComputePowerInLegendreModes( self ):
 
@@ -278,10 +286,11 @@ class PowersInLegendreModes:
 
             return Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4
 
-        print( \
-          '\nCalling PowersInLegendreModes.ComputePowerInLegendreModes...' )
-        print( \
-          '------------------------------------------------------------\n' )
+        if self.Verbose:
+            print( \
+              '\nCalling PowersInLegendreModes.ComputePowerInLegendreModes...' )
+            print( \
+              '------------------------------------------------------------\n' )
 
         Overwrite = OverwriteFile( self.FileName,\
                                    ForceChoice = True, Overwrite = True )
@@ -495,9 +504,13 @@ class PowersInLegendreModes:
         return Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4
 
 
-    def FitPowerInLegendreModes( self, t, t0, t1, P1 ):
+    def FitPowerInLegendreModes \
+      ( self, t, t0, t1, P1, \
+        InitialGuess = np.array( [ 14.0, 1.0 / ( 2.0 * 200.0 ), TwoPi / 45.0, \
+                                 0.0 ], np.float64 ) ):
 
-        print( '\nCalling PowersInLegendreModes.FitPowerInLegendreModes...\n' )
+        if self.Verbose:
+            print( '\nCalling PowersInLegendreModes.FitPowerInLegendreModes...\n' )
 
         # --- Slice data for fitting ---
 
@@ -507,24 +520,30 @@ class PowersInLegendreModes:
 
         # --- Fit model to data ---
 
-        InitialGuess \
-          = np.array( [ 14.0, 1.0 / ( 2.0 * 200.0 ), TwoPi / 50.0, 0.0 ], \
-                      np.float64 )
-
+        print( 'Mine' )
         beta = self.CurveFit( tFit, np.log( P1[ind] ), InitialGuess )
-
-        print( '' )
-        print( 'F1 = {:.3e}'.format( np.exp( beta[0] ) ) )
-        print( 'tr = {:.3e} ms'.format( TwoPi / beta[1] ) )
-        print( 'ti = {:.3e} ms'.format( TwoPi / beta[2] ) )
-        print( 'd  = {:.3e}'.format( beta[3] ) )
-
-        self.beta = beta
-
         F = np.exp( self.FittingFunction( tFit, beta ) )
+        self.beta = beta
+        self.beta[0] = np.exp( beta[0] )
+        self.beta[1] = 1.0 / ( 2.0 * beta[1] )
+        self.beta[2] = TwoPi / beta[2]
+        self.beta[3] = beta[3]
+
+        if self.Verbose:
+            print( '' )
+            print( 'F1 = {:.3e}'.format   ( self.beta[0] ) )
+            print( 'tr = {:.3e} ms'.format( self.beta[1] ) )
+            print( 'ti = {:.3e} ms'.format( self.beta[2] ) )
+            print( 'd  = {:.3e}'.format   ( self.beta[3] ) )
+
+#        print( 'Theirs' )
+#        IG = np.copy( InitialGuess )
+#        IG[0] = np.exp( IG[0] )
+#        beta, pcov = curve_fit( FittingFunction2, tFit, P1[ind], p0 = IG )
+#        F = FittingFunction2( tFit, beta[0], beta[1], beta[2], beta[3] )
+#        self.beta = np.copy( beta )
 
         return tFit+t0, F
-
 
     def PlotData \
           ( self, t0, t1, \
@@ -558,18 +577,13 @@ class PowersInLegendreModes:
         P3    = P3   [ind]
         P4    = P4   [ind]
 
-#        axs[0].plot( Time, RsMax / yScale, label = 'Max' )
-        axs[0].plot( Time, ( RsAve - RsAve[0] ) / RsAve[0] )#, \
-#                     label = 'ShockRadius' )
-#        axs[0].plot( Time, RsMin / yScale, label = 'Min' )
+        axs[0].plot( Time, ( RsAve - RsAve[0] ) / RsAve[0] )
 
 #        axs[1].plot( Time, P0, label = 'P0' )
         axs[1].plot( Time, P1, label = 'P1' )
 #        axs[1].plot( Time, P2, label = 'P2' )
 #        axs[1].plot( Time, P3, label = 'P3' )
 #        axs[1].plot( Time, P4, label = 'P4' )
-
-        axs[1].set_yscale( 'log' )
 
         yMax = P1.max()
 
@@ -579,22 +593,25 @@ class PowersInLegendreModes:
 
             Time = t[ind]
 
-            axs[1].semilogy( Time, F, label = 'Fit' )
+            axs[1].plot( Time, F, label = 'Fit' )
 
             txt = r'$F_0$ = {:.3e}, $\delta$ = {:.3e}'.format \
-                    ( np.exp( self.beta[0] ), self.beta[3] )
+                    ( self.beta[0], self.beta[3] )
             txt = r'$1/(2*\omega_r)$ = {:.3e} ms'.format \
-                    ( 1.0 / ( 2.0 * self.beta[1] ) )
+                    ( self.beta[1] )
 
             txt += '\n'
             txt += r'$2\pi/\omega_i$ = {:.3e} ms'.format \
-                     ( 2.0 * np.pi / self.beta[2] )
+                     ( self.beta[2] )
 
             axs[1].text( 0.2, 0.8, txt, transform = axs[1].transAxes )
 
             yMax = max( yMax, F.max() )
 
-        xlim = ( t.min(), t.max() )
+        axs[1].set_yscale( 'log' )
+
+        #xlim = ( t.min(), t.max() )
+        xlim = ( 0.0, 150.0 )
 
         axs[0].set_xlim( xlim )
         axs[1].set_xlim( xlim )
@@ -617,29 +634,28 @@ class PowersInLegendreModes:
 
         plt.subplots_adjust( hspace = 0.0 )
 
-        if self.R0 < 0.0:
+#        if self.R0 < 0.0:
+#
+#            plt.savefig( \
+#              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}-{:.2f}.png'.format \
+#              ( self.ID, self.Field, self.fL, self.fU ), dpi = 300 )
+#
+#        else:
+#
+#            plt.savefig( \
+#              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}km.png'.format \
+#              ( self.ID, self.Field, self.R0 / 1.0e5 ), dpi = 300 )
 
-            plt.savefig( \
-              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}-{:.2f}.png'.format \
-              ( self.ID, self.Field, self.fL, self.fU ), dpi = 300 )
-
-        else:
-
-            plt.savefig( \
-              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}km.png'.format \
-              ( self.ID, self.Field, self.R0 / 1.0e5 ), dpi = 300 )
-
-#        plt.show()
-#        plt.close()
+        plt.show()
+        plt.close()
 
         return
 
 
 if __name__ == "__main__":
 
-    Root = '/scratch/dunhamsj/ProductionRuns/'
-    #Root = '/home/dunhamsj/AccretionShockData/'
-    #Root = '/home/dunhamsj/Research/thornado/SandBox/AMReX/Euler_NonRelativistic_IDEAL/'
+    #Root = '/scratch/dunhamsj/ProductionRuns/'
+    Root = '/lump/data/AccretionShockStudy/'
 
     Field = 'DivV2'
     t0    = 000.0
@@ -649,30 +665,102 @@ if __name__ == "__main__":
     R0    = -1.7e2
     suffix = ''
 
-    M     = np.array( [ '1.4', '2.0' ], np.str )
+    M     = np.array( [ '1.4', '2.0', '2.8' ], str )
     Mdot  = '0.3'
-    Rs    = np.array( [ '120', '150', '180' ], np.str )
+    Rs    = np.array( [ '120', '150', '180' ], str )
+
+    T = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
 
     for m in range( M.shape[0] ):
         for rs in range( Rs.shape[0] ):
 
-            ID = 'NR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot, Rs[rs] )
+            LogF0  = np.log( 1.0e14 )
+            tauR   = 200.0
+            T_SASI = 40.0
+            delta  = 0.0
 
-            P = PowersInLegendreModes( Root, ID, Field, \
-                                       Rs = np.float64( Rs[rs] ), \
-                                       fL = fL, fU = fU, R0 = R0, \
-                                       EntropyThreshold = 4.0e14, \
-                                       suffix = suffix )
+            tF0 = 1.0
+            tF1 = 150.0
 
+            if M[m] == '1.4':
+                if Rs[rs] == '120':
+                    T_SASI = 25.0
+                    tF0    = 15.0
+                    tF1    = 120.0
+                elif Rs[rs] == '150':
+                    T_SASI = 35.0
+                    tF0    = 25.0
+                    tF1    = 140.0
+                elif Rs[rs] == '180':
+                    T_SASI = 55.0
+                    tF0    = 35.0
+                    tF1    = 140.0
+            elif M[m] == '2.0':
+                if Rs[rs] == '120':
+                    T_SASI = 20.0
+                    tF0    = 1.0
+                    tF1    = 150.0
+                elif Rs[rs] == '150':
+                    T_SASI = 30.0
+                    tF0    = 20.0
+                    tF1    = 140.0
+                elif Rs[rs] == '180':
+                    T_SASI = 50.0
+                    tF0    = 1.0
+                    tF1    = 150.0
+            elif M[m] == '2.8':
+                if Rs[rs] == '120':
+                    T_SASI = 20.0
+                    tF0    = 15.0
+                    tF1    = 150.0
+                elif Rs[rs] == '150':
+                    T_SASI = 30.0
+                    tF0    = 55.0
+                    tF1    = 150.0
+                elif Rs[rs] == '180':
+                    T_SASI = 40.0
+                    tF0    = 5.0
+                    tF1    = 150.0
+
+            omega_r = 1.0 / ( 2.0 * tauR )
+            omega_i = TwoPi / T_SASI
+
+            InitialGuess = np.array( [ LogF0, omega_r, omega_i, delta ], \
+                                     np.float64 )
+
+#            ID_NR = 'NR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot, Rs[rs] )
+#            P_NR = PowersInLegendreModes( Root, ID_NR, Field, \
+#                                          Rs = np.float64( Rs[rs] ), \
+#                                          fL = fL, fU = fU, R0 = R0, \
+#                                          EntropyThreshold = 4.0e14 )
+#            Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
+#              = P_NR.ComputePowerInLegendreModes()
+#            tFit, F = P_NR.FitPowerInLegendreModes \
+#                         ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
+#            P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+#                           P0, P1, P2, P3, P4, tFit, F )
+#            del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
+#                P0, P1, P2, P3, P4, tFit, F
+
+            ID_GR = 'GR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot, Rs[rs] )
+            P_GR = PowersInLegendreModes( Root, ID_GR, Field, \
+                                          Rs = np.float64( Rs[rs] ), \
+                                          fL = fL, fU = fU, R0 = R0, \
+                                          EntropyThreshold = 4.0e14 )
             Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
-              = P.ComputePowerInLegendreModes()
-            del P, Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4
+              = P_GR.ComputePowerInLegendreModes()
+            tFit, F = P_GR.FitPowerInLegendreModes \
+                        ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
 
-##    tFit, F = P.FitPowerInLegendreModes( Time, 80.0, 250.0, P1 )
-#    tFit, F = 0.0, ''
-#
-#    P.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-#                P0, P1, P2, P3, P4, tFit, F )
+            T[m,rs] = P_GR.beta[2]
+
+#            P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+#                           P0, P1, P2, P3, P4, tFit, F )
+
+            del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
+                P0, P1, P2, P3, P4, tFit, F
+
+    print( T )
 
     import os
     os.system( 'rm -rf __pycache__ ' )
