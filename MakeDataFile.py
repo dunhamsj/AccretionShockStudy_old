@@ -86,7 +86,7 @@ def MakeDataFile( Field, DataDirectory, DataFileName, \
         exit()
 
     if SSi < 0: SSi = 0
-    if SSf < 0: SSf = FileArray.shape[0]
+    if SSf < 0: SSf = FileArray.shape[0]-1
 
     nSS = SSf - SSi + 1
 
