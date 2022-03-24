@@ -522,7 +522,7 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
                 for iX3 in range( nX[2] ):
 
                     Data[iX1,iX2,iX3] \
-                      = 1.0 / ( dX[1] * np.sin( X2[iX2] ) ) \
+                      = 1.0 / ( 2.0 * dX[1] * np.sin( X2[iX2] ) ) \
                           * (   np.sin( X2[iX2+1] ) * V2[iX1,iX2+1,iX3] \
                               - np.sin( X2[iX2-1] ) * V2[iX1,iX2-1,iX3] )
 
