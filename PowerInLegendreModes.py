@@ -200,7 +200,7 @@ class PowersInLegendreModes:
             if OW:
 
                 from ShockRadius import ShockRadius
-                SR = ShockRadius( self.Root, self.ID, 'Entropy', \
+                SR = ShockRadius( self.Root, self.ID, \
                                   EntropyThreshold = self.EntropyThreshold, \
                                   suffix = self.suffix )
                 SR.ComputeShockRadius()
@@ -383,7 +383,7 @@ class PowersInLegendreModes:
                         for k in indX2:
 
                             Data[j,k] \
-                              = 1.0 / ( dX[1] * np.sin( X2[k] ) ) \
+                              = 1.0 / ( 2.0 * dX[1] * np.sin( X2[k] ) ) \
                                   * (   np.sin( X2[k+1] ) * PF_V2[j,k+1] \
                                       - np.sin( X2[k-1] ) * PF_V2[j,k-1] )
 
@@ -558,9 +558,10 @@ class PowersInLegendreModes:
         P3    = P3   [ind]
         P4    = P4   [ind]
 
-        axs[0].plot( Time, RsMax / yScale, label = 'Max' )
-        axs[0].plot( Time, RsAve / yScale, label = 'ShockRadius' )
-        axs[0].plot( Time, RsMin / yScale, label = 'Min' )
+#        axs[0].plot( Time, RsMax / yScale, label = 'Max' )
+        axs[0].plot( Time, ( RsAve - RsAve[0] ) / RsAve[0] )#, \
+#                     label = 'ShockRadius' )
+#        axs[0].plot( Time, RsMin / yScale, label = 'Min' )
 
 #        axs[1].plot( Time, P0, label = 'P0' )
         axs[1].plot( Time, P1, label = 'P1' )
@@ -598,7 +599,7 @@ class PowersInLegendreModes:
         axs[0].set_xlim( xlim )
         axs[1].set_xlim( xlim )
 
-        axs[0].set_ylabel( r'$R_{s}/R_{s,0}$' )
+        axs[0].set_ylabel( r'$(R_{s}-R_{s,0})/R_{s,0}$' )
         axs[1].set_ylabel( r'Power [cgs]' )
 
 #        axs[1].set_ylim( top = yMax )
@@ -636,33 +637,42 @@ class PowersInLegendreModes:
 
 if __name__ == "__main__":
 
-    Root = '/home/dunhamsj/AccretionShockData/'
+    Root = '/scratch/dunhamsj/ProductionRuns/'
+    #Root = '/home/dunhamsj/AccretionShockData/'
     #Root = '/home/dunhamsj/Research/thornado/SandBox/AMReX/Euler_NonRelativistic_IDEAL/'
 
     Field = 'DivV2'
     t0    = 000.0
-    t1    = 300.0
-    Rs    = 1.80e2
+    t1    = 150.0
     fL    = 0.8
     fU    = 0.9
     R0    = -1.7e2
     suffix = ''
 
-    ID = np.array( [ 'GR2D_M2.8_Mdot0.3_Rs180_PA1.00e-06' ], np.str )
+    M     = np.array( [ '1.4', '2.0' ], np.str )
+    Mdot  = '0.3'
+    Rs    = np.array( [ '120', '150', '180' ], np.str )
 
-    P = PowersInLegendreModes( Root, ID[0], Field, \
-                               Rs = Rs, fL = fL, fU = fU, R0 = R0, \
-                               EntropyThreshold = 4.0e14, \
-                               suffix = suffix )
+    for m in range( M.shape[0] ):
+        for rs in range( Rs.shape[0] ):
 
-    Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
-      = P.ComputePowerInLegendreModes()
+            ID = 'NR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot, Rs[rs] )
 
-#    tFit, F = P.FitPowerInLegendreModes( Time, 80.0, 250.0, P1 )
-    tFit, F = 0.0, ''
+            P = PowersInLegendreModes( Root, ID, Field, \
+                                       Rs = np.float64( Rs[rs] ), \
+                                       fL = fL, fU = fU, R0 = R0, \
+                                       EntropyThreshold = 4.0e14, \
+                                       suffix = suffix )
 
-    P.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                P0, P1, P2, P3, P4, tFit, F )
+            Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
+              = P.ComputePowerInLegendreModes()
+            del P, Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4
+
+##    tFit, F = P.FitPowerInLegendreModes( Time, 80.0, 250.0, P1 )
+#    tFit, F = 0.0, ''
+#
+#    P.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+#                P0, P1, P2, P3, P4, tFit, F )
 
     import os
     os.system( 'rm -rf __pycache__ ' )
