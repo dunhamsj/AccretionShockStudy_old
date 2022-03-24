@@ -57,11 +57,11 @@ def MakeMovie2D( ID1, ID2, Field1, Field2, MovieName = 'TwoFields.mp4' ):
 
     xL1, xU1, nX1, FileArray1 \
       = MakeDataFile( Field1, DataDirectory1, DataFileName1, \
-                      PlotFileBaseName1, SSi = 0, SSf = 600 )
+                      PlotFileBaseName1)#, SSi = 0, SSf = 600 )
 
     xL2, xU2, nX2, FileArray2 \
       = MakeDataFile( Field2, DataDirectory2, DataFileName2, \
-                      PlotFileBaseName2, SSi = 0, SSf = 600 )
+                      PlotFileBaseName2)#, SSi = 0, SSf = 600 )
 
     xL1 = xL1
     xU1 = xU1
