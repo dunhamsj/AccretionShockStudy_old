@@ -15,12 +15,31 @@ from UtilitiesModule import ChoosePlotFile, OverwriteFile, GetFileArray
 yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 TwoPi = 2.0 * np.pi
 
-def FittingFunction2( t, F0, omega_r, omega_i, delta ):
+def FittingFunction2( t, logF1, omega_r, omega_i, delta ):
 
     # Modified fitting function
     # (log of Eq. (9) in Blondin & Mezzacappa, (2006))
 
-    return F0 * np.exp( 2.0 * omega_r * t ) * np.sin( omega_i * t + delta )**2
+    return logF1 + 2.0 * omega_r * t \
+             + np.log( np.sin( omega_i * t + delta )**2 )
+
+def Jacobian2( t, logF1, omega_r, omega_i, delta ):
+
+    # Jacobian of modified fitting function
+
+    J = np.empty( (t.shape[0],4), np.float64 )
+
+    ImPhase = omega_i * t + delta
+
+    J[:,0] = 1.0
+
+    J[:,1] = 2.0 * t
+
+    J[:,2] = 2.0 * np.cos( ImPhase ) / np.sin( ImPhase ) * t
+
+    J[:,3] = 2.0 * np.cos( ImPhase ) / np.sin( ImPhase )
+
+    return J
 
 class PowersInLegendreModes:
 
@@ -145,7 +164,7 @@ class PowersInLegendreModes:
         db   = 1.0
         iter = 0
 
-        alpha = 1.0
+        alpha = 0.5
 
         while( db > eps and iter < nIter ):
 
@@ -163,9 +182,9 @@ class PowersInLegendreModes:
 
             db = np.max( np.abs( dbeta / beta_k ) )
 
-            if iter > nIter - 5:
-
-                print( 'iter = {:d}, db = {:.3e}'.format( iter, db ) )
+#            if iter > nIter - 5:
+#
+#                print( 'iter = {:d}, db = {:.3e}'.format( iter, db ) )
 
         print( 'iter = {:d}, db = {:.3e}'.format( iter, db ) )
 
@@ -520,14 +539,25 @@ class PowersInLegendreModes:
 
         # --- Fit model to data ---
 
-        print( 'Mine' )
-        beta = self.CurveFit( tFit, np.log( P1[ind] ), InitialGuess )
-        F = np.exp( self.FittingFunction( tFit, beta ) )
-        self.beta = beta
-        self.beta[0] = np.exp( beta[0] )
-        self.beta[1] = 1.0 / ( 2.0 * beta[1] )
-        self.beta[2] = TwoPi / beta[2]
-        self.beta[3] = beta[3]
+#        beta = self.CurveFit( tFit, np.log( P1[ind] ), InitialGuess )
+#        F = np.exp( self.FittingFunction( tFit, beta ) )
+
+        beta, pcov = curve_fit( FittingFunction2, tFit, np.log( P1[ind] ), \
+                                p0 = InitialGuess, jac = Jacobian2 )
+        F = np.exp( FittingFunction2( tFit, beta[0], beta[1], \
+                                            beta[2], beta[3] ) )
+
+        self.beta = np.copy( beta )
+        self.perr = np.sqrt( np.diag( pcov ) )
+
+        # Propagate error from frequency into period
+        self.perr[1] = self.perr[1] / ( 2.0 * self.beta[1]**2 )
+        self.perr[2] = TwoPi * self.perr[2] / self.beta[2]**2
+
+        self.beta[0] = np.exp( self.beta[0] )
+        self.beta[1] = 1.0 / ( 2.0 * self.beta[1] )
+        self.beta[2] = TwoPi / self.beta[2]
+        self.beta[3] = self.beta[3]
 
         if self.Verbose:
             print( '' )
@@ -535,13 +565,6 @@ class PowersInLegendreModes:
             print( 'tr = {:.3e} ms'.format( self.beta[1] ) )
             print( 'ti = {:.3e} ms'.format( self.beta[2] ) )
             print( 'd  = {:.3e}'.format   ( self.beta[3] ) )
-
-#        print( 'Theirs' )
-#        IG = np.copy( InitialGuess )
-#        IG[0] = np.exp( IG[0] )
-#        beta, pcov = curve_fit( FittingFunction2, tFit, P1[ind], p0 = IG )
-#        F = FittingFunction2( tFit, beta[0], beta[1], beta[2], beta[3] )
-#        self.beta = np.copy( beta )
 
         return tFit+t0, F
 
@@ -595,14 +618,11 @@ class PowersInLegendreModes:
 
             axs[1].plot( Time, F, label = 'Fit' )
 
-            txt = r'$F_0$ = {:.3e}, $\delta$ = {:.3e}'.format \
-                    ( self.beta[0], self.beta[3] )
-            txt = r'$1/(2*\omega_r)$ = {:.3e} ms'.format \
-                    ( self.beta[1] )
-
+            txt = r'$\tau$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
+                    ( self.beta[1], self.perr[1] )
             txt += '\n'
-            txt += r'$2\pi/\omega_i$ = {:.3e} ms'.format \
-                     ( self.beta[2] )
+            txt += r'$T$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
+                     ( self.beta[2], self.perr[2] )
 
             axs[1].text( 0.2, 0.8, txt, transform = axs[1].transAxes )
 
@@ -616,7 +636,7 @@ class PowersInLegendreModes:
         axs[0].set_xlim( xlim )
         axs[1].set_xlim( xlim )
 
-        axs[0].set_ylabel( r'$(R_{s}-R_{s,0})/R_{s,0}$' )
+        axs[0].set_ylabel( r'$(\left<R_{s}\right>-\left<R_{s,0}\right>)/\left<R_{s,0}\right>$' )
         axs[1].set_ylabel( r'Power [cgs]' )
 
 #        axs[1].set_ylim( top = yMax )
@@ -629,24 +649,24 @@ class PowersInLegendreModes:
 
         axs[0].grid()
         axs[1].grid()
-        axs[0].legend()
-        axs[1].legend()
+#        axs[0].legend()
+#        axs[1].legend()
 
         plt.subplots_adjust( hspace = 0.0 )
 
-#        if self.R0 < 0.0:
-#
-#            plt.savefig( \
-#              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}-{:.2f}.png'.format \
-#              ( self.ID, self.Field, self.fL, self.fU ), dpi = 300 )
-#
-#        else:
-#
-#            plt.savefig( \
-#              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}km.png'.format \
-#              ( self.ID, self.Field, self.R0 / 1.0e5 ), dpi = 300 )
+        if self.R0 < 0.0:
 
-        plt.show()
+            plt.savefig( \
+              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}-{:.2f}.png'.format \
+              ( self.ID, self.Field, self.fL, self.fU ), dpi = 300 )
+
+        else:
+
+            plt.savefig( \
+              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}km.png'.format \
+              ( self.ID, self.Field, self.R0 / 1.0e5 ), dpi = 300 )
+
+#        plt.show()
         plt.close()
 
         return
@@ -665,11 +685,23 @@ if __name__ == "__main__":
     R0    = -1.7e2
     suffix = ''
 
-    M     = np.array( [ '1.4', '2.0', '2.8' ], str )
+    M     = np.array( [ '1.4', '2.0' ], str )
     Mdot  = '0.3'
     Rs    = np.array( [ '120', '150', '180' ], str )
 
-    T = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
+    #M     = np.array( [ '2.0' ], str )
+    #Mdot  = '0.3'
+    #Rs    = np.array( [ '120' ], str )
+
+    T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
+    T_err_GR = np.copy( T_GR )
+    T_NR     = np.copy( T_GR )
+    T_err_NR = np.copy( T_GR )
+
+    G_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
+    G_err_GR = np.copy( G_GR )
+    G_NR     = np.copy( G_GR )
+    G_err_NR = np.copy( G_GR )
 
     for m in range( M.shape[0] ):
         for rs in range( Rs.shape[0] ):
@@ -728,39 +760,52 @@ if __name__ == "__main__":
             InitialGuess = np.array( [ LogF0, omega_r, omega_i, delta ], \
                                      np.float64 )
 
-#            ID_NR = 'NR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot, Rs[rs] )
-#            P_NR = PowersInLegendreModes( Root, ID_NR, Field, \
-#                                          Rs = np.float64( Rs[rs] ), \
-#                                          fL = fL, fU = fU, R0 = R0, \
-#                                          EntropyThreshold = 4.0e14 )
-#            Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
-#              = P_NR.ComputePowerInLegendreModes()
-#            tFit, F = P_NR.FitPowerInLegendreModes \
-#                         ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
+            ID_NR = 'NR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot, Rs[rs] )
+            P_NR = PowersInLegendreModes( Root, ID_NR, Field, \
+                                          Rs = np.float64( Rs[rs] ), \
+                                          fL = fL, fU = fU, R0 = R0, \
+                                          EntropyThreshold = 4.0e14, \
+                                          Verbose = False )
+            Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
+              = P_NR.ComputePowerInLegendreModes()
+            tFit, F = P_NR.FitPowerInLegendreModes \
+                         ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
 #            P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
 #                           P0, P1, P2, P3, P4, tFit, F )
-#            del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
-#                P0, P1, P2, P3, P4, tFit, F
+            G_NR    [m,rs] = P_NR.beta[1]
+            G_err_NR[m,rs] = P_NR.perr[1]
+            T_NR    [m,rs] = P_NR.beta[2]
+            T_err_NR[m,rs] = P_NR.perr[2]
+            del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
+                P0, P1, P2, P3, P4, tFit, F
 
             ID_GR = 'GR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot, Rs[rs] )
             P_GR = PowersInLegendreModes( Root, ID_GR, Field, \
                                           Rs = np.float64( Rs[rs] ), \
                                           fL = fL, fU = fU, R0 = R0, \
-                                          EntropyThreshold = 4.0e14 )
+                                          EntropyThreshold = 4.0e14, \
+                                          Verbose = False )
             Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
               = P_GR.ComputePowerInLegendreModes()
             tFit, F = P_GR.FitPowerInLegendreModes \
                         ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-
-            T[m,rs] = P_GR.beta[2]
-
 #            P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
 #                           P0, P1, P2, P3, P4, tFit, F )
-
+            G_GR    [m,rs] = P_GR.beta[1]
+            G_err_GR[m,rs] = P_GR.perr[1]
+            T_GR    [m,rs] = P_GR.beta[2]
+            T_err_GR[m,rs] = P_GR.perr[2]
             del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
                 P0, P1, P2, P3, P4, tFit, F
 
-    print( T )
+    np.savetxt( 'G_GR.dat'    , G_GR )
+    np.savetxt( 'G_err_GR.dat', G_err_GR )
+    np.savetxt( 'G_NR.dat'    , G_NR )
+    np.savetxt( 'G_err_NR.dat', G_err_NR )
+    np.savetxt( 'T_GR.dat'    , T_GR )
+    np.savetxt( 'T_err_GR.dat', T_err_GR )
+    np.savetxt( 'T_NR.dat'    , T_NR )
+    np.savetxt( 'T_err_NR.dat', T_err_NR )
 
     import os
     os.system( 'rm -rf __pycache__ ' )
