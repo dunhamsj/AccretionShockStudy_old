@@ -685,7 +685,7 @@ if __name__ == "__main__":
     R0    = -1.7e2
     suffix = ''
 
-    M     = np.array( [ '1.4', '2.0' ], str )
+    M     = np.array( [ '1.4', '2.0', '2.8' ], str )
     Mdot  = '0.3'
     Rs    = np.array( [ '120', '150', '180' ], str )
 

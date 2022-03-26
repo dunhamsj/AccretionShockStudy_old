@@ -54,7 +54,7 @@ ax2 = ax1.twinx()
 c = 2.99792458e10
 l1D, = ax1.plot( r, D*c**2, 'r-', label = r'$\rho\,c^{2}$' )
 l1P, = ax1.plot( r, P, 'r--', label = r'$p$' )
-l2,  = ax2.plot( r, V, 'b-' )
+l2,  = ax2.plot( r, V/(c/1.0e5), 'b-' )
 
 ax2.spines['left'].set_color('red')
 ax2.spines['right'].set_color('blue')
@@ -67,12 +67,12 @@ ax1.tick_params( axis = 'x', colors = 'black', labelsize = size )
 
 ax1.set_yscale( 'log' )
 
-plt.legend( [l1D,l1P,l2], [r'$\rho\,c^{2}$',r'$p$',r'$v$'], \
+plt.legend( [l1D,l1P], [r'$\rho\,c^{2}$',r'$p$'], \
             prop = {'size':15} )
 
 ax1.set_xlabel( r'$\mathrm{Radial\ Coordinate}\ \left[\mathrm{km}\right]$', fontsize = size )
 ax1.set_ylabel( r'$\mathrm{erg\,cm}^{-3}$', color = 'red' , fontsize = size )
-ax2.set_ylabel( r'$\mathrm{km\,s}^{-1}$'  , color = 'blue', fontsize = size )
+ax2.set_ylabel( r'$v/c$'  , color = 'blue', fontsize = size )
 
 plt.savefig( SaveFileAs, dpi = 300, bbox_inches = 'tight' )
 #plt.show()

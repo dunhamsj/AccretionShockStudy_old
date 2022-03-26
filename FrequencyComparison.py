@@ -8,7 +8,7 @@ from TimeScales import TimeScales
 
 Root = '/lump/data/AccretionShockStudy/'
 
-M    = np.array( [ '1.4', '2.0' ], str )
+M    = np.array( [ '1.4', '2.0', '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
 Rs   = np.array( [ '120', '150', '180' ], str )
 
@@ -47,8 +47,8 @@ NX = 5.0
 NY = NX * 3/4
 fig, ax = plt.subplots( 1, 1, figsize = (NX,NY) )
 
-for m in range( M.shape[0] ):
-    for rs in range( Rs.shape[0] ):
+for rs in range( Rs.shape[0] ):
+    for m in range( M.shape[0] ):
         if rs == 0:
             ax.plot( Rs[rs], T_Mul[m,rs], c[m] + s[0], \
                      label = r'$M={:.1f}\ M_\odot$, Mul.'.format( M[m] ) )
@@ -75,7 +75,6 @@ ax.legend()
 #plt.show()
 plt.savefig( 'fig.FrequencyComparison_1D_Rs.png', dpi = 300 )
 plt.close()
-exit()
 
 ## mass on x-axis
 #
@@ -101,42 +100,41 @@ exit()
 #plt.savefig( 'fig.FrequencyComparison_1D_Mass.png', dpi = 300 )
 #plt.close()
 
-# Heatmap
-
-extent = [ 0, Rs.shape[0], 0, M.shape[0] ]
-
-fig, ax = plt.subplots( 1, 1 )
-fig.suptitle( 'GR vs. NR' )
-
-im = ax.imshow( ( T_NR - T_GR ) / T_NR, \
-                origin = 'lower', \
-                extent = extent, \
-                cmap = 'RdBu', \
-                vmin = -0.01, vmax = +0.01, \
-                interpolation = 'bilinear', \
-                aspect = 'auto' )
-yticklabels = M
-xticklabels = Rs
-xticks = np.empty( Rs.shape[0], np.float64 )
-yticks = np.empty( M.shape [0], np.float64 )
-for i in range( xticks.shape[0] ):
-    j = i + 1
-    xticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
-for i in range( yticks.shape[0] ):
-    j = i + 1
-    yticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
-ax.set_xticks( xticks )
-ax.set_yticks( yticks )
-ax.set_xticklabels( xticklabels )
-ax.set_yticklabels( yticklabels )
-
-ax.set_xlabel( r'$R_{s}\ \left[\mathrm{km}\right]$' )
-ax.set_ylabel( r'$M\ \left[\mathrm{M}_{\odot}\right]$' )
-
-cbar = fig.colorbar( im )
-cbar.set_label( r'$( T_{\mathrm{GR}} - T_{\mathrm{NR}} ) / T_{\mathrm{GR}}$' )
-#plt.show()
-plt.savefig( 'fig.FrequencyComparison_HeatMap.png', dpi = 300 )
+## Heatmap
+#
+#extent = [ 0, Rs.shape[0], 0, M.shape[0] ]
+#
+#fig, ax = plt.subplots( 1, 1 )
+#
+#im = ax.imshow( ( T_GR - T_GR ) / T_GR, \
+#                origin = 'lower', \
+#                extent = extent, \
+#                cmap = 'RdBu', \
+#                vmin = -0.01, vmax = +0.01, \
+#                interpolation = 'bilinear', \
+#                aspect = 'auto' )
+#yticklabels = M
+#xticklabels = Rs
+#xticks = np.empty( Rs.shape[0], np.float64 )
+#yticks = np.empty( M.shape [0], np.float64 )
+#for i in range( xticks.shape[0] ):
+#    j = i + 1
+#    xticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
+#for i in range( yticks.shape[0] ):
+#    j = i + 1
+#    yticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
+#ax.set_xticks( xticks )
+#ax.set_yticks( yticks )
+#ax.set_xticklabels( xticklabels )
+#ax.set_yticklabels( yticklabels )
+#
+#ax.set_xlabel( r'$R_{s}\ \left[\mathrm{km}\right]$' )
+#ax.set_ylabel( r'$M\ \left[\mathrm{M}_{\odot}\right]$' )
+#
+#cbar = fig.colorbar( im )
+#cbar.set_label( r'$( T_{\mathrm{GR}} - T_{\mathrm{NR}} ) / T_{\mathrm{GR}}$' )
+##plt.show()
+#plt.savefig( 'fig.FrequencyComparison_HeatMap.png', dpi = 300 )
 
 import os
 os.system( 'rm -rf __pycache__ ' )
