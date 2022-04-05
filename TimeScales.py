@@ -65,11 +65,12 @@ class TimeScales:
 
 if __name__ == '__main__':
 
-    Root = '/lump/data/AccretionShockStudy/'
+#    Root = '/lump/data/AccretionShockStudy/'
+    Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Euler_Relativistic_IDEAL/'
 
-    M    = np.array( [ '1.4', '2.0', '2.8' ], str )
-    Mdot = np.array( [ '0.3' ], str )
-    Rs   = np.array( [ '120', '150', '180' ], str )
+    M    = np.linspace( 1.0, 3.0, 11 )
+    Mdot = np.array( [ 0.3 ], np.float64 )
+    Rs   = np.linspace( 110, 200, 10 )
 
     TS = TimeScales()
 
@@ -78,15 +79,16 @@ if __name__ == '__main__':
             for rs in range( Rs.shape[0] ):
 
                 ID \
-                  = 'GR1D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] )
-                DataDirectory = Root + '{:}/'.format( ID )
-                DataDirectory += '{:}.plt_00000000/'.format( ID )
+                  = 'GR1D_M{:.1f}_Mdot{:.1f}_Rs{:g}'.format \
+                      ( M[m], Mdot[mdot], Rs[rs] )
+#                DataDirectory = Root + '{:}/'.format( ID )
+                DataDirectory = Root + '{:}.plt_00000000/'.format( ID )
 
                 rInner = 4.00e1
                 rOuter = np.float64( Rs[rs] )
 
-                print( '\nM{:}_Mdot{:}_Rs{:}'.format \
-                       ( M[m], Mdot[mdot], Rs[rs] ) )
+                print( '\nM{:.1f}_Mdot{:.1f}_Rs{:g}'.format \
+                       ( M[m], Mdot[mdot], np.int64( Rs[rs] ) ) )
                 T_SASI = TS.ComputeTimeScales( DataDirectory, rInner, rOuter )
                 print( 'T_SASI: {:.3e}'.format( T_SASI ) )
 
