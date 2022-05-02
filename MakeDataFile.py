@@ -10,7 +10,7 @@ from UtilitiesModule import GetData, OverwriteFile
 
 def MakeDataFile( Field, DataDirectory, DataFileName, \
                   PlotFileBaseName, UsePhysicalUnits = True, \
-                  WriteExtras = False, SSi = -1, SSf = -1 ):
+                  WriteExtras = False, SSi = -1, SSf = -1, nSS = -1 ):
 
     print( '\nRunning MakeDataFile...\n' )
 
@@ -87,19 +87,18 @@ def MakeDataFile( Field, DataDirectory, DataFileName, \
 
     if SSi < 0: SSi = 0
     if SSf < 0: SSf = FileArray.shape[0]-1
-
-    nSS = SSf - SSi + 1
+    if nSS < 0: nSS = SSf - SSi + 1
 
     GenerateFile = OverwriteFile( DataFileName )
 
-    FileList = []
-    if GenerateFile:
-        for i in range( SSi, SSf ):
-            ds = yt.load( '{:}'.format( DataDirectory + FileArray[i] ) )
-    else:
-        for i in range( SSi, SSf ):
-            FileList.append( 'a' )
-        FileArray = np.array( FileList )
+#    FileList = []
+#    if GenerateFile:
+#        for i in range( SSi, SSf ):
+#            ds = yt.load( '{:}'.format( DataDirectory + FileArray[i] ) )
+#    else:
+#        for i in range( SSi, SSf ):
+#            FileList.append( 'a' )
+#        FileArray = np.array( FileList )
 
     if( GenerateFile ):
 
@@ -115,14 +114,15 @@ def MakeDataFile( Field, DataDirectory, DataFileName, \
 
         for i in range( nSS ):
 
+            iSS = SSi + np.int64( ( SSf - SSi ) / nSS ) * i
             if i % 10 == 0:
                 print( '{:}/{:}'.format( i, nSS ) )
 
-            ds = yt.load( '{:}'.format( DataDirectory + FileArray[i] ) )
+            ds = yt.load( '{:}'.format( DataDirectory + FileArray[iSS] ) )
 
             Data[i], DataUnit, r, theta, tt, xx, xl \
-              = GetData( DataDirectory, PlotFileBaseName, \
-                         [ 'a', FileArray[i] ], Field )
+              = GetData( DataDirectory, PlotFileBaseName, Field, \
+                         [ 'a', FileArray[iSS] ] )
 
             Time[i] = ds.current_time
 

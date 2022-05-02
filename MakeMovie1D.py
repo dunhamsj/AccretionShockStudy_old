@@ -6,171 +6,112 @@ from matplotlib import animation
 from sys import exit
 import os
 
-from MakeDataFile import MakeDataFile
+from MakeDataFile_new import MakeDataFile_new
 
-def MakeMovie1D( SSi = -1, SSf = -1, suffix = '' ):
+class MakeMovie1D:
 
-    # === User input ===
+    def __init__( self, SSi, SSf, nSS = -1 ):
 
-    nLines = 1
+        self.SSi = SSi
+        self.SSf = SSf
+        if nSS < 0:
+            self.nSS = SSf - SSi + 1
+        else:
+            self.nSS = nSS
 
-    Field = [ 'PF_D' ]
+        return
 
-    global ID
-    ID = [ 'GR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640' ]
 
-    DataDirectory \
-      = '/home/dunhamsj/AccretionShockData/'
-#    DataDirectory \
-#      = '/lump/data/AccretionShockStudy/'
+    def GetData( self, DataDirectory, ID, PlotFileBaseName, Field ):
 
-    labels = ID
+        DataFileDirectory = '.{:}_{:}_MovieData1D'.format( ID, Field )
 
-    yLabel = Field[0]
+        xL, xU, nX, FileArray \
+          = MakeDataFile_new( Field, DataDirectory + ID + '/', \
+                              DataFileDirectory, PlotFileBaseName, \
+                              CoordinateSystem = 'cartesian', \
+                              SSi = self.SSi, SSf = self.SSf, nSS = self.nSS )
+        exit()
 
-    UseLogScale = True
+#        f = open( DataFileName )
+#        header = f.readline()[16:-2]
+#        FieldUnit = f.readline()[9:-1]
+#        DataShape = tuple( [ np.int64( dim ) for dim in header.split( ',' ) ] )
+#
+#        Time = list( [ np.float64( t ) \
+#                        for t in f.readline()[12:-2].split(' ') ] )
+#        Time = np.array( Time )
+#
+#        Data = np.loadtxt( DataFileName, dtype = np.float64 ).reshape \
+#                 ( DataShape )
+#
+#        xlim  = [ xL[0], xU[0] ]
+#        dr    = ( xU[0] - xL[0] ) / np.float64( nX[0] )
+#        r     = np.linspace( xlim[0] + 0.5 * dr, xlim[1] - 0.5 * dr, nX[0] )
+#
+#        self.xlim = np.array( xlim )
+#        self.r    = r
+#        self.Time = Time
+#
+#        return Data
+
+if __name__ == '__main__':
 
     MovieRunTime = 30.0 # [s]
+    SaveFileAs   = 'mov.1D.mp4'
+    UseLogScale  = True
+    SSi          = 0
+    SSf          = 1999
+    nSS          = 500
 
-    SaveFileAs = 'mov.{:}_{:}.mp4'.format( ID[0], Field[0] )
+    MM1D = MakeMovie1D( SSi = SSi, SSf = SSf, nSS = nSS )
 
-    # === End of user input ===
+    DataDirectory    = '/lump/data/AccretionShockStudy/'
+    ID               = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert'
+    PlotFileBaseName = ID + '.plt'
+    MM1D.GetData( DataDirectory, ID, PlotFileBaseName, 'PF_D' )
+    exit()
+    #PF_D = MM1D.GetData( DataDirectory, ID, PlotFileBaseName, 'PF_D' )
 
-    global Data
-    Data = {}
+#    PF_D = np.copy( ( PF_D - PF_D[0] ) / PF_D[0] )
 
-    global Time
-    Time = {}
+    # Plotting
 
     fig, ax = plt.subplots()
 
-    global ylim
-    ylim = [ +np.inf, -np.inf ]
+    r    = MM1D.r
+    xmin = MM1D.xlim[0]
+    xmax = 151.0#MM1D.xlim[1]
+    ymin = PF_D.min()
+    ymax = 0.01#PF_D.max()
 
-    if( UseLogScale ): ax.set_yscale( 'log' )
-
-    def GetData( i, SSi, SSf ):
-
-        global ID
-
-        iID    = ID[i]
-        iField = Field[i]
-
-        PlotFileBaseName = iID + '.plt'
-
-        iDataDirectory = DataDirectory + iID + suffix
-
-        DataFileName = '.' + iID + '_' + iField + '.dat'
-
-        ID[i] += '_' + iField
-
-        xL, xU, nX, FileArray \
-          = MakeDataFile( iField, iDataDirectory, \
-                          DataFileName, PlotFileBaseName, \
-                          SSi = SSi, SSf = SSf )
-
-        if( nX[1] > 1 or nX[2] > 1 ):
-
-            print( 'MakeMovie1D.py incompatible with multi-dimensional data.' )
-            exit( 'Exiting...' )
-
-        f = open( DataFileName )
-        header = f.readline()[16:-2]
-        FieldUnit = f.readline()[9:-1]
-        DataShape = tuple( [ np.int64( dim ) for dim in header.split( ',' ) ] )
-
-        iTime = list( [ np.float64( t ) \
-                        for t in f.readline()[12:-2].split(' ') ] )
-        iTime = np.array( iTime )
-
-        iData = np.loadtxt( DataFileName, dtype = np.float64 ).reshape \
-                 ( DataShape )
-
-        global ylim
-        ylim = [ min( ylim[0], iData.min() ), max( ylim[1], iData.max() ) ]
-        #ylim = [ 1.0e14, 1.0e16 ]
-
-        global Data
-        Data[ID[i]] = iData
-
-        global Time
-        Time[ID[i]] = iTime
-
-        return xL, xU, nX, FileArray
-
-    if SSi < 0: SSi = 0
-    if SSf < 0: SSf = 100
-
-    for i in range( nLines ):
-
-        xL, xU, nX, FileArray = GetData( i, SSi, SSf )
-
-        if( i == 0 ):
-
-            xlim  = [ xL[0], xU[0] ]
-            Width = xlim[1] - xlim[0]
-            dr    = Width / np.float64( nX[0] )
-            r     = np.linspace( xlim[0] + dr / 2.0, xlim[1] - dr / 2.0, nX[0] )
-
-            nFiles = SSf - SSi + 1
-
-    ax.set_xlim( 40.0, 360.0 )
-    ax.set_ylim( ylim )
+    if UseLogScale: ax.set_yscale( 'log' )
 
     ax.set_xlabel( 'Radial Coordinate [km]' )
-    ax.set_ylabel( yLabel )
+    ax.set_ylabel( 'PF_D' )
+    ax.set_xlim( xmin, xmax )
+    ax.set_ylim( ymin, ymax )
 
-#    ax.axvline( 180.0 )
-
-    Height    = ylim[1] - ylim[0]
-    time_text = plt.text( xlim[0] + 0.5 * Width, \
-                          ylim[0] + 0.7 * Height, '' )
-
-    lines = np.empty( (nLines), object )
-
-    for i in range( nLines ):
-        lines[i], = ax.plot( [], [], '.', label = labels[i], \
-                             markersize = 1.0 )
+    line, = ax.plot( [], [], 'r-' )
+    time_text = plt.text( 0.5, 0.7, '', transform = ax.transAxes )
 
     def InitializeFrame():
-        ret = []
-        for i in range( nLines ):
-            lines[i].set_data([],[])
-            ret.append( lines[i] )
+        line.set_data([],[])
         time_text.set_text('')
-        ret.append( time_text )
-        ret = tuple( ret )
-        return ret
+        return ( line, time_text )
 
     def UpdateFrame(t):
-        global Data
-        global Time
-        ret = []
-        for i in range( nLines ):
-            iData = Data[ID[i]]
-            y = iData[t]
-            lines[i].set_data( r, y )
-            ret.append( lines[i] )
-            del y
-        iTime = Time[ID[i]]
-        time_text.set_text( 'time = {:.3e} ms'.format( iTime[t] ) )
-        ret.append( time_text )
-        ret = ( ret )
-        return ret
+        line.set_data( r, PF_D[t] )
+        time_text.set_text( 'time = {:.3e} ms'.format( MM1D.Time[t] ) )
+        return ( line, time_text )
 
-#    ax.legend( loc = 2 )
-
-    fps = np.float64( nFiles ) / MovieRunTime
+    fps = max( 1, np.float64( nSS ) / MovieRunTime )
 
     anim = animation.FuncAnimation( fig, UpdateFrame, \
                                     init_func = InitializeFrame, \
-                                    frames = nFiles, \
+                                    frames = nSS, \
                                     blit = True )
 
     anim.save( SaveFileAs, fps = fps, dpi = 300 )
 
     os.system( 'rm -rf __pycache__ ' )
-
-    return
-
-MakeMovie1D( SSi = 0, SSf = 100, suffix = '_00-10ms' )

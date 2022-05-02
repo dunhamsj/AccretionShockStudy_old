@@ -109,24 +109,40 @@ def ChoosePlotFile \
 # End of ChoosePlotFile
 
 
-def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
+def GetData( DataDirectory, PlotFileBaseName, Field, \
+             CoordinateSystem, UsePhysicalUnits, argv = [ 'a' ], \
+             MaxLevel = -1, iX3_CS = 0, \
+             ReturnTime = False, ReturnMesh = False, Verbose = False ):
 
     import yt
     import numpy as np
 
+    msg = 'Invalid choice of CoordinateSystem: {:s}'.format( CoordinateSystem )
+    msg += '\n\nValid Choices:\n'
+    msg +=   '--------------\n'
+    msg +=   'cartesian\n'
+    msg +=   'cylindrical\n'
+    msg +=   'spherical'
+
+    assert (    CoordinateSystem == 'cartesian' \
+             or CoordinateSystem == 'cylindrical' \
+             or CoordinateSystem == 'spherical' ), msg
+
     # https://yt-project.org/doc/faq/index.html#how-can-i-change-yt-s-log-level
     yt.funcs.mylog.setLevel(40) # Suppress yt warnings
 
-    File = ChoosePlotFile( DataDirectory, PlotFileBaseName, argv, \
+    FileArray = GetFileArray( DataDirectory, PlotFileBaseName )
+
+    File = ChoosePlotFile( FileArray, PlotFileBaseName, argv = argv, \
                            Verbose = Verbose )
 
     ds = yt.load( '{:}'.format( DataDirectory + File ) )
 
-    MaxLevel = ds.index.max_level
-    Time     = ds.current_time.to_ndarray()
-    nX       = ds.domain_dimensions
-    xL       = ds.domain_left_edge
-    xU       = ds.domain_right_edge
+    if MaxLevel == -1: MaxLevel = ds.index.max_level
+    Time = ds.current_time.to_ndarray()
+    nX   = ds.domain_dimensions
+    xL   = ds.domain_left_edge
+    xU   = ds.domain_right_edge
 
     """
     https://yt-project.org/doc/reference/api/
@@ -138,9 +154,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
           ( level           = MaxLevel, \
             left_edge       = xL, \
             dims            = nX * 2**MaxLevel, \
-            num_ghost_zones = nX[0] )
+            num_ghost_zones = 0 )
 
-    ds.force_periodicity()
+#    ds.force_periodicity()
 
     nDimsX = 1
     if nX[1] > 1: nDimsX += 1
@@ -151,131 +167,147 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
     xL = xL.to_ndarray()
     xU = xU.to_ndarray()
 
-    dX = ( xU - xL ) / np.float64( nX )
+    X1 = CoveringGrid['X1_C'].to_ndarray()[:,0,0]
+    X2 = CoveringGrid['X2_C'].to_ndarray()[0,:,0]
+    X3 = CoveringGrid['X3_C'].to_ndarray()[0,0,:]
 
-    X1  = np.linspace( xL[0] + dX[0] / 2.0, xU[0] - dX[0] / 2.0, nX[0] )
-    X2  = np.linspace( xL[1] + dX[1] / 2.0, xU[1] - dX[1] / 2.0, nX[1] )
-    X3  = np.linspace( xL[2] + dX[2] / 2.0, xU[2] - dX[2] / 2.0, nX[2] )
+    dX1 = CoveringGrid['dX1'].to_ndarray()[:,0,0]
+    dX2 = CoveringGrid['dX2'].to_ndarray()[0,:,0]
+    dX3 = CoveringGrid['dX3'].to_ndarray()[0,0,:]
 
-    if  ( Field == 'PF_D'  ):
+    if nDimsX < 3:
+        X3  = X3 [0] * np.ones( 1, np.float64 )
+        dX3 = dX3[0] * np.ones( 1, np.float64 )
+    if nDimsX < 2:
+        X2  = X2 [0] * np.ones( 1 )
+        dX2 = dX2[0] * np.ones( 1 )
 
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'g/cm**3'
+    if   Field == 'MPIProcess':
 
-    elif( Field == 'PF_V1' ):
+        Data = CoveringGrid['MPIProcess'].to_ndarray()
+        DataUnits = ''
 
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'km/s'
-
-    elif( Field == 'PF_V2' ):
-
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = '1/s'
-
-    elif( Field == 'PF_V3' ):
-
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = '1/s'
-
-    elif( Field == 'PF_E'  ):
+    if   Field == 'PF_D':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'erg/cm**3'
+        DataUnits = 'g/cm**3'
 
-    elif( Field == 'CF_D'  ):
-
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'g/cm**3'
-
-    elif( Field == 'CF_S1' ):
+    elif Field == 'PF_V1':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'g/cm**2/s'
+        DataUnits = 'km/s'
 
-    elif( Field == 'CF_S2' ):
-
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'g/cm/s'
-
-    elif( Field == 'CF_S3' ):
+    elif Field == 'PF_V2':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'g/cm/s'
 
-    elif( Field == 'CF_E'  ):
+        if   CoordinateSystem == 'cartesian'  : DataUnits = 'km/s'
+        elif CoordinateSystem == 'cylindrical': DataUnits = 'km/s'
+        elif CoordinateSystem == 'spherical'  : DataUnits = '1/s'
 
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'erg/cm**3'
-
-    elif( Field == 'AF_P'  ):
+    elif Field == 'PF_V3':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'erg/cm**3'
 
-    elif( Field == 'AF_Cs' ):
+        if   CoordinateSystem == 'cartesian'  : DataUnits = 'km/s'
+        elif CoordinateSystem == 'cylindrical': DataUnits = '1/s'
+        elif CoordinateSystem == 'spherical'  : DataUnits = '1/s'
 
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'km/s'
-
-    elif( Field == 'GF_Phi_N' ):
+    elif Field == 'PF_E':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'erg/g'
+        DataUnits = 'erg/cm**3'
 
-    elif( Field == 'GF_Gm_11' ):
-
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = ''
-
-    elif( Field == 'GF_Gm_22' ):
+    elif Field == 'PF_Ne':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'km**2'
+        DataUnits = '1/cm**3'
 
-    elif( Field == 'GF_Gm_33' ):
-
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'km**2'
-
-    elif( Field == 'GF_SqrtGm' ):
+    elif Field == 'CF_D':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = 'km**2'
+        DataUnits = 'g/cm**3'
 
-    elif( Field == 'GF_Psi' ):
-
-        Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = ''
-
-    elif( Field == 'GF_Alpha' ):
+    elif Field == 'CF_S1':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = ''
+        DataUnits = 'g/cm**2/s'
 
-    elif( Field == 'DF_TCI' ):
+    elif Field == 'CF_S2':
 
         Data = CoveringGrid[Field].to_ndarray()
-        DataUnit = ''
+
+        if   CoordinateSystem == 'cartesian'  : DataUnits = 'g/cm**2/s'
+        elif CoordinateSystem == 'cylindrical': DataUnits = 'g/cm**2/s'
+        elif CoordinateSystem == 'spherical'  : DataUnits = 'g/cm/s'
+
+    elif Field == 'CF_S3':
+
+        Data = CoveringGrid[Field].to_ndarray()
+
+        if   CoordinateSystem == 'cartesian'  : DataUnits = 'g/cm**2/s'
+        elif CoordinateSystem == 'cylindrical': DataUnits = 'g/cm/s'
+        elif CoordinateSystem == 'spherical'  : DataUnits = 'g/cm/s'
+
+    elif Field == 'CF_E':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = 'erg/cm**3'
+
+    elif Field == 'CF_Ne':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = '1/cm**3'
+
+    elif Field == 'AF_P':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = 'erg/cm**3'
+
+    elif Field == 'AF_Cs':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = 'km/s'
+
+    elif Field == 'GF_Gm_11':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = ''
+
+    elif Field == 'GF_Gm_22':
+
+        Data = CoveringGrid[Field].to_ndarray()
+
+        if   CoordinateSystem == 'cartesian'  : DataUnits = ''
+        elif CoordinateSystem == 'cylindrical': DataUnits = ''
+        elif CoordinateSystem == 'spherical'  : DataUnits = 'km**2'
+
+    elif Field == 'GF_Gm_33':
+
+        Data = CoveringGrid[Field].to_ndarray()
+
+        if   CoordinateSystem == 'cartesian'  : DataUnits = ''
+        elif CoordinateSystem == 'cylindrical': DataUnits = 'km**2'
+        elif CoordinateSystem == 'spherical'  : DataUnits = 'km**2'
+
+    elif Field == 'GF_Psi':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = ''
+
+    elif Field == 'GF_Alpha':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = ''
+
+    elif Field == 'DF_TCI':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = ''
 
     # --- Derived Fields ---
 
-    elif( Field == 'MachNumber' ):
-
-        Cs = CoveringGrid['AF_Cs'].to_ndarray() * 1.0e5
-        V1 = CoveringGrid['PF_V1'].to_ndarray() * 1.0e5
-        V2 = CoveringGrid['PF_V2'].to_ndarray()
-        V3 = CoveringGrid['PF_V3'].to_ndarray()
-        Gm11  = CoveringGrid['GF_Gm11' ].to_ndarray()
-        Gm22  = CoveringGrid['GF_Gm22' ].to_ndarray()
-        Gm33  = CoveringGrid['GF_Gm33' ].to_ndarray()
-
-        VSq = Gm11 * V1**2 + Gm22 * V2**2 + Gm33 * V3**2
-
-        Data = np.sqrt( VSq ) / Cs
-
-        DataUnit = ''
-
-    elif( Field == 'pr4' ):
+    elif Field == 'pr4':
 
         p = CoveringGrid['AF_P'].to_ndarray()
 
@@ -286,9 +318,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
                 for iX3 in range( nX[2] ):
                     Data[iX1,iX2,iX3] = p[iX1,iX2,iX3] * ( X1[iX1] * 1.0e5 )**4
 
-        DataUnit = 'erg*cm'
+        DataUnits = 'erg*cm'
 
-    elif( Field == 'BernoulliConstant' ):
+    elif Field == 'RelativisticBernoulliConstant':
 
         c = 2.99792458e10
 
@@ -310,41 +342,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
         Data = B
 
-        DataUnit = 'cm**2/s**2'
+        DataUnits = 'cm**2/s**2'
 
-    elif( Field == 'BernoulliConstant_NR' ):
-
-        c = 2.99792458e10
-
-        rho   = CoveringGrid['PF_D'    ].to_ndarray()
-        v1    = CoveringGrid['PF_V1'   ].to_ndarray() * 1.0e5
-        v2    = CoveringGrid['PF_V2'   ].to_ndarray()
-        p     = CoveringGrid['AF_P'    ].to_ndarray()
-        Phi   = CoveringGrid['GF_Phi_N'].to_ndarray()
-        Gm11  = CoveringGrid['GF_Gm_11' ].to_ndarray()
-        Gm22  = CoveringGrid['GF_Gm_22' ].to_ndarray() * ( 1.0e5 )**2
-        Gamma = CoveringGrid['AF_Gm'   ].to_ndarray()
-
-        VSq = Gm11 * v1**2 + Gm22 * v2**2
-
-        tau = Gamma / ( Gamma - 1.0 )
-
-        B = 1.0 / 2.0 * VSq + tau * p / rho + Phi
-
-        Data = B
-
-        DataUnit = 'cm**2/s**2'
-
-    elif( Field == 'MassConstant_NR' ):
-
-        rho = CoveringGrid['PF_D' ].to_ndarray()
-        v   = CoveringGrid['PF_V1'].to_ndarray() * 1.0e5
-
-        Data = ( X1 * 1.0e5 )**2 * rho * v
-
-        DataUnit = 'g/s'
-
-    elif( Field == 'PolytropicConstant' or Field == 'Entropy' ):
+    elif Field == 'PolytropicConstant':
 
         PF_D  = CoveringGrid['PF_D' ].to_ndarray()
         AF_P  = CoveringGrid['AF_P' ].to_ndarray()
@@ -352,9 +352,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
         Data  = AF_P / PF_D**AF_Gm
 
-        DataUnit = 'erg/cm**3/(g/cm**3)**(4/3)'
+        DataUnits = 'erg/cm**3/(g/cm**3)**(Gamma_IDEAL)'
 
-    elif( Field == 'NonRelativisticSpecificEnthalpy' ):
+    elif Field == 'NonRelativisticSpecificEnthalpy':
 
         e   = CoveringGrid['PF_E'].to_ndarray()
         p   = CoveringGrid['AF_P'].to_ndarray()
@@ -362,9 +362,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
         Data = ( e + p ) / rho
 
-        DataUnit = 'cm**2/s**2'
+        DataUnits = 'cm**2/s**2'
 
-    elif( Field == 'SpecificEnthalpy' ):
+    elif Field == 'RelativisticSpecificEnthalpy':
 
         c = 2.99792458e10
 
@@ -372,13 +372,11 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         p   = CoveringGrid['AF_P'].to_ndarray()
         rho = CoveringGrid['PF_D'].to_ndarray()
 
-        Data = c**2 + ( e + p ) / rho
+        Data = ( c**2 + ( e + p ) / rho ) / c**2
 
-        Data = Data / c**2
+        DataUnits = ''
 
-        DataUnit = ''
-
-    elif( Field == 'LorentzFactor' ):
+    elif Field == 'LorentzFactor':
 
         c = 2.99792458e5
 
@@ -394,9 +392,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
 
         Data = 1.0 / np.sqrt( 1.0 - VSq / c**2 )
 
-        DataUnit = ''
+        DataUnits = ''
 
-    elif( Field == 'TurbulentVelocity' ):
+    elif Field == 'TurbulentVelocity':
 
         Psi  = CoveringGrid['GF_Psi'  ].to_ndarray()
         Gm11 = CoveringGrid['GF_Gm_11'].to_ndarray()
@@ -424,12 +422,12 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
                     AngleAveragedMass[iX1] \
                       += rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX[1] * dX[2]
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
 
                     AngleAveragedRadialVelocity[iX1] \
                       += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX[1] * dX[2]
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
 
             AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
 
@@ -444,9 +442,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
                             + Gm22[iX1,iX2,iX3] * V2[iX1,iX2,iX3]**2 \
                             + Gm33[iX1,iX2,iX3] * V3[iX1,iX2,iX3]**2 )
 
-        DataUnit = 'km/s'
+        DataUnits = 'km/s'
 
-    elif( Field == 'TurbulentEnergyDensity' ):
+    elif Field == 'TurbulentEnergyDensity':
 
         Psi  = CoveringGrid['GF_Psi'  ].to_ndarray()
         Gm11 = CoveringGrid['GF_Gm_11'].to_ndarray()
@@ -476,12 +474,12 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
                     AngleAveragedMass[iX1] \
                       += rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX[1] * dX[2]
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
 
                     AngleAveragedRadialVelocity[iX1] \
                       += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX[1] * dX[2]
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
 
             AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
 
@@ -505,37 +503,9 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
                       = rho[iX1,iX2,iX3] * ( c * 1.0e5 )**2 \
                           * W**2 * BetaSq / ( W + 1.0 )
 
-        DataUnit = 'erg/cm**3'
+        DataUnits = 'erg/cm**3'
 
-    elif( Field == 'DivV2' ):
-
-        # --- Sheck et al., (2008), A&A, 477, 931 ---
-
-        V2 = CoveringGrid['PF_V2'].to_ndarray()
-
-        Data = np.zeros( nX, np.float64 )
-
-        indX2 = np.linspace( 1, nX[1]-2, nX[1]-2, dtype = np.int64 )
-
-        for iX1 in range( nX[0] ):
-            for iX2 in indX2:
-                for iX3 in range( nX[2] ):
-
-                    Data[iX1,iX2,iX3] \
-                      = 1.0 / ( 2.0 * dX[1] * np.sin( X2[iX2] ) ) \
-                          * (   np.sin( X2[iX2+1] ) * V2[iX1,iX2+1,iX3] \
-                              - np.sin( X2[iX2-1] ) * V2[iX1,iX2-1,iX3] )
-
-        for iX1 in range( nX[0] ):
-            for iX3 in range( nX[2] ):
-
-                Data[iX1,0 ,iX3] = Data[iX1,1 ,iX3]
-                Data[iX1,-1,iX3] = Data[iX1,-2,iX3]
-
-
-        DataUnit = 'rad/s'
-
-    elif( Field == 'Vorticity' ):
+    elif Field == 'Vorticity':
 
         h1 = CoveringGrid['GF_h_1'].to_ndarray()
         h2 = CoveringGrid['GF_h_2'].to_ndarray()
@@ -571,7 +541,7 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         # --- Compute vorticity in domain using
         #     central differences for derivatives ---
 
-        Data = np.zeros( nX, np.float64 )
+        Data = np.zeros( (nX[0],nX[1],nX[2]), np.float64 )
 
         k = 0
         for i in range( 1, nX[0] - 1 ):
@@ -586,26 +556,28 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
                           - h1A[i,j-1,k]**2 * V1A[i,j-1,k] ) \
                           / ( 2.0 * X2[j-1] ) )
 
-        DataUnit = '1/s'
+        DataUnits = '1/s'
 
     else:
 
         print( '\nInvalid field: {:}'.format( Field ) )
         print( '\nValid choices:' )
         print( '--------------' )
+        print( '  MPIProcess' )
         print( '  PF_D' )
         print( '  PF_V1' )
         print( '  PF_V2' )
         print( '  PF_V3' )
         print( '  PF_E' )
+        print( '  PF_Ne' )
         print( '  CF_D' )
         print( '  CF_S1' )
         print( '  CF_S2' )
         print( '  CF_S3' )
         print( '  CF_E' )
+        print( '  CF_Ne' )
         print( '  AF_P' )
         print( '  AF_Cs' )
-        print( '  GF_Phi_N' )
         print( '  GF_Gm_11' )
         print( '  GF_Gm_22' )
         print( '  GF_Gm_33' )
@@ -613,34 +585,47 @@ def GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = False ):
         print( '  GF_Alpha' )
         print( '  DF_TCI' )
         print( '  pr4' )
-        print( '  BernoulliConstant' )
-        print( '  BernoulliConstant_NR' )
-        print( '  MassConstant_NR' )
+        print( '  RelativisticBernoulliConstant' )
         print( '  PolytropicConstant' )
         print( '  NonRelativisticSpecificEnthalpy' )
-        print( '  SpecificEnthalpy' )
+        print( '  RelativisticSpecificEnthalpy' )
         print( '  LorentzFactor' )
         print( '  TurbulentVelocity' )
         print( '  TurbulentEnergyDensity' )
-        print( '  DivV2' )
         print( '  Vorticity' )
-        exit( '\nExiting...' )
 
-    if( nDimsX > 1 ):
+        assert 0, 'Invalid choice of field'
 
-        theta, r = np.meshgrid( X2, X1 )
+    if not UsePhysicalUnits: DataUnits = '[]'
+    else:                    DataUnits = '[' + DataUnits + ']'
+
+    if nDimsX == 1:
+
+        Data = Data[:,0,0]
+
+    elif nDimsX == 2:
 
         Data = Data[:,:,0]
 
     else:
 
-        theta = X2
-        r = X1
-        Data = Data[:,0,0]
+        Data = Data[:,:,iX3_CS]
 
-    return Data, DataUnit, r, theta, Time, xL, xU
+    if ReturnTime and ReturnMesh:
 
-# End of GetData
+        return Data, DataUnits, X1, X2, X3, dX1, dX2, dX3, xL, xU, nX, Time
+
+    elif ReturnTime:
+
+        return Data, DataUnits, Time
+
+    elif ReturnMesh:
+
+        return Data, DataUnits, X1, X2, X3, dX1, dX2, dX3, xL, xU, nX
+
+    else:
+
+        return Data, DataUnits
 
 
 def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
