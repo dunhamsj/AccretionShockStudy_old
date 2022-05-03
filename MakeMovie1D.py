@@ -3,87 +3,95 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-from sys import exit
 import os
 
-from MakeDataFile_new import MakeDataFile_new
+from UtilitiesModule import GetFileArray
+from MakeDataFile_new import MakeDataFile_new, ReadHeader
 
 class MakeMovie1D:
 
-    def __init__( self, SSi, SSf, nSS = -1 ):
+    def __init__( self, SSi = -1, SSf = -1, nSS = -1 ):
 
         self.SSi = SSi
         self.SSf = SSf
-        if nSS < 0:
-            self.nSS = SSf - SSi + 1
-        else:
-            self.nSS = nSS
+        self.nSS = nSS
 
         return
 
 
-    def GetData( self, DataDirectory, ID, PlotFileBaseName, Field ):
+    def GetData( self, PlotFileDirectory, ID, \
+                 PlotFileBaseName, Field, nX1 = 640 ):
 
         DataFileDirectory = '.{:}_{:}_MovieData1D'.format( ID, Field )
 
-        xL, xU, nX, FileArray \
-          = MakeDataFile_new( Field, DataDirectory + ID + '/', \
-                              DataFileDirectory, PlotFileBaseName, \
-                              CoordinateSystem = 'cartesian', \
-                              SSi = self.SSi, SSf = self.SSf, nSS = self.nSS )
-        exit()
+        MakeDataFile_new( Field, PlotFileDirectory + ID + '/', \
+                          DataFileDirectory, PlotFileBaseName, \
+                          CoordinateSystem = 'cartesian', \
+                          SSi = self.SSi, SSf = self.SSf, nSS = self.nSS, \
+                          Verbose = True )
 
-#        f = open( DataFileName )
-#        header = f.readline()[16:-2]
-#        FieldUnit = f.readline()[9:-1]
-#        DataShape = tuple( [ np.int64( dim ) for dim in header.split( ',' ) ] )
-#
-#        Time = list( [ np.float64( t ) \
-#                        for t in f.readline()[12:-2].split(' ') ] )
-#        Time = np.array( Time )
-#
-#        Data = np.loadtxt( DataFileName, dtype = np.float64 ).reshape \
-#                 ( DataShape )
-#
-#        xlim  = [ xL[0], xU[0] ]
-#        dr    = ( xU[0] - xL[0] ) / np.float64( nX[0] )
-#        r     = np.linspace( xlim[0] + 0.5 * dr, xlim[1] - 0.5 * dr, nX[0] )
-#
-#        self.xlim = np.array( xlim )
-#        self.r    = r
-#        self.Time = Time
-#
-#        return Data
+        PlotFileArray = GetFileArray( PlotFileDirectory + ID + '/', \
+                                      PlotFileBaseName )
+
+        if self.SSi < 0: self.SSi = 0
+        if self.SSf < 0: self.SSf = PlotFileArray.shape[0]
+        if self.nSS < 0: self.nSS = self.SSf - self.SSi + 1
+
+        Data = np.empty( (self.nSS,nX1), np.float64 )
+        Time = np.empty( (self.nSS)    , np.float64 )
+
+        for i in range( self.nSS ):
+
+            iSS = self.SSi + np.int64( ( self.SSf - self.SSi ) / self.nSS ) * i
+
+            PlotFile = PlotFileArray[iSS]
+
+            DataFile = DataFileDirectory + '/' + PlotFile + '.dat'
+
+            DataShape, DataUnits, t, X1_C, X2_C, X3_C, dX1, dX2, dX3 \
+              = ReadHeader( DataFile )
+
+            Time[i] = t
+            Data[i] = np.loadtxt( DataFile )
+
+        xL = X1_C[0 ] - 0.5 * dX1[0 ]
+        xU = X1_C[-1] + 0.5 * dX1[-1]
+
+        self.X1_C = X1_C
+
+        self.xlim = np.array( [ xL, xU ], np.float64 )
+
+        self.Time = Time
+
+        return Data
 
 if __name__ == '__main__':
 
     MovieRunTime = 30.0 # [s]
     SaveFileAs   = 'mov.1D.mp4'
-    UseLogScale  = True
-    SSi          = 0
-    SSf          = 1999
+    UseLogScale  = False
     nSS          = 500
 
-    MM1D = MakeMovie1D( SSi = SSi, SSf = SSf, nSS = nSS )
+    MM1D = MakeMovie1D( nSS = nSS )
 
-    DataDirectory    = '/lump/data/AccretionShockStudy/'
-    ID               = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert'
-    PlotFileBaseName = ID + '.plt'
-    MM1D.GetData( DataDirectory, ID, PlotFileBaseName, 'PF_D' )
-    exit()
-    #PF_D = MM1D.GetData( DataDirectory, ID, PlotFileBaseName, 'PF_D' )
+    PlotFileDirectory = '/lump/data/AccretionShockStudy/'
+    ID                = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert'
+    PlotFileBaseName  = ID + '.plt'
+    PF_D \
+      = MM1D.GetData( PlotFileDirectory, ID, PlotFileBaseName, 'PF_D', \
+                      nX1 = 640 )
 
-#    PF_D = np.copy( ( PF_D - PF_D[0] ) / PF_D[0] )
+    PF_D = np.copy( np.diff( PF_D ) )
 
     # Plotting
 
     fig, ax = plt.subplots()
 
-    r    = MM1D.r
+    r    = MM1D.X1_C[:-1]
     xmin = MM1D.xlim[0]
     xmax = 151.0#MM1D.xlim[1]
     ymin = PF_D.min()
-    ymax = 0.01#PF_D.max()
+    ymax = PF_D.max()
 
     if UseLogScale: ax.set_yscale( 'log' )
 

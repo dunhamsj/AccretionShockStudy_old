@@ -31,12 +31,10 @@ class PlotFieldsAMReX2D:
 
         PlotFileBaseName = self.ID + '.plt'
 
-        self.Data, self.DataUnit, self.r, self.theta, x3, dx1, dx2, dx3, \
-          self.xL, self.xU, nX, self.Time \
+        self.Data, self.DataUnit, self.r, self.theta, \
+          self.Time, self.xL, self.xU \
             = GD( self.DataDirectory, PlotFileBaseName, \
-                  self.Field, CoordinateSystem = 'spherical', \
-                  UsePhysicalUnits = True, argv = argv, \
-                  ReturnMesh = True, ReturnTime = True )
+                  argv, self.Field, UsePhysicalUnits = True )
 
         self.nX = np.array( [ self.Data.shape[0], self.Data.shape[1], 1 ], \
                             np.int64 )
@@ -50,7 +48,7 @@ class PlotFieldsAMReX2D:
 
         self.uK = np.empty( (self.nX[0]), np.float64 )
 
-        theta = self.theta
+        theta = self.theta[0]
 
         for iX1 in range( self.nX[0] ):
 
@@ -75,15 +73,15 @@ class PlotFieldsAMReX2D:
     def PlotData( self ):
 
         UseLogScale = False
-#        ys = 0.0
-#        yN = 1.0
-#        iX2 = np.array( [ 0, 16, 32, 48, 63 ], np.int64 )
-#        for i in range( iX2.shape[0] ):
-#            self.PlotWhat( ys, yN, iX2[i], UseLogScale )
-#        plt.legend()
-#        plt.suptitle( self.Field )
-#        plt.show()
-#        exit()
+        ys = 0.0
+        yN = 1.0
+        iX2 = np.array( [ 0, 16, 32, 48, 63 ], np.int64 )
+        for i in range( iX2.shape[0] ):
+            self.PlotWhat( ys, yN, iX2[i], UseLogScale )
+        plt.legend()
+        plt.suptitle( self.Field )
+        plt.show()
+        exit()
 
         fig = plt.figure( figsize = (16,9) )
         ax  = fig.add_subplot( 111, polar = True )
@@ -96,10 +94,6 @@ class PlotFieldsAMReX2D:
         ax.set_theta_direction( -1 )
         ax.set_theta_zero_location( 'W' )
 
-        print( self.Data[0].min() )
-        print( self.Data[0].max() )
-        print( self.uK[0].min() )
-        print( self.uK[0].max() )
         for iX2 in range( self.nX[1] ):
 
             self.Data[:,iX2] \
@@ -107,8 +101,6 @@ class PlotFieldsAMReX2D:
 
         self.vmin = self.Data.min()
         self.vmax = self.Data.max()
-        print( self.vmin )
-        print( self.vmax )
 
         self.Norm = GetNorm( self.UseLogScale, self.Data, \
                              vmin = self.vmin, vmax = self.vmax )

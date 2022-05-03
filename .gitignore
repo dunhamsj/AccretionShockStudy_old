@@ -2,3 +2,5 @@
 .*dat
 *mp4
 *png
+__pycache__
+.*MovieData*

@@ -44,7 +44,8 @@ for m in range( M.shape[0] ):
                    ( M[m], np.int64( Rs[rs] ) )
 
 Fields = np.array( [ 'PF_D', 'PF_V1', 'AF_P', \
-                     'SpecificEnthalpy', 'LorentzFactor', 'GF_Alpha' ], str )
+                     'RelativisticSpecificEnthalpy', \
+                     'LorentzFactor', 'GF_Alpha' ], str )
 
 UseLogScales = np.array( [ True, False, True, False, False, False ], bool )
 
@@ -52,7 +53,9 @@ SaveFileAs = 'fig.' + 'IC' + '.png'
 
 #### ====== End of User Input =======
 
-fig, axs = plt.subplots( 3, 2, figsize = (14,6) )
+nRows = 3
+nCols = 2
+fig, axs = plt.subplots( nRows, nCols, figsize = (14,6) )
 
 k0 = -1
 k1 = -1
@@ -60,8 +63,7 @@ k1 = -1
 for iF in range( Fields.shape[0] ):
 
     Field = Fields[iF]
-    print()
-    print( Field )
+    print( '\n{:}'.format( Field ) )
 
     if iF % 2 == 0: k0 += 1
     else:           k1 += 1
@@ -75,8 +77,8 @@ for iF in range( Fields.shape[0] ):
 
 #            if not ( m  == 0 or m  == 4 or m  == 6 ): continue
 #            if not ( rs == 0 or rs == 4 or rs == 6 ): continue
-#            if m % 2  == 0: continue
-#            if rs % 2 == 0: continue
+            if m % 2  == 0: continue
+            if rs % 2 == 0: continue
 
             print( '  {:}'.format( IDs[iID] ) )
             ID = IDs[iID]
@@ -85,9 +87,11 @@ for iF in range( Fields.shape[0] ):
 
             DataDirectory = Root
 
-            Data, DataUnit, r, theta, Time, xL, xU \
+            Data, DataUnit, r, theta, X3, dX1, dX2, dX3, xL, xU, nX, Time \
               = GetData( DataDirectory, PlotFileBaseName, \
-                         Field, argv = [ 'a', '0' ], Verbose = False )
+                         Field, 'spherical', True, argv = [ 'a', '0' ], \
+                         ReturnTime = True, ReturnMesh = True, \
+                         Verbose = False )
 
             if iF % 2 == 0:
                 axs[k0,0].plot( r, Data )
@@ -102,8 +106,12 @@ for iF in range( Fields.shape[0] ):
 
             del Data, DataUnit, r, theta, Time, xL, xU
 
-plt.savefig( SaveFileAs, dpi = 300 )
-#plt.show()
+for row in range( nRows ):
+    for col in range( nCols ):
+        axs[row,col].grid()
+
+#plt.savefig( SaveFileAs, dpi = 300 )
+plt.show()
 plt.close()
 
 import os
