@@ -2,28 +2,26 @@
 
 import numpy as np
 
-def OverwriteFile( FileName, ForceChoice = False, Overwrite = False ):
+def Overwrite( FileName, ForceChoice = False, OW = False ):
 
-    return False
+    if ForceChoice: return OW
+
     from os.path import isfile, isdir
 
-    if ForceChoice: return Overwrite
-
-    Overwrite = True
+    OW = True
 
     if( isfile( FileName ) or isdir( FileName ) ):
 
-        YN = input( '{:} exists. overwrite? (Y/N): '.format \
-               ( FileName ) )
+        YN = input( '{:} exists. overwrite? (Y/N): '.format( FileName ) )
 
         if( not YN == 'Y' ):
 
             print( 'Not overwriting file' )
-            Overwrite = False
+            OW = False
 
-    return Overwrite
+    return OW
 
-# End of OverwriteFile
+# End of Overwrite
 
 
 def GetFileArray( DataDirectory, PlotFileBaseName, Verbose = False ):

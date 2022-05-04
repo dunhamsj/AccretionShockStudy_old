@@ -3,7 +3,7 @@
 import numpy as np
 import os
 
-from UtilitiesModule import OverwriteFile, GetData, ChoosePlotFile, GetFileArray
+from UtilitiesModule import Overwrite, GetData, ChoosePlotFile, GetFileArray
 
 def MakeDataFile_new( Field, PlotFileDirectory, DataFileDirectory, \
                       PlotFileBaseName, CoordinateSystem, \
@@ -11,9 +11,9 @@ def MakeDataFile_new( Field, PlotFileDirectory, DataFileDirectory, \
                       UsePhysicalUnits = True, \
                       MaxLevel = -1, Verbose = False ):
 
-    if Verbose: print( '\nRunning MakeDataFiles...\n' )
+    if Verbose: print( '\nRunning MakeDataFile...\n' )
 
-    OW = OverwriteFile( DataFileDirectory )
+    OW = Overwrite( DataFileDirectory )
 
     if OW:
 
@@ -89,7 +89,7 @@ def MakeDataFile_new( Field, PlotFileDirectory, DataFileDirectory, \
             if   nDimsX == 1:
                 DataShape = '{:d}'.format( X1.shape[0] )
             elif nDimsX == 2:
-                DataShape = '{:d} {:d}'.format( X1.shape[0],X2.shape[0] )
+                DataShape = '{:d} {:d}'.format( X1.shape[0], X2.shape[0] )
             else:
                 exit( 'MakeDataFile not implemented for nDimsX > 2' )
 

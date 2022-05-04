@@ -86,12 +86,12 @@ class MakeMovie2D:
 
 if __name__ == '__main__':
 
-    MovieRunTime  = 10.0 # [s]
+    MovieRunTime  = 30.0 # [s]
     SaveFileAs    = 'mov.2D.mp4'
-    UseLogScale   = False
+    UseLogScale   = True
     cmap          = 'viridis'
     zAxisVertical = False
-    nSS           = 100
+    nSS           = -1
     Field         = 'AF_P'
 
     MM2D = MakeMovie2D( nSS = nSS )
@@ -118,13 +118,10 @@ if __name__ == '__main__':
 
             Data[t,:,iX2] = ( Data[t,:,iX2] - Data_K[t] ) / Data_K[t]
 
-    vmin = Data.min()
-    vmax = Data.max()
+    vmax = Data[0].max()
+    vmin = Data[0].min()
 
-    vmin = -1.0e-3
-    vmax = 2.0 * vmin
-
-    Norm = GetNorm( UseLogScale, Data, vmin = vmin, vmax = vmax, \
+    Norm = GetNorm( UseLogScale, Data[0], vmin = vmin, vmax = vmax, \
                     linthresh = 1.0e-8 )
 
     def f(t):
@@ -132,6 +129,8 @@ if __name__ == '__main__':
 
     fig = plt.figure( figsize = (16,9) )
     ax  = fig.add_subplot( 111, polar = True )
+
+    ax.grid( False )
 
     # Taken from:
     # https://brushingupscience.com/2016/06/21/
@@ -143,9 +142,11 @@ if __name__ == '__main__':
 
     # Limits on coordinate axes
 
-    ax.set_thetamin( 180.0/np.pi * xL[1]  )
+    ax.set_thetamin( 180.0/np.pi * xL[1] )
     ax.set_thetamax( 180.0/np.pi * xU[1] )
-    ax.set_rlim( 0.0, 149.0 )
+   # ax.set_rlim( 80.0, 100.0 )
+    ax.set_ylim( [80.0,100.0] )
+    ax.set_rorigin(0.0)
     ax.set_theta_direction( -1 )
 
     if( zAxisVertical ):

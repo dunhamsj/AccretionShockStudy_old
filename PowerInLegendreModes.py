@@ -10,7 +10,7 @@ import os
 from os.path import isfile
 from sys import argv
 
-from UtilitiesModule import ChoosePlotFile, OverwriteFile, GetFileArray
+from UtilitiesModule import ChoosePlotFile, Overwrite, GetFileArray
 
 yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 TwoPi = 2.0 * np.pi
@@ -222,8 +222,8 @@ class PowersInLegendreModes:
             if self.Verbose:
                 print( '\nCalling PowersInLegendreModes.GetShockRadiusVsTime...\n' )
 
-            OW = OverwriteFile( self.ShockRadiusVsTimeFileName, \
-                                ForceChoice = True, Overwrite = True )
+            OW = Overwrite( self.ShockRadiusVsTimeFileName, \
+                            ForceChoice = True, OW = True )
 
             if OW:
 
@@ -311,12 +311,11 @@ class PowersInLegendreModes:
             print( \
               '------------------------------------------------------------\n' )
 
-        Overwrite = OverwriteFile( self.FileName,\
-                                   ForceChoice = True, Overwrite = True )
+        OW = Overwrite( self.FileName, ForceChoice = True, OW = True )
 
         self.ComputedPowers = True
 
-        if Overwrite:
+        if OW:
 
             Time = np.empty( nFiles )
 

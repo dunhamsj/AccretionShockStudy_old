@@ -55,7 +55,7 @@ class Relaxation:
 
         FileName = '.{:}_Relaxation_{:}.dat'.format( ID, Field )
 
-        OW = UM.OverwriteFile( FileName, self.ForceChoice, self.Overwrite )
+        OW = UM.Overwrite( FileName, self.ForceChoice, self.OW )
 
         if OW:
 

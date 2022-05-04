@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-from UtilitiesModule import ChoosePlotFile, OverwriteFile, GetData, GetFileArray
+from UtilitiesModule import ChoosePlotFile, Overwrite, GetData, GetFileArray
 
 yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 
@@ -106,7 +106,7 @@ class ShockRadius:
 
         else:
 
-            OW = OverwriteFile( self.DataFileName )
+            OW = Overwrite( self.DataFileName )
 
         if not OW: return
 
@@ -168,7 +168,7 @@ class ShockRadius:
 
         print( '\nCalling ShockRadius.ComputeShockRadius...\n' )
 
-        OW = OverwriteFile( self.ShockRadiusVsTimeFileName )
+        OW = Overwrite( self.ShockRadiusVsTimeFileName )
 
         if not OW: return
 
@@ -187,7 +187,7 @@ class ShockRadius:
         dX1 = dX[0]
         dX2 = dX[1]
 
-        OW = OverwriteFile( DataFileName )
+        OW = Overwrite( DataFileName )
 
         self.MakeDataFile( OW_Option = OW )
 
