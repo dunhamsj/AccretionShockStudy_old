@@ -60,6 +60,13 @@ fig, axs = plt.subplots( nRows, nCols, figsize = (14,6) )
 k0 = -1
 k1 = -1
 
+lab = [ r'$\rho\,\left[\mathrm{g\,cm}^{-3}\right]$', \
+        r'$v/c$', \
+        r'$p/\left(\rho\,c^{2}\right)$', \
+        r'$h/c^{2}$', \
+        r'$W$', \
+        r'$\alpha$' ]
+
 for iF in range( Fields.shape[0] ):
 
     Field = Fields[iF]
@@ -77,8 +84,8 @@ for iF in range( Fields.shape[0] ):
 
 #            if not ( m  == 0 or m  == 4 or m  == 6 ): continue
 #            if not ( rs == 0 or rs == 4 or rs == 6 ): continue
-            if m % 2  == 0: continue
-            if rs % 2 == 0: continue
+#            if m % 2  == 0: continue
+#            if rs % 2 == 0: continue
 
             print( '  {:}'.format( IDs[iID] ) )
             ID = IDs[iID]
@@ -93,14 +100,27 @@ for iF in range( Fields.shape[0] ):
                          ReturnTime = True, ReturnMesh = True, \
                          Verbose = False )
 
+            if Field == 'AF_P':
+                rho, dum \
+                  = GetData( DataDirectory, PlotFileBaseName, \
+                             'PF_D', 'spherical', True, argv = [ 'a', '0' ], \
+                             ReturnTime = False, ReturnMesh = False, \
+                             Verbose = False )
+
+                Data = Data / ( rho * (2.99792458e10)**2 )
+
+            if Field == 'PF_V1':
+
+              Data /= 2.99792458e5
+
             if iF % 2 == 0:
                 axs[k0,0].plot( r, Data )
                 if UseLogScales[iF]: axs[k0,0].set_yscale( 'log' )
-                axs[k0,0].set_ylabel( Field )
+                axs[k0,0].set_ylabel( lab[iF] )
             else:
                 axs[k1,1].plot( r, Data )
                 if UseLogScales[iF]: axs[k1,1].set_yscale( 'log' )
-                axs[k1,1].set_ylabel( Field )
+                axs[k1,1].set_ylabel( lab[iF] )
                 axs[k1,1].yaxis.set_ticks_position( 'right' )
                 axs[k1,1].yaxis.set_label_position( 'right' )
 
@@ -110,8 +130,8 @@ for row in range( nRows ):
     for col in range( nCols ):
         axs[row,col].grid()
 
-#plt.savefig( SaveFileAs, dpi = 300 )
-plt.show()
+plt.savefig( SaveFileAs, dpi = 300 )
+#plt.show()
 plt.close()
 
 import os

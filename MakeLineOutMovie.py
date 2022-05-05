@@ -50,7 +50,7 @@ class MakeLineOutMovie:
 
                 oray = ds.ortho_ray( axis = 1, coords = (X1[iX1],0) )
 
-                Data[i,iX1] = oray['AF_P']
+                Data[i,iX1] = oray['AF_Cs']
 
         return Data, Time
 
@@ -72,11 +72,11 @@ if __name__ == '__main__':
     xL = np.array( [ 40.0, 0.0, 0.0 ], np.float64 )
     xU = np.array( [ 360.0, np.pi, 2.0 * np.pi ], np.float64 )
 
-    MM = MakeLineOutMovie( nSS = -1 )
+    MM = MakeLineOutMovie( nSS = 1 )
 
     Data, Time = MM.GetData( X1, PlotFileDirectory, ID, nX )
 
-    Data = ( Data - Data[0] ) / Data[0]
+    #Data = ( Data - Data[0] ) / Data[0]
 
     nSS = MM.nSS
 
@@ -84,10 +84,22 @@ if __name__ == '__main__':
 
     X2 = np.linspace( xL[1] + 0.5 * dX2, xU[1] - 0.5 * dX2, nX[1] )
 
+#    Cs = np.empty( X1.shape[0], np.float64 )
+#    tau = np.empty( X1.shape[0], np.float64 )
+#
+#    for i in range( Cs.shape[0] ):
+#        Cs[i] = np.mean( Data[0,i] )
+#        tau[i] = 2.0 * np.pi * X1[i] / Cs[i]
+#
+#    print( 'Radius [km], Cs [km/s], T [ms]' )
+#    for i in range( X1.shape[0] ):
+#        print( '{:}, {:}, {:}'.format( X1[i], Cs[i], tau[i] * 1.0e3 ) )
+#    exit()
+
     fig, ax = plt.subplots( figsize = (10,6) )
 
     ax.set_xlim( xL[1], xU[1] )
-    ax.set_ylim( Data.min(), Data.max() )
+    ax.set_ylim( 0.9*Data.min(), 1.1*Data.max() )
     ax.set_xlabel( r'$\theta$' )
     ax.set_ylabel( r'$\left(P\left(t\right)-P\left(0\right)\right)/P\left(0\right)$' )
 

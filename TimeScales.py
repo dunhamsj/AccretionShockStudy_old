@@ -61,16 +61,20 @@ class TimeScales:
         tauAc *= 1.0e3
         T_SASI = tauAd + tauAc
 
-        return T_SASI
+        return tauAd, tauAc
 
 if __name__ == '__main__':
 
-#    Root = '/lump/data/AccretionShockStudy/'
-    Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Euler_Relativistic_IDEAL/'
+    Root = '/lump/data/AccretionShockStudy/'
+#    Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Euler_Relativistic_IDEAL/'
 
     M    = np.linspace( 1.0, 3.0, 11 )
     Mdot = np.array( [ 0.3 ], np.float64 )
     Rs   = np.linspace( 110, 200, 10 )
+
+    M = np.array( [ 2.0 ], np.float64 )
+    Mdot = np.array( [ 0.3 ], np.float64 )
+    Rs = np.array( [ 150.0 ], np.float64 )
 
     TS = TimeScales()
 
@@ -79,18 +83,20 @@ if __name__ == '__main__':
             for rs in range( Rs.shape[0] ):
 
                 ID \
-                  = 'GR1D_M{:.1f}_Mdot{:.1f}_Rs{:g}'.format \
+                  = 'GR1D_M{:.1f}_Mdot{:.1f}_Rs{:g}_entropyPert_PA1.00e-02'.format \
                       ( M[m], Mdot[mdot], Rs[rs] )
-#                DataDirectory = Root + '{:}/'.format( ID )
-                DataDirectory = Root + '{:}.plt_00000000/'.format( ID )
+                DataDirectory = Root + '{:}/{:}.plt_00000000/'.format( ID, ID )
+#                DataDirectory = Root + '{:}.plt_00000000/'.format( ID )
 
                 rInner = 4.00e1
                 rOuter = np.float64( Rs[rs] )
 
                 print( '\nM{:.1f}_Mdot{:.1f}_Rs{:g}'.format \
                        ( M[m], Mdot[mdot], np.int64( Rs[rs] ) ) )
-                T_SASI = TS.ComputeTimeScales( DataDirectory, rInner, rOuter )
-                print( 'T_SASI: {:.3e}'.format( T_SASI ) )
+                tAd, tAc = TS.ComputeTimeScales( DataDirectory, rInner, rOuter )
+                print( 'tauAd:  {:.3e}'.format( tAd ) )
+                print( 'tauAc:  {:.3e}'.format( tAc ) )
+                print( 'T_SASI: {:.3e}'.format( tAd + tAc ) )
 
     import os
     os.system( 'rm -rf __pycache__ ' )

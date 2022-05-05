@@ -34,15 +34,16 @@ class MakeMovie1D:
                                       PlotFileBaseName )
 
         if self.SSi < 0: self.SSi = 0
-        if self.SSf < 0: self.SSf = PlotFileArray.shape[0]
-        if self.nSS < 0: self.nSS = self.SSf - self.SSi + 1
+        if self.SSf < 0: self.SSf = PlotFileArray.shape[0] - 1
+        if self.nSS < 0: self.nSS = PlotFileArray.shape[0]
 
         Data = np.empty( (self.nSS,nX1), np.float64 )
         Time = np.empty( (self.nSS)    , np.float64 )
 
         for i in range( self.nSS ):
 
-            iSS = self.SSi + np.int64( ( self.SSf - self.SSi ) / self.nSS ) * i
+            iSS = self.SSi \
+                    + np.int64( ( self.SSf - self.SSi + 1 ) / self.nSS ) * i
 
             PlotFile = PlotFileArray[iSS]
 
@@ -68,50 +69,72 @@ class MakeMovie1D:
 if __name__ == '__main__':
 
     MovieRunTime = 30.0 # [s]
-    SaveFileAs   = 'mov.1D.mp4'
     UseLogScale  = False
-    nSS          = 500
+    nSS          = -1
+    Fields = [ 'PF_D', 'AF_P', 'PolytropicConstant' ]
 
     MM1D = MakeMovie1D( nSS = nSS )
 
     PlotFileDirectory = '/lump/data/AccretionShockStudy/'
-    ID                = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert'
+    ID                = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-02'
     PlotFileBaseName  = ID + '.plt'
-    PF_D \
-      = MM1D.GetData( PlotFileDirectory, ID, PlotFileBaseName, 'PF_D', \
-                      nX1 = 640 )
 
-    PF_D = np.copy( np.diff( PF_D ) )
+    Data = np.empty( 3, object )
+
+    for i in range( Data.shape[0] ):
+        Data[i] = MM1D.GetData( PlotFileDirectory, ID, \
+                                PlotFileBaseName, Fields[i], nX1 = 640 )
+        Data[i] = ( Data[i] - Data[i][0] ) / Data[i][0]
+
+    SaveFileAs   = 'mov.{:}_1D.mp4'.format( ID )
+
+    nSS = MM1D.nSS
 
     # Plotting
 
     fig, ax = plt.subplots()
 
-    r    = MM1D.X1_C[:-1]
+    fig.suptitle( ID )
+
+    r    = MM1D.X1_C
     xmin = MM1D.xlim[0]
     xmax = 151.0#MM1D.xlim[1]
-    ymin = PF_D.min()
-    ymax = PF_D.max()
+    ymin = -0.03#PF_D.min()
+    ymax = +0.03#PF_D.max()
 
     if UseLogScale: ax.set_yscale( 'log' )
 
     ax.set_xlabel( 'Radial Coordinate [km]' )
-    ax.set_ylabel( 'PF_D' )
+    ax.set_ylabel( r'$\left(u\left(t\right)-u\left(0\right)\right)/u\left(0\right)$' )
     ax.set_xlim( xmin, xmax )
     ax.set_ylim( ymin, ymax )
 
-    line, = ax.plot( [], [], 'r-' )
-    time_text = plt.text( 0.5, 0.7, '', transform = ax.transAxes )
+    c = np.array( [ 'r-', 'b-', 'm-' ] )
+
+    lines = np.empty( c.shape[0], object )
+    for i in range( lines.shape[0] ):
+        lines[i], = ax.plot( [], [], c[i], label = Fields[i] )
+    time_text = plt.text( 0.2, 0.9, '', transform = ax.transAxes )
+
+    ax.legend( loc = 3 )
 
     def InitializeFrame():
-        line.set_data([],[])
+        ret = []
+        for i in range( lines.shape[0] ):
+            lines[i].set_data( [], [] )
+            ret.append( lines[i] )
         time_text.set_text('')
-        return ( line, time_text )
+        ret.append( time_text )
+        return tuple( ret )
 
     def UpdateFrame(t):
-        line.set_data( r, PF_D[t] )
+        ret = []
+        for i in range( lines.shape[0] ):
+            lines[i].set_data( r, Data[i][t] )
+            ret.append( lines[i] )
         time_text.set_text( 'time = {:.3e} ms'.format( MM1D.Time[t] ) )
-        return ( line, time_text )
+        ret.append( time_text )
+        return tuple( ret )
 
     fps = max( 1, np.float64( nSS ) / MovieRunTime )
 

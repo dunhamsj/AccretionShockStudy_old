@@ -3,6 +3,7 @@
 import numpy as np
 
 def Overwrite( FileName, ForceChoice = False, OW = False ):
+    return False
 
     if ForceChoice: return OW
 
@@ -120,9 +121,7 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
     # https://yt-project.org/doc/faq/index.html#how-can-i-change-yt-s-log-level
     yt.funcs.mylog.setLevel(40) # Suppress yt warnings
 
-    FileArray = GetFileArray( DataDirectory, PlotFileBaseName )
-
-    File = ChoosePlotFile( FileArray, PlotFileBaseName, argv = argv, \
+    File = ChoosePlotFile( DataDirectory, PlotFileBaseName, argv = argv, \
                            Verbose = Verbose )
 
     ds = yt.load( '{:}'.format( DataDirectory + File ) )

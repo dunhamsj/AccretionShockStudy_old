@@ -36,7 +36,7 @@ class PlotFieldsAMReX2D:
             = GD( self.DataDirectory, PlotFileBaseName, \
                   self.Field, CoordinateSystem = 'spherical', \
                   UsePhysicalUnits = True, argv = argv, \
-                  ReturnMesh = True, ReturnTime = True )
+                  ReturnMesh = True, ReturnTime = True, Verbose = True )
 
         self.nX = np.array( [ self.Data.shape[0], self.Data.shape[1], 1 ], \
                             np.int64 )
@@ -96,19 +96,13 @@ class PlotFieldsAMReX2D:
         ax.set_theta_direction( -1 )
         ax.set_theta_zero_location( 'W' )
 
-        print( self.Data[0].min() )
-        print( self.Data[0].max() )
-        print( self.uK[0].min() )
-        print( self.uK[0].max() )
         for iX2 in range( self.nX[1] ):
 
             self.Data[:,iX2] \
-              = ( self.Data[:,iX2] - self.uK ) / self.uK
+              = ( self.Data[:,iX2])# - self.uK ) / self.uK
 
         self.vmin = self.Data.min()
         self.vmax = self.Data.max()
-        print( self.vmin )
-        print( self.vmax )
 
         self.Norm = GetNorm( self.UseLogScale, self.Data, \
                              vmin = self.vmin, vmax = self.vmax )
@@ -127,7 +121,7 @@ class PlotFieldsAMReX2D:
 #                        ' / ' + '|<' + self.Field + '>|' )
 
         ax.set_rmin( 0.0 )
-#        ax.set_rmax( 179.0 )
+        ax.set_rmax( 150.0 )
 
         #plt.savefig( 'fig.{:}_{:}.png'.format( ID, Field ), dpi = 300 )
         plt.show()
@@ -136,8 +130,8 @@ class PlotFieldsAMReX2D:
 if __name__ == '__main__':
 
     ID = 'GR2D_M2.0_Mdot0.3_Rs150'
-    Field = 'AF_P'
-    UseLogScale = True
+    Field = 'AF_Cs'
+    UseLogScale = False
 
     PlotFields \
       = PlotFieldsAMReX2D( ID, Field, cmap = 'viridis', UseLogScale = UseLogScale )
