@@ -76,19 +76,20 @@ if __name__ == '__main__':
     MM1D = MakeMovie1D( nSS = nSS )
 
     PlotFileDirectory = '/lump/data/AccretionShockStudy/'
-    ID                = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-02'
+    ID                = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-06'
     PlotFileBaseName  = ID + '.plt'
 
     Data = np.empty( 3, object )
 
     for i in range( Data.shape[0] ):
-        Data[i] = MM1D.GetData( PlotFileDirectory, ID, \
-                                PlotFileBaseName, Fields[i], nX1 = 640 )
-        Data[i] = ( Data[i] - Data[i][0] ) / Data[i][0]
+        d = MM1D.GetData( PlotFileDirectory, ID, \
+                          PlotFileBaseName, Fields[i], nX1 = 640 )
+        BG = np.copy( d[-1] )
+        Data[i] = ( d[:-1] - BG ) / BG
 
     SaveFileAs   = 'mov.{:}_1D.mp4'.format( ID )
 
-    nSS = MM1D.nSS
+    nSS = MM1D.nSS - 1
 
     # Plotting
 
@@ -99,8 +100,8 @@ if __name__ == '__main__':
     r    = MM1D.X1_C
     xmin = MM1D.xlim[0]
     xmax = 151.0#MM1D.xlim[1]
-    ymin = -0.03#PF_D.min()
-    ymax = +0.03#PF_D.max()
+    ymin = -5.0e-5#PF_D.min()
+    ymax = +1.4e-5#PF_D.max()
 
     if UseLogScale: ax.set_yscale( 'log' )
 
@@ -108,6 +109,7 @@ if __name__ == '__main__':
     ax.set_ylabel( r'$\left(u\left(t\right)-u\left(0\right)\right)/u\left(0\right)$' )
     ax.set_xlim( xmin, xmax )
     ax.set_ylim( ymin, ymax )
+    ax.grid()
 
     c = np.array( [ 'r-', 'b-', 'm-' ] )
 

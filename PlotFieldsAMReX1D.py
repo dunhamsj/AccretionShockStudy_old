@@ -22,9 +22,9 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 
 DataDirectory = '/lump/data/AccretionShockStudy/'
 
-ID = 'NR1D_M0.14_Mdot0.03_Rs180_PA0.00e-00_nX640'
+ID = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-06'
 
-Field = 'PF_V1'
+Field = 'PF_D'
 
 UseLogScale = False
 
@@ -39,8 +39,16 @@ DataDirectory += ID + '/'
 print( '\nDataDirectory:    {:}'.format( DataDirectory ) )
 print( 'PlotFileBaseName: {:}\n'.format( PlotFileBaseName ) )
 
-Data, DataUnit, r, theta, Time, xL, xU \
-  = GetData( DataDirectory, PlotFileBaseName, argv, Field, Verbose = True )
+Data , DataUnit, r, theta, phi, dr, dtheta, dphi, xL, xU, nX, Time \
+  = GetData( DataDirectory, PlotFileBaseName, Field, 'spherical', True,
+             argv = [ 'a', '00000000' ], Verbose = True, \
+             ReturnTime = True, ReturnMesh = True )
+Data0, DataUnit, r, theta, phi, dr, dtheta, dphi, xL, xU, nX, Time \
+  = GetData( DataDirectory, PlotFileBaseName, Field, 'spherical', True, \
+             argv = [ 'a', '99999999'], Verbose = True, \
+             ReturnTime = True, ReturnMesh = True )
+
+Data = ( Data - Data0 ) / Data0
 
 ### Plotting
 
@@ -51,7 +59,7 @@ ax  = fig.add_subplot( 111 )
 
 if( UseLogScale ): ax.set_yscale( 'log' )
 
-ax.plot( r, Data )
+ax.plot( r, Data, 'k.' )
 ax.set_xlabel( r'$r\,\left[\mathrm{km}\right]$' )
 
 #plt.savefig( SaveFileAs, dpi = 300 )
