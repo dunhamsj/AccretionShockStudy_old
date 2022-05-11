@@ -131,10 +131,12 @@ class ShockRadius:
             if (i+1) % 10 == 0:
                 print( 'File {:}/{:}'.format( i+1, FileArray.shape[0] ) )
 
-            Data[i], DataUnit, r, theta, Time[i], ggg, hhh \
+            Data[i], DataUnit, r, theta, phi, dr, dtheta, dphi, \
+            xL, xU, nX, Time[i] \
               = GetData( DataDirectory, PlotFileBaseName, \
-                         [ 'a', FileArray[i] ], 'PolytropicConstant', \
-                         Verbose = False )
+                         'PolytropicConstant', 'spherical', \
+                         [ 'a', FileArray[i] ], \
+                         ReturnMesh = True, ReturnTime = True )
 
         np.savetxt( TimeFileName, Time )
 

@@ -41,12 +41,15 @@ PlotFileBaseName = ID + '.plt'
 
 Root = DataDirectory + ID + '/'
 
-D, DUnit, r, theta, Time, xL, xU \
-  = GetData( Root, PlotFileBaseName, argv, Fields[0], Verbose = False )
-V, VUnit, r, theta, Time, xL, xU \
-  = GetData( Root, PlotFileBaseName, argv, Fields[1], Verbose = False )
-P, PUnit, r, theta, Time, xL, xU \
-  = GetData( Root, PlotFileBaseName, argv, Fields[2], Verbose = False )
+D, DUnit, r, theta, phi, dr, dtheta, dphi, xL, xU, nX, Time \
+  = GetData( Root, PlotFileBaseName, Fields[0], 'spherical', argv, \
+             ReturnMesh = True, ReturnTime = True )
+V, VUnit, r, theta, phi, dr, dtheta, dphi, xL, xU, nX, Time \
+  = GetData( Root, PlotFileBaseName, Fields[1], 'spherical', argv, \
+             ReturnMesh = True, ReturnTime = True )
+P, PUnit, r, theta, phi, dr, dtheta, dphi, xL, xU, nX, Time \
+  = GetData( Root, PlotFileBaseName, Fields[2], 'spherical', argv, \
+             ReturnMesh = True, ReturnTime = True )
 
 fig, ax1 = plt.subplots( 1, 1, figsize = (8,6) )
 ax2 = ax1.twinx()
@@ -74,8 +77,8 @@ ax1.set_xlabel( r'$\mathrm{Radial\ Coordinate}\ \left[\mathrm{km}\right]$', font
 ax1.set_ylabel( r'$\mathrm{erg\,cm}^{-3}$', color = 'red' , fontsize = size )
 ax2.set_ylabel( r'$v/c$'  , color = 'blue', fontsize = size )
 
-plt.savefig( SaveFileAs, dpi = 300, bbox_inches = 'tight' )
-#plt.show()
+#plt.savefig( SaveFileAs, dpi = 300, bbox_inches = 'tight' )
+plt.show()
 plt.close()
 
 import os

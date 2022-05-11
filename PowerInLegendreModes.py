@@ -684,13 +684,13 @@ if __name__ == "__main__":
     R0    = -1.7e2
     suffix = ''
 
-    M     = np.array( [ '1.4', '2.0', '2.8' ], str )
-    Mdot  = '0.3'
-    Rs    = np.array( [ '120', '150', '180' ], str )
-
-    #M     = np.array( [ '2.0' ], str )
+    #M     = np.array( [ '1.4', '2.0', '2.8' ], str )
     #Mdot  = '0.3'
-    #Rs    = np.array( [ '120' ], str )
+    #Rs    = np.array( [ '120', '150', '180' ], str )
+
+    M     = np.array( [ '2.0' ], str )
+    Mdot  = '0.3'
+    Rs    = np.array( [ '120' ], str )
 
     T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
     T_err_GR = np.copy( T_GR )
@@ -769,8 +769,8 @@ if __name__ == "__main__":
               = P_NR.ComputePowerInLegendreModes()
             tFit, F = P_NR.FitPowerInLegendreModes \
                          ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-#            P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-#                           P0, P1, P2, P3, P4, tFit, F )
+            P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+                           P0, P1, P2, P3, P4, tFit, F )
             G_NR    [m,rs] = P_NR.beta[1]
             G_err_NR[m,rs] = P_NR.perr[1]
             T_NR    [m,rs] = P_NR.beta[2]
@@ -788,8 +788,8 @@ if __name__ == "__main__":
               = P_GR.ComputePowerInLegendreModes()
             tFit, F = P_GR.FitPowerInLegendreModes \
                         ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-#            P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-#                           P0, P1, P2, P3, P4, tFit, F )
+            P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+                           P0, P1, P2, P3, P4, tFit, F )
             G_GR    [m,rs] = P_GR.beta[1]
             G_err_GR[m,rs] = P_GR.perr[1]
             T_GR    [m,rs] = P_GR.beta[2]
@@ -797,14 +797,14 @@ if __name__ == "__main__":
             del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
                 P0, P1, P2, P3, P4, tFit, F
 
-    np.savetxt( 'G_GR.dat'    , G_GR )
-    np.savetxt( 'G_err_GR.dat', G_err_GR )
-    np.savetxt( 'G_NR.dat'    , G_NR )
-    np.savetxt( 'G_err_NR.dat', G_err_NR )
-    np.savetxt( 'T_GR.dat'    , T_GR )
-    np.savetxt( 'T_err_GR.dat', T_err_GR )
-    np.savetxt( 'T_NR.dat'    , T_NR )
-    np.savetxt( 'T_err_NR.dat', T_err_NR )
+#    np.savetxt( 'G_GR.dat'    , G_GR )
+#    np.savetxt( 'G_err_GR.dat', G_err_GR )
+#    np.savetxt( 'G_NR.dat'    , G_NR )
+#    np.savetxt( 'G_err_NR.dat', G_err_NR )
+#    np.savetxt( 'T_GR.dat'    , T_GR )
+#    np.savetxt( 'T_err_GR.dat', T_err_GR )
+#    np.savetxt( 'T_NR.dat'    , T_NR )
+#    np.savetxt( 'T_err_NR.dat', T_err_NR )
 
     import os
     os.system( 'rm -rf __pycache__ ' )
