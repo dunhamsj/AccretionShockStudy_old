@@ -71,15 +71,15 @@ if __name__ == '__main__':
     MovieRunTime = 30.0 # [s]
     UseLogScale  = False
     nSS          = -1
-    Fields = [ 'PF_D', 'AF_P', 'PolytropicConstant' ]
+    Fields       = np.array( [ 'PF_D' ], str )
 
     MM1D = MakeMovie1D( nSS = nSS )
 
     PlotFileDirectory = '/lump/data/AccretionShockStudy/'
-    ID                = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-06'
+    ID                = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-05'
     PlotFileBaseName  = ID + '.plt'
 
-    Data = np.empty( 3, object )
+    Data = np.empty( Fields.shape[0], object )
 
     for i in range( Data.shape[0] ):
         d = MM1D.GetData( PlotFileDirectory, ID, \
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     xmin = MM1D.xlim[0]
     xmax = 151.0#MM1D.xlim[1]
     ymin = -5.0e-5#PF_D.min()
-    ymax = +1.4e-5#PF_D.max()
+    ymax = +2.0e-5#PF_D.max()
 
     if UseLogScale: ax.set_yscale( 'log' )
 
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
     c = np.array( [ 'r-', 'b-', 'm-' ] )
 
-    lines = np.empty( c.shape[0], object )
+    lines = np.empty( Fields.shape[0], object )
     for i in range( lines.shape[0] ):
         lines[i], = ax.plot( [], [], c[i], label = Fields[i] )
     time_text = plt.text( 0.2, 0.9, '', transform = ax.transAxes )
