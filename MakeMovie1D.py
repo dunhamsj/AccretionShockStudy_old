@@ -71,23 +71,25 @@ if __name__ == '__main__':
     MovieRunTime = 30.0 # [s]
     UseLogScale  = False
     nSS          = -1
-    Fields       = np.array( [ 'PF_D' ], str )
+    Field        = 'PF_D'
 
     MM1D = MakeMovie1D( nSS = nSS )
 
     PlotFileDirectory = '/lump/data/AccretionShockStudy/'
-    ID                = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-05'
-    PlotFileBaseName  = ID + '.plt'
+    IDs               = np.array( \
+      [ 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-05',
+        'NR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-05' ], str )
 
-    Data = np.empty( Fields.shape[0], object )
+    Data = np.empty( IDs.shape[0], object )
 
     for i in range( Data.shape[0] ):
-        d = MM1D.GetData( PlotFileDirectory, ID, \
-                          PlotFileBaseName, Fields[i], nX1 = 640 )
+        PlotFileBaseName = IDs[i] + '.plt'
+        d = MM1D.GetData( PlotFileDirectory, IDs[i], \
+                          PlotFileBaseName, Field, nX1 = 640 )
         BG = np.copy( d[-1] )
         Data[i] = ( d[:-1] - BG ) / BG
 
-    SaveFileAs   = 'mov.{:}_1D.mp4'.format( ID )
+    SaveFileAs   = 'mov.{:}_1D.mp4'.format( IDs[0][5:] )
 
     nSS = MM1D.nSS - 1
 
@@ -95,7 +97,7 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots()
 
-    fig.suptitle( ID )
+    fig.suptitle( IDs[0][5:] )
 
     r    = MM1D.X1_C
     xmin = MM1D.xlim[0]
@@ -106,16 +108,16 @@ if __name__ == '__main__':
     if UseLogScale: ax.set_yscale( 'log' )
 
     ax.set_xlabel( 'Radial Coordinate [km]' )
-    ax.set_ylabel( r'$\left(u\left(t\right)-u\left(0\right)\right)/u\left(0\right)$' )
+    ax.set_ylabel( r'$\left(\rho\left(t\right)-\rho\left(0\right)\right)/\rho\left(0\right)$' )
     ax.set_xlim( xmin, xmax )
     ax.set_ylim( ymin, ymax )
     ax.grid()
 
     c = np.array( [ 'r-', 'b-', 'm-' ] )
 
-    lines = np.empty( Fields.shape[0], object )
+    lines = np.empty( Data.shape[0], object )
     for i in range( lines.shape[0] ):
-        lines[i], = ax.plot( [], [], c[i], label = Fields[i] )
+        lines[i], = ax.plot( [], [], c[i], label = IDs[i][0:2] )
     time_text = plt.text( 0.2, 0.9, '', transform = ax.transAxes )
 
     ax.legend( loc = 3 )
