@@ -169,6 +169,14 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 #        X2  = X2 [0] * np.ones( 1 )
 #        dX2 = dX2[0] * np.ones( 1 )
 
+    dX1 = ( xU[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
+    dX2 = ( xU[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
+    dX3 = ( xU[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2], np.float64 )
+
+    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xU[0] - 0.5 * dX1[0], nX[0] )
+    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xU[1] - 0.5 * dX2[0], nX[1] )
+    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xU[2] - 0.5 * dX3[0], nX[2] )
+
     if   Field == 'MPIProcess':
 
         Data = CoveringGrid['MPIProcess'].to_ndarray()
@@ -275,6 +283,14 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 
         if   CoordinateSystem == 'cartesian'  : DataUnits = ''
         elif CoordinateSystem == 'cylindrical': DataUnits = 'km**2'
+        elif CoordinateSystem == 'spherical'  : DataUnits = 'km**2'
+
+    elif Field == 'GF_SqrtGm':
+
+        Data = CoveringGrid[Field].to_ndarray()
+
+        if   CoordinateSystem == 'cartesian'  : DataUnits = ''
+        elif CoordinateSystem == 'cylindrical': DataUnits = 'km'
         elif CoordinateSystem == 'spherical'  : DataUnits = 'km**2'
 
     elif Field == 'GF_Psi':
@@ -568,6 +584,7 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         print( '  GF_Gm_11' )
         print( '  GF_Gm_22' )
         print( '  GF_Gm_33' )
+        print( '  GF_SqrtGm' )
         print( '  GF_Psi' )
         print( '  GF_Alpha' )
         print( '  DF_TCI' )
@@ -595,13 +612,13 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 
         Data = np.copy( Data[:,:,iX3_CS] )
 
-    dX1 = ( xU[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
-    dX2 = ( xU[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
-    dX3 = ( xU[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2], np.float64 )
-
-    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xU[0] - 0.5 * dX1[0], nX[0] )
-    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xU[1] - 0.5 * dX2[0], nX[1] )
-    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xU[2] - 0.5 * dX3[0], nX[2] )
+#    dX1 = ( xU[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
+#    dX2 = ( xU[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
+#    dX3 = ( xU[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2], np.float64 )
+#
+#    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xU[0] - 0.5 * dX1[0], nX[0] )
+#    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xU[1] - 0.5 * dX2[0], nX[1] )
+#    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xU[2] - 0.5 * dX3[0], nX[2] )
 
     if ReturnTime and ReturnMesh:
 
