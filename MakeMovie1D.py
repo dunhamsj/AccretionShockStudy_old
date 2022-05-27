@@ -10,11 +10,12 @@ from MakeDataFile_new import MakeDataFile_new, ReadHeader
 
 class MakeMovie1D:
 
-    def __init__( self, SSi = -1, SSf = -1, nSS = -1 ):
+    def __init__( self, SSi = -1, SSf = -1, nSS = -1, suffix = '' ):
 
         self.SSi = SSi
         self.SSf = SSf
         self.nSS = nSS
+        self.suffix = suffix
 
         return
 
@@ -22,15 +23,18 @@ class MakeMovie1D:
     def GetData( self, PlotFileDirectory, ID, \
                  PlotFileBaseName, Field, nX1 = 640 ):
 
-        DataFileDirectory = '.{:}_{:}_MovieData1D'.format( ID, Field )
+        DataFileDirectory \
+          = '.{:}_{:}{:}_MovieData1D'.format( ID, Field, self.suffix )
 
-        MakeDataFile_new( Field, PlotFileDirectory + ID + '/', \
+        PlotFileDirectory += ID + self.suffix + '/'
+
+        MakeDataFile_new( Field, PlotFileDirectory, \
                           DataFileDirectory, PlotFileBaseName, \
-                          CoordinateSystem = 'cartesian', \
+                          CoordinateSystem = 'spherical', \
                           SSi = self.SSi, SSf = self.SSf, nSS = self.nSS, \
                           Verbose = True )
 
-        PlotFileArray = GetFileArray( PlotFileDirectory + ID + '/', \
+        PlotFileArray = GetFileArray( PlotFileDirectory, \
                                       PlotFileBaseName )
 
         if self.SSi < 0: self.SSi = 0
@@ -72,15 +76,18 @@ if __name__ == '__main__':
     UseLogScale  = False
     nSS          = -1
     Field        = 'PF_D'
+    suffix       = '_UnRelaxed'
 
-    MM1D = MakeMovie1D( nSS = nSS )
+    MM1D = MakeMovie1D( nSS = nSS, suffix = suffix )
 
     PlotFileDirectory = '/lump/data/AccretionShockStudy/'
     IDs               = np.array( \
-      [ 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-05',
-        'NR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-05' ], str )
+      [ 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-05' ], str )
 
     Data = np.empty( IDs.shape[0], object )
+
+    ymin = +np.inf
+    ymax = -np.inf
 
     for i in range( Data.shape[0] ):
         PlotFileBaseName = IDs[i] + '.plt'
@@ -89,7 +96,10 @@ if __name__ == '__main__':
         BG = np.copy( d[-1] )
         Data[i] = ( d[:-1] - BG ) / BG
 
-    SaveFileAs   = 'mov.{:}_1D.mp4'.format( IDs[0][5:] )
+        ymin = min( ymin, Data[i].min() )
+        ymax = max( ymax, Data[i].max() )
+
+    SaveFileAs   = 'mov.{:}_1D{:}.mp4'.format( IDs[0][5:], suffix )
 
     nSS = MM1D.nSS - 1
 
@@ -102,8 +112,8 @@ if __name__ == '__main__':
     r    = MM1D.X1_C
     xmin = MM1D.xlim[0]
     xmax = 151.0#MM1D.xlim[1]
-    ymin = -5.0e-5#PF_D.min()
-    ymax = +2.0e-5#PF_D.max()
+    ymin = -1.0e-04#Data.min()
+    ymax = +1.0e-04#Data.max()
 
     if UseLogScale: ax.set_yscale( 'log' )
 

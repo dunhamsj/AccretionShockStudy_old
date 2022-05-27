@@ -6,7 +6,7 @@ import os
 from sys import argv
 plt.style.use( './Publication.sty' )
 
-from UtilitiesModule import GetData as GD, GetFileArray
+from UtilitiesModule import GetData as GD, GetFileArray, Overwrite
 
 class GlobalQuantities:
 
@@ -51,24 +51,30 @@ class GlobalQuantities:
 
     def GetData( self, Field ):
 
-        FileArray \
-          = GetFileArray( self.DataDirectory, self.PlotFileBaseName )[::10]
+        FileName = self.ID + '_' + Field + '.dat'
 
-        Q    = np.empty( FileArray.shape[0], np.float64 )
-        Time = np.empty( FileArray.shape[0], np.float64 )
+        OW = Overwrite( FileName, ForceChoice = True, OW = False )
 
-        for iSS in range( FileArray.shape[0] ):
+        if OW:
 
-            print( '{:d}/{:d}'.format( iSS+1, FileArray.shape[0] ) )
+            FileArray \
+              = GetFileArray( self.DataDirectory, self.PlotFileBaseName )#[::10]
 
-            Data, SqrtGm, dX1, dX2, Time[iSS] \
-              = self.GetSnapshot( Field, FileArray[iSS] )
+            Q    = np.empty( FileArray.shape[0], np.float64 )
+            Time = np.empty( FileArray.shape[0], np.float64 )
 
-            Q[iSS] = self.IntegrateField( Data, SqrtGm, dX1, dX2 )
+            for iSS in range( FileArray.shape[0] ):
 
-        np.savetxt( self.ID + '_' + Field + '.dat', np.vstack( ( Time, Q ) ) )
+                print( '{:d}/{:d}'.format( iSS+1, FileArray.shape[0] ) )
 
-        d = np.loadtxt( self.ID + '_' + Field + '.dat' )
+                Data, SqrtGm, dX1, dX2, Time[iSS] \
+                  = self.GetSnapshot( Field, FileArray[iSS] )
+
+                Q[iSS] = self.IntegrateField( Data, SqrtGm, dX1, dX2 )
+
+            np.savetxt( FileName, np.vstack( ( Time, Q ) ) )
+
+        d = np.loadtxt( FileName )
 
         Time = d[0]
         Q    = d[1]
@@ -95,18 +101,29 @@ if __name__ == '__main__':
     axs[-1].set_xlabel( 'Time [ms]' )
 
     c = [ 'r', 'b' ]
-    axs[0].plot( Time, ( GR_Mass - GR_Mass[0] ) / GR_Mass[0], \
+    #axs[0].plot( Time, ( GR_Mass - GR_Mass[0] ) / GR_Mass[0], \
+    #             c = c[0], label = 'GR' )
+    #axs[0].plot( Time, ( NR_Mass - NR_Mass[0] ) / NR_Mass[0], \
+    #             c = c[1], label = 'NR' )
+    #axs[1].plot( Time, ( GR_TE   - GR_TE[0]   ) / GR_TE[0]  , \
+    #             c = c[0] )
+    #axs[1].plot( Time, ( NR_TE   - NR_TE[0]   ) / NR_TE[0]  , \
+    #             c = c[1] )
+    axs[0].plot( Time, GR_Mass, \
                  c = c[0], label = 'GR' )
-    axs[0].plot( Time, ( NR_Mass - NR_Mass[0] ) / NR_Mass[0], \
+    axs[0].plot( Time, NR_Mass, \
                  c = c[1], label = 'NR' )
-    axs[1].plot( Time, ( GR_TE   - GR_TE[0]   ) / GR_TE[0]  , \
+    axs[1].plot( Time, GR_TE  , \
                  c = c[0] )
-    axs[1].plot( Time, ( NR_TE   - NR_TE[0]   ) / NR_TE[0]  , \
+    axs[1].plot( Time, NR_TE , \
                  c = c[1] )
 
     axs[0].legend()
-    axs[0].set_ylabel( '(M(t)-M(0))/M(0)' )
-    axs[1].set_ylabel( '(TE(t)-TE(0))/TE(0)' )
+    axs[0].set_ylabel( 'M(t)' )
+    axs[1].set_ylabel( 'TE(t)' )
+    axs[0].set_yscale( 'log' )
+    axs[1].set_yscale( 'log' )
+    axs[1].set_ylim( 1.0e32 )
 
     plt.show()
 
