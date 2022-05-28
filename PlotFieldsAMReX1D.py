@@ -20,46 +20,46 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 
 #### ========== User Input ==========
 
-DataDirectory = '/lump/data/AccretionShockStudy/'
+Root = '/lump/data/AccretionShockStudy/'
 
-ID = 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-06'
+IDs = np.array( [ 'GR1D_M2.0_Mdot0.1_Rs150', \
+                  'GR1D_M2.0_Mdot0.3_Rs150', \
+                  'GR1D_M2.0_Mdot0.5_Rs150' ], str )
 
-Field = 'PF_D'
+Field = 'AF_Cs'
 
 UseLogScale = False
 
-SaveFileAs = 'fig.' + ID + '.png'
+SaveFileAs = 'fig.' + IDs[0] + '.png'
 
 #### ====== End of User Input =======
 
-PlotFileBaseName = ID + '.plt'
-
-DataDirectory += ID + '/'
-
-print( '\nDataDirectory:    {:}'.format( DataDirectory ) )
-print( 'PlotFileBaseName: {:}\n'.format( PlotFileBaseName ) )
-
-Data , DataUnit, r, theta, phi, dr, dtheta, dphi, xL, xU, nX, Time \
-  = GetData( DataDirectory, PlotFileBaseName, Field, 'spherical', True,
-             argv = [ 'a', '00000000' ], Verbose = True, \
-             ReturnTime = True, ReturnMesh = True )
-Data0, DataUnit, r, theta, phi, dr, dtheta, dphi, xL, xU, nX, Time \
-  = GetData( DataDirectory, PlotFileBaseName, Field, 'spherical', True, \
-             argv = [ 'a', '99999999'], Verbose = True, \
-             ReturnTime = True, ReturnMesh = True )
-
-Data = ( Data - Data0 ) / Data0
-
 ### Plotting
-
-Norm = GetNorm( UseLogScale, Data )
 
 fig = plt.figure( figsize = (8,6) )
 ax  = fig.add_subplot( 111 )
 
-if( UseLogScale ): ax.set_yscale( 'log' )
+for i in range( IDs.shape[0] ):
 
-ax.plot( r, Data, 'k.' )
+    PlotFileBaseName = IDs[i] + '.plt'
+
+    DataDirectory = Root + IDs[i] + '/'
+
+    print( '\nDataDirectory:    {:}'.format( DataDirectory ) )
+    print( 'PlotFileBaseName: {:}\n'.format( PlotFileBaseName ) )
+
+    Data , DataUnit, r, theta, phi, dr, dtheta, dphi, xL, xU, nX, Time \
+      = GetData( DataDirectory, PlotFileBaseName, Field, 'spherical', True,
+                 argv = [ 'a', '00000000' ], Verbose = True, \
+                 ReturnTime = True, ReturnMesh = True )
+
+    Norm = GetNorm( UseLogScale, Data )
+
+    ax.plot( r, Data, label = IDs[i] )
+
+ax.grid()
+ax.legend()
+if( UseLogScale ): ax.set_yscale( 'log' )
 ax.set_xlabel( r'$r\,\left[\mathrm{km}\right]$' )
 
 #plt.savefig( SaveFileAs, dpi = 300 )

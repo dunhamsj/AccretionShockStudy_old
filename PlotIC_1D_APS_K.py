@@ -73,8 +73,8 @@ if( UseLogScale ): ax.set_yscale( 'log' )
 ax.set_xlabel( r'$\mathrm{Radial\ Coordinate}\ \left[\mathrm{km}\right]$' )
 ax.set_ylabel( 'Polytropic Constant [cgs]' )
 
-plt.savefig( SaveFileAs, dpi = 300 )
-#plt.show()
+#plt.savefig( SaveFileAs, dpi = 300 )
+plt.show()
 plt.close()
 
 import os
