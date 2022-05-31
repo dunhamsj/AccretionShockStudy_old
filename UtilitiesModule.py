@@ -447,6 +447,58 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 
         DataUnits = 'km/s'
 
+    elif Field == 'NonRelativisticTurbulentEnergyDensity':
+
+        Gm11 = CoveringGrid['GF_Gm_11'].to_ndarray()
+        Gm22 = CoveringGrid['GF_Gm_22'].to_ndarray()
+        Gm33 = CoveringGrid['GF_Gm_33'].to_ndarray()
+
+        rho = CoveringGrid['PF_D' ].to_ndarray()
+        V1  = CoveringGrid['PF_V1'].to_ndarray()
+        V2  = CoveringGrid['PF_V2'].to_ndarray()
+        V3  = CoveringGrid['PF_V3'].to_ndarray()
+
+        AngleAveragedMass           = np.zeros( (nX[0]), np.float64 )
+        AngleAveragedRadialVelocity = np.zeros( (nX[0]), np.float64 )
+
+        c = 2.99792458e5
+
+        Data = np.empty( nX, np.float64 )
+
+        for iX1 in range( nX[0] ):
+
+            # --- Compute angle-averaged and
+            #     mass density weighted radial velocity ---
+
+            for iX2 in range( nX[1] ):
+                for iX3 in range( nX[2] ):
+
+                    AngleAveragedMass[iX1] \
+                      += rho[iX1,iX2,iX3] \
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
+
+                    AngleAveragedRadialVelocity[iX1] \
+                      += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
+
+            AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
+
+            # --- Compute turbulent energy density ---
+
+            for iX2 in range( nX[1] ):
+                for iX3 in range( nX[2] ):
+
+                    VSq =   Gm11[iX1,iX2,iX3] \
+                              * ( V1[iX1,iX2,iX3] \
+                                    - AngleAveragedRadialVelocity[iX1] )**2 \
+                          + Gm22[iX1,iX2,iX3] * V2[iX1,iX2,iX3]**2 \
+                          + Gm33[iX1,iX2,iX3] * V3[iX1,iX2,iX3]**2
+
+                    Data[iX1,iX2,iX3] \
+                      = 0.5 * rho[iX1,iX2,iX3] * VSq
+
+        DataUnits = 'erg/cm**3'
+
     elif Field == 'TurbulentEnergyDensity':
 
         Psi  = CoveringGrid['GF_Psi'  ].to_ndarray()

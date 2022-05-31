@@ -87,44 +87,65 @@ if __name__ == '__main__':
     IDs = np.array( [ 'GR2D_M2.0_Mdot0.3_Rs150', \
                       'NR2D_M2.0_Mdot0.3_Rs150' ], str )
 
-    Fields = np.array( [ 'PF_D', 'TurbulentEnergyDensity' ], str )
-
-    GR = GlobalQuantities( Root, IDs[0] )
-    NR = GlobalQuantities( Root, IDs[1] )
-
-    Time, GR_Mass = GR.GetData( Fields[0] )
-    Time, GR_TE   = GR.GetData( Fields[1] )
-    Time, NR_Mass = NR.GetData( Fields[0] )
-    Time, NR_TE   = NR.GetData( Fields[1] )
+    Fields = np.array( [ 'NonRelativisticTurbulentEnergyDensity', \
+                         'TurbulentEnergyDensity' ], str )
 
     fig, axs = plt.subplots( Fields.shape[0], 1 )
     axs[-1].set_xlabel( 'Time [ms]' )
 
+    GR = GlobalQuantities( Root, IDs[0] )
+    NR = GlobalQuantities( Root, IDs[1] )
+
     c = [ 'r', 'b' ]
-    #axs[0].plot( Time, ( GR_Mass - GR_Mass[0] ) / GR_Mass[0], \
-    #             c = c[0], label = 'GR' )
-    #axs[0].plot( Time, ( NR_Mass - NR_Mass[0] ) / NR_Mass[0], \
-    #             c = c[1], label = 'NR' )
-    #axs[1].plot( Time, ( GR_TE   - GR_TE[0]   ) / GR_TE[0]  , \
-    #             c = c[0] )
-    #axs[1].plot( Time, ( NR_TE   - NR_TE[0]   ) / NR_TE[0]  , \
-    #             c = c[1] )
-    axs[0].plot( Time, GR_Mass, \
-                 c = c[0], label = 'GR' )
-    axs[0].plot( Time, NR_Mass, \
-                 c = c[1], label = 'NR' )
-    axs[1].plot( Time, GR_TE  , \
-                 c = c[0] )
-    axs[1].plot( Time, NR_TE , \
-                 c = c[1] )
+
+    for i in range( Fields.shape[0] ):
+
+        Time, dataGR = GR.GetData( Fields[i] )
+        Time, dataNR = NR.GetData( Fields[i] )
+
+        ind = np.where( Time > 10.0 )[0]
+
+        Time   = np.copy( Time  [ind] )
+        dataGR = np.copy( dataGR[ind] )
+        dataNR = np.copy( dataNR[ind] )
+
+        if i == 0:
+
+            #axs[i].plot( Time, ( dataGR - dataGR[0] ) / dataGR[0], \
+            #             c = c[0], label = 'GR' )
+            #axs[i].plot( Time, ( dataNR - dataNR[0] ) / dataNR[0], \
+            #             c = c[1], label = 'NR' )
+
+            axs[i].plot( Time, dataGR, \
+                         c = c[0], label = 'GR' )
+            axs[i].plot( Time, dataNR, \
+                         c = c[1], label = 'NR' )
+
+        else:
+
+            #axs[i].plot( Time, ( dataGR - dataGR[0] ) / dataGR[0], \
+            #             c = c[0] )
+            #axs[i].plot( Time, ( dataNR - dataNR[0] ) / dataNR[0], \
+            #             c = c[1] )
+
+            axs[i].plot( Time, dataGR, \
+                         c = c[0] )
+            axs[i].plot( Time, dataNR, \
+                         c = c[1] )
+
+    axs[0].text( 0.2, 0.7, r'$\frac{1}{2}\,\rho\,\tilde{v}\cdot\tilde{v}$', \
+                 transform = axs[0].transAxes )
+
+    axs[1].text( 0.2, 0.7, r'$\frac{\widetilde{W}^{2}}{\widetilde{W}+1}\,\rho\,\tilde{v}\cdot\tilde{v}$', \
+                 transform = axs[1].transAxes )
+    axs[0].set_ylabel( 'NRTE' )
+    axs[1].set_ylabel( 'SRTE' )
 
     axs[0].legend()
-    axs[0].set_ylabel( 'M(t)' )
-    axs[1].set_ylabel( 'TE(t)' )
     axs[0].set_yscale( 'log' )
     axs[1].set_yscale( 'log' )
-    axs[1].set_ylim( 1.0e32 )
 
+    #plt.savefig( 'fig.TEComparison.png', dpi = 300 )
     plt.show()
 
     os.system( 'rm -rf __pycache__' )
