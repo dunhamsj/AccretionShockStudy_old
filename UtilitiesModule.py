@@ -425,12 +425,12 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
                     AngleAveragedMass[iX1] \
                       += rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
+                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
 
                     AngleAveragedRadialVelocity[iX1] \
                       += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
+                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
 
             AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
 
@@ -475,11 +475,11 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 
                     AngleAveragedMass[iX1] \
                       += rho[iX1,iX2,iX3] \
-                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
+                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
 
                     AngleAveragedRadialVelocity[iX1] \
                       += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
-                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
+                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
 
             AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
 
@@ -495,7 +495,7 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
                           + Gm33[iX1,iX2,iX3] * V3[iX1,iX2,iX3]**2
 
                     Data[iX1,iX2,iX3] \
-                      = 0.5 * rho[iX1,iX2,iX3] * VSq
+                      = 0.5 * rho[iX1,iX2,iX3] * VSq * ( 1.0e5 )**2
 
         DataUnits = 'erg/cm**3'
 
@@ -529,12 +529,12 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
                     AngleAveragedMass[iX1] \
                       += rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
+                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
 
                     AngleAveragedRadialVelocity[iX1] \
                       += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
+                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
 
             AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
 

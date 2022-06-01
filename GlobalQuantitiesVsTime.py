@@ -45,6 +45,7 @@ class GlobalQuantities:
                 'spherical', True, argv = [ 'a', iSS ], \
                 ReturnTime = True, ReturnMesh = True, Verbose = False )
 
+        dX1    *= 1.0e5
         SqrtGm *= 1.0e5**2
 
         return Data, SqrtGm, dX1, dX2, Time
@@ -112,26 +113,26 @@ if __name__ == '__main__':
         if i == 0:
 
             #axs[i].plot( Time, ( dataGR - dataGR[0] ) / dataGR[0], \
-            #             c = c[0], label = 'GR' )
+            #             c[0], label = 'GR' )
             #axs[i].plot( Time, ( dataNR - dataNR[0] ) / dataNR[0], \
-            #             c = c[1], label = 'NR' )
+            #             c[1], label = 'NR' )
 
             axs[i].plot( Time, dataGR, \
-                         c = c[0], label = 'GR' )
+                         c[0], label = 'GR' )
             axs[i].plot( Time, dataNR, \
-                         c = c[1], label = 'NR' )
+                         c[1], label = 'NR' )
 
         else:
 
             #axs[i].plot( Time, ( dataGR - dataGR[0] ) / dataGR[0], \
-            #             c = c[0] )
+            #             c[0] )
             #axs[i].plot( Time, ( dataNR - dataNR[0] ) / dataNR[0], \
-            #             c = c[1] )
+            #             c[1] )
 
             axs[i].plot( Time, dataGR, \
-                         c = c[0] )
+                         c[0] )
             axs[i].plot( Time, dataNR, \
-                         c = c[1] )
+                         c[1] )
 
     axs[0].text( 0.2, 0.7, r'$\frac{1}{2}\,\rho\,\tilde{v}\cdot\tilde{v}$', \
                  transform = axs[0].transAxes )
