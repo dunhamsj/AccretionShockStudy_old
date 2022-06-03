@@ -5,6 +5,7 @@ import subprocess
 from os.path import isfile
 from sys import argv, exit
 import matplotlib.pyplot as plt
+plt.style.use( 'Publication.sty' )
 
 from UtilitiesModule import GetData, GetNorm
 
@@ -22,22 +23,27 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 
 Root = '/lump/data/AccretionShockStudy/'
 
-IDs = np.array( [ 'GR1D_M2.0_Mdot0.1_Rs150', \
+IDs = np.array( [ 'GR1D_M1.4_Mdot0.3_Rs150', \
                   'GR1D_M2.0_Mdot0.3_Rs150', \
-                  'GR1D_M2.0_Mdot0.5_Rs150' ], str )
+                  'GR1D_M2.8_Mdot0.3_Rs150', \
+                  'NR1D_M1.4_Mdot0.3_Rs150', \
+                  'NR1D_M2.0_Mdot0.3_Rs150', \
+                  'NR1D_M2.8_Mdot0.3_Rs150' ], str )
 
 Field = 'AF_Cs'
 
 UseLogScale = False
 
-SaveFileAs = 'fig.' + IDs[0] + '.png'
+SaveFileAs = 'fig.SoundSpeed.png'
 
 #### ====== End of User Input =======
 
 ### Plotting
 
-fig = plt.figure( figsize = (8,6) )
-ax  = fig.add_subplot( 111 )
+fig, axs  = plt.subplots( 2, 1, figsize = (12,8) )
+
+ls = [ '-', '-', '-', '--', '--', '--' ]
+c = [ 'r', 'b', 'm', 'r', 'b', 'm' ]
 
 for i in range( IDs.shape[0] ):
 
@@ -53,17 +59,28 @@ for i in range( IDs.shape[0] ):
                  argv = [ 'a', '00000000' ], Verbose = True, \
                  ReturnTime = True, ReturnMesh = True )
 
+    ind = np.where( r < 150.0 )[0]
+
+    r    = np.copy( r   [ind] )
+    Data = np.copy( Data[ind] )
+
     Norm = GetNorm( UseLogScale, Data )
 
-    ax.plot( r, Data, label = IDs[i] )
+    axs[0].plot( r, Data                  , c[i]+ls[i], label = IDs[i] )
+    axs[1].plot( r, 2.0 * np.pi * r / Data*1000.0, c[i]+ls[i] )
 
-ax.grid()
-ax.legend()
-if( UseLogScale ): ax.set_yscale( 'log' )
-ax.set_xlabel( r'$r\,\left[\mathrm{km}\right]$' )
+axs[0].grid()
+axs[1].grid()
+axs[0].legend()
+axs[0].set_ylabel( r'$c_{s}\,\left[\mathrm{km/s}\right]$' )
+axs[1].set_ylabel( r'$\tau_{c_{s}}:=\frac{2\pi\,r}{c_{s}}\,\left[\mathrm{ms}\right]$' )
+if( UseLogScale ): axs[0].set_yscale( 'log' )
+axs[0].set_xlabel( r'Radial Coordinate $\left[\mathrm{km}\right]$' )
+axs[1].set_xlabel( r'Radial Coordinate $\left[\mathrm{km}\right]$' )
+plt.subplots_adjust( hspace = 0.3 )
 
-#plt.savefig( SaveFileAs, dpi = 300 )
-plt.show()
+plt.savefig( SaveFileAs, dpi = 300 )
+#plt.show()
 plt.close()
 
 import os
