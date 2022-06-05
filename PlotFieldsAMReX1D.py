@@ -21,26 +21,22 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 
 #### ========== User Input ==========
 
-Root = '/lump/data/AccretionShockStudy/'
+#Root = '/lump/data/AccretionShockStudy/'
+Root = THORNADO_DIR + 'SandBox/AMReX/Euler_Relativistic_IDEAL/'
 
-IDs = np.array( [ 'GR1D_M1.4_Mdot0.3_Rs150', \
-                  'GR1D_M2.0_Mdot0.3_Rs150', \
-                  'GR1D_M2.8_Mdot0.3_Rs150', \
-                  'NR1D_M1.4_Mdot0.3_Rs150', \
-                  'NR1D_M2.0_Mdot0.3_Rs150', \
-                  'NR1D_M2.8_Mdot0.3_Rs150' ], str )
+IDs = np.array( [ 'GR1D_M2.8_Mdot0.3_Rs120' ], str )
 
-Field = 'AF_Cs'
+Field = 'PolytropicConstant'
 
-UseLogScale = False
+UseLogScale = True
 
-SaveFileAs = 'fig.SoundSpeed.png'
+SaveFileAs = '/home/kkadoogan/fig.png'
 
 #### ====== End of User Input =======
 
 ### Plotting
 
-fig, axs  = plt.subplots( 2, 1, figsize = (12,8) )
+fig, ax  = plt.subplots( 1, 1, figsize = (12,8) )
 
 ls = [ '-', '-', '-', '--', '--', '--' ]
 c = [ 'r', 'b', 'm', 'r', 'b', 'm' ]
@@ -59,25 +55,18 @@ for i in range( IDs.shape[0] ):
                  argv = [ 'a', '00000000' ], Verbose = True, \
                  ReturnTime = True, ReturnMesh = True )
 
-    ind = np.where( r < 150.0 )[0]
-
-    r    = np.copy( r   [ind] )
-    Data = np.copy( Data[ind] )
+#    ind = np.where( r < 150.0 )[0]
+#
+#    r    = np.copy( r   [ind] )
+#    Data = np.copy( Data[ind] )
 
     Norm = GetNorm( UseLogScale, Data )
 
-    axs[0].plot( r, Data                  , c[i]+ls[i], label = IDs[i] )
-    axs[1].plot( r, 2.0 * np.pi * r / Data*1000.0, c[i]+ls[i] )
+    ax.plot( r, Data, c[i]+ls[i], label = IDs[i] )
 
-axs[0].grid()
-axs[1].grid()
-axs[0].legend()
-axs[0].set_ylabel( r'$c_{s}\,\left[\mathrm{km/s}\right]$' )
-axs[1].set_ylabel( r'$\tau_{c_{s}}:=\frac{2\pi\,r}{c_{s}}\,\left[\mathrm{ms}\right]$' )
-if( UseLogScale ): axs[0].set_yscale( 'log' )
-axs[0].set_xlabel( r'Radial Coordinate $\left[\mathrm{km}\right]$' )
-axs[1].set_xlabel( r'Radial Coordinate $\left[\mathrm{km}\right]$' )
-plt.subplots_adjust( hspace = 0.3 )
+ax.grid()
+if( UseLogScale ): ax.set_yscale( 'log' )
+ax.set_xlabel( r'Radial Coordinate $\left[\mathrm{km}\right]$' )
 
 plt.savefig( SaveFileAs, dpi = 300 )
 #plt.show()

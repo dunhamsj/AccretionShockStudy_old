@@ -108,12 +108,13 @@ axs[0].set_ylabel( 'Power [cgs]', fontsize = size )
 axs[0].grid()
 axs[0].legend(prop={'size':15})
 
-im = axs[1].imshow( ( G_GR - G_NR ) / G_GR, \
+#im = axs[1].imshow( ( G_GR - G_NR ) / G_GR, \
+im = axs[1].imshow( G_GR, \
                     origin = 'lower', \
                     extent = extent, \
                     cmap = 'viridis', \
 #                    vmin = -0.01, vmax = +0.01, \
-                    interpolation = 'bilinear', \
+                    interpolation = 'none', \
                     aspect = 'auto' )
 yticklabels = M
 xticklabels = Rs
@@ -139,7 +140,7 @@ cbar.set_label( r'$( \tau_{\mathrm{GR}} - \tau_{\mathrm{NR}} ) / \tau_{\mathrm{G
 cbar.ax.tick_params( labelsize = size )
 plt.subplots_adjust( hspace = 0.3 )
 #plt.show()
-plt.savefig( 'fig.GrowthRateComparison_HeatMap.png', dpi = 300, \
+plt.savefig( '/home/kkadoogan/fig.GrowthRateComparison_HeatMap.png', dpi = 300, \
              bbox_inches = 'tight' )
 
 import os

@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import os
 from os.path import isfile
 from sys import argv
+plt.style.use( 'Publication.sty' )
 
 from UtilitiesModule import ChoosePlotFile, Overwrite, GetFileArray
 
@@ -568,26 +569,13 @@ class PowersInLegendreModes:
         return tFit+t0, F
 
     def PlotData \
-          ( self, t0, t1, \
-            Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4, tF, F ):
-
-        fig, axs = plt.subplots( 2, 1 )
-
-        if self.R0 < 0.0:
-
-            fig.suptitle( '{:s}\n{:s}, {:.2f}-{:.2f}'.format \
-                          ( self.ID, self.Field, self.fL, self.fU ) )
-
-        else:
-
-            fig.suptitle( '{:s}\n{:s}, {:.2f}km'.format \
-                          ( self.ID, self.Field, self.R0 / 1.0e5 ) )
+          ( self, ax, t0, t1, \
+            Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4, tF, F, \
+            M = -1.0, Rs = -1.0, GR = False ):
 
         ind = np.where( ( Time >= t0 ) & ( Time <= t1 ) )[0]
 
         t = np.copy( Time )
-
-        yScale = RsAve[0]
 
         Time  = Time [ind]
         RsAve = RsAve[ind]
@@ -599,74 +587,41 @@ class PowersInLegendreModes:
         P3    = P3   [ind]
         P4    = P4   [ind]
 
-        axs[0].plot( Time, ( RsAve - RsAve[0] ) / RsAve[0] )
+        if M > 0.0: ax.set_title( 'M{:}_Mdot0.3_Rs{:}'.format( M, Rs ) )
 
-#        axs[1].plot( Time, P0, label = 'P0' )
-        axs[1].plot( Time, P1, label = 'P1' )
-#        axs[1].plot( Time, P2, label = 'P2' )
-#        axs[1].plot( Time, P3, label = 'P3' )
-#        axs[1].plot( Time, P4, label = 'P4' )
+        c  = 'r'
+        suffix = '(NR)'
+        if GR:
+            c = 'b'
+            suffix = '(GR)'
 
-        yMax = P1.max()
+        ax.plot( Time, P1, c + '-', label = 'P1 ' + suffix )
 
         if type( F ) == np.ndarray:
 
-            ind = np.where( ( t >= tFit[0] ) & ( t <= tFit[-1] ) )[0]
+            ind = np.where( ( t >= tF[0] ) & ( t <= tF[-1] ) )[0]
 
             Time = t[ind]
 
-            axs[1].plot( Time, F, label = 'Fit' )
+            ax.plot( Time, F, c + '--', label = 'Fit ' + suffix )
 
-            txt = r'$\tau$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
-                    ( self.beta[1], self.perr[1] )
-            txt += '\n'
-            txt += r'$T$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
-                     ( self.beta[2], self.perr[2] )
+#            txt = r'$\tau$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
+#                    ( self.beta[1], self.perr[1] )
+#            txt += '\n'
+#            txt += r'$T$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
+#                     ( self.beta[2], self.perr[2] )
+#
+#            ax.text( 0.2, 0.8, txt, transform = ax.transAxes )
 
-            axs[1].text( 0.2, 0.8, txt, transform = axs[1].transAxes )
+        ax.set_yscale( 'log' )
 
-            yMax = max( yMax, F.max() )
+        xlim = ( t0, t1 )
+        ax.set_xlim( xlim )
 
-        axs[1].set_yscale( 'log' )
+        ax.set_xlabel( 'Time [ms]' )
+        ax.set_ylabel( 'Power [cgs]' )
 
-        #xlim = ( t.min(), t.max() )
-        xlim = ( 0.0, 150.0 )
-
-        axs[0].set_xlim( xlim )
-        axs[1].set_xlim( xlim )
-
-        axs[0].set_ylabel( r'$(\left<R_{s}\right>-\left<R_{s,0}\right>)/\left<R_{s,0}\right>$' )
-        axs[1].set_ylabel( r'Power [cgs]' )
-
-#        axs[1].set_ylim( top = yMax )
-#        axs[1].set_ylim( 1.0e17, 1.0e27 )
-
-        #axs[0].xaxis.set_visible( False )
-        axs[0].xaxis.set_ticklabels([])
-        #axs[0].xaxis.set_ticks([])
-        axs[1].set_xlabel( 'Time [ms]' )
-
-        axs[0].grid()
-        axs[1].grid()
-#        axs[0].legend()
-#        axs[1].legend()
-
-        plt.subplots_adjust( hspace = 0.0 )
-
-        if self.R0 < 0.0:
-
-            plt.savefig( \
-              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}-{:.2f}.png'.format \
-              ( self.ID, self.Field, self.fL, self.fU ), dpi = 300 )
-
-        else:
-
-            plt.savefig( \
-              'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}km.png'.format \
-              ( self.ID, self.Field, self.R0 / 1.0e5 ), dpi = 300 )
-
-#        plt.show()
-        plt.close()
+        ax.grid()
 
         return
 
@@ -676,7 +631,7 @@ if __name__ == "__main__":
     #Root = '/scratch/dunhamsj/ProductionRuns/'
     Root = '/lump/data/AccretionShockStudy/'
 
-    Field = 'DivV2'
+    Field = 'Entropy'
     t0    = 000.0
     t1    = 150.0
     fL    = 0.8
@@ -688,19 +643,7 @@ if __name__ == "__main__":
     Mdot  = '0.3'
     Rs    = np.array( [ '120', '150', '180' ], str )
 
-    M     = np.array( [ '2.8' ], str )
-    Mdot  = '0.3'
-    Rs    = np.array( [ '180' ], str )
-
-    T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
-    T_err_GR = np.copy( T_GR )
-    T_NR     = np.copy( T_GR )
-    T_err_NR = np.copy( T_GR )
-
-    G_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
-    G_err_GR = np.copy( G_GR )
-    G_NR     = np.copy( G_GR )
-    G_err_NR = np.copy( G_GR )
+    fig, axs = plt.subplots( 3, 3, figsize = (16,9) )
 
     for m in range( M.shape[0] ):
         for rs in range( Rs.shape[0] ):
@@ -769,12 +712,8 @@ if __name__ == "__main__":
               = P_NR.ComputePowerInLegendreModes()
             tFit, F = P_NR.FitPowerInLegendreModes \
                          ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-            P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+            P_NR.PlotData( axs[m,rs], t0, t1, Time, RsAve, RsMin, RsMax, \
                            P0, P1, P2, P3, P4, tFit, F )
-            G_NR    [m,rs] = P_NR.beta[1]
-            G_err_NR[m,rs] = P_NR.perr[1]
-            T_NR    [m,rs] = P_NR.beta[2]
-            T_err_NR[m,rs] = P_NR.perr[2]
             del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
                 P0, P1, P2, P3, P4, tFit, F
 
@@ -788,23 +727,17 @@ if __name__ == "__main__":
               = P_GR.ComputePowerInLegendreModes()
             tFit, F = P_GR.FitPowerInLegendreModes \
                         ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-            P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                           P0, P1, P2, P3, P4, tFit, F )
-            G_GR    [m,rs] = P_GR.beta[1]
-            G_err_GR[m,rs] = P_GR.perr[1]
-            T_GR    [m,rs] = P_GR.beta[2]
-            T_err_GR[m,rs] = P_GR.perr[2]
+            P_GR.PlotData( axs[m,rs], t0, t1, Time, RsAve, RsMin, RsMax, \
+                           P0, P1, P2, P3, P4, tFit, F, \
+                           np.float64( M[m] ), np.float64( Rs[rs] ), GR = True )
             del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
                 P0, P1, P2, P3, P4, tFit, F
 
-    #np.savetxt( 'G_GR.dat'    , G_GR )
-    #np.savetxt( 'G_err_GR.dat', G_err_GR )
-    #np.savetxt( 'G_NR.dat'    , G_NR )
-    #np.savetxt( 'G_err_NR.dat', G_err_NR )
-    #np.savetxt( 'T_GR.dat'    , T_GR )
-    #np.savetxt( 'T_err_GR.dat', T_err_GR )
-    #np.savetxt( 'T_NR.dat'    , T_NR )
-    #np.savetxt( 'T_err_NR.dat', T_err_NR )
+    axs[0,0].legend()
+    plt.subplots_adjust( wspace = 0.3, hspace = 0.4 )
+    plt.savefig( \
+    '/home/kkadoogan/fig.PowersInLegendreModes_MultiRun_{:}.png'.format \
+    ( Field ), dpi = 300 )
 
     import os
     os.system( 'rm -rf __pycache__ ' )
