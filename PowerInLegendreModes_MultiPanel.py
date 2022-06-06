@@ -569,7 +569,7 @@ class PowersInLegendreModes:
         return tFit+t0, F
 
     def PlotData \
-          ( self, ax, t0, t1, \
+          ( self, ax, m, rs, t0, t1, \
             Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4, tF, F, \
             M = -1.0, Rs = -1.0, GR = False ):
 
@@ -597,6 +597,12 @@ class PowersInLegendreModes:
 
         ax.plot( Time, P1, c + '-', label = 'P1 ' + suffix )
 
+        ax.text( 0.3, 0.9, r'$\tau_\mathrm{{NR}}: {:.3f}\ \mathrm{{ms}}$'.format \
+                 ( G_NR[m,rs] ), fontsize = 15, transform = ax.transAxes, \
+                 color = 'red' )
+        ax.text( 0.3, 0.8, r'$\tau_\mathrm{{GR}}: {:.3f}\ \mathrm{{ms}}$'.format \
+                 ( G_GR[m,rs] ), fontsize = 15, transform = ax.transAxes, \
+                 color = 'blue' )
         if type( F ) == np.ndarray:
 
             ind = np.where( ( t >= tF[0] ) & ( t <= tF[-1] ) )[0]
@@ -631,7 +637,7 @@ if __name__ == "__main__":
     #Root = '/scratch/dunhamsj/ProductionRuns/'
     Root = '/lump/data/AccretionShockStudy/'
 
-    Field = 'Entropy'
+    Field = 'DivV2'
     t0    = 000.0
     t1    = 150.0
     fL    = 0.8
@@ -643,10 +649,22 @@ if __name__ == "__main__":
     Mdot  = '0.3'
     Rs    = np.array( [ '120', '150', '180' ], str )
 
-    fig, axs = plt.subplots( 3, 3, figsize = (16,9) )
+    G_GR     = np.loadtxt( 'G_GR_{:}.dat'.format( Field ) )
+    G_err_GR = np.loadtxt( 'G_err_GR_{:}.dat'.format( Field ) )
+    G_NR     = np.loadtxt( 'G_NR_{:}.dat'.format( Field ) )
+    G_err_NR = np.loadtxt( 'G_err_NR_{:}.dat'.format( Field ) )
+    T_GR     = np.loadtxt( 'T_GR_{:}.dat'.format( Field ) )
+    T_err_GR = np.loadtxt( 'T_err_GR_{:}.dat'.format( Field ) )
+    T_NR     = np.loadtxt( 'T_NR_{:}.dat'.format( Field ) )
+    T_err_NR = np.loadtxt( 'T_err_NR_{:}.dat'.format( Field ) )
 
-    for m in range( M.shape[0] ):
+    fig, axs = plt.subplots( 3, 3, figsize = (16,9) )
+    fig.suptitle( Field )
+
+    for mm in range( M.shape[0] ):
         for rs in range( Rs.shape[0] ):
+
+            m = M.shape[0] - mm - 1
 
             LogF0  = np.log( 1.0e14 )
             tauR   = 200.0
@@ -712,7 +730,7 @@ if __name__ == "__main__":
               = P_NR.ComputePowerInLegendreModes()
             tFit, F = P_NR.FitPowerInLegendreModes \
                          ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-            P_NR.PlotData( axs[m,rs], t0, t1, Time, RsAve, RsMin, RsMax, \
+            P_NR.PlotData( axs[mm,rs], m, rs, t0, t1, Time, RsAve, RsMin, RsMax, \
                            P0, P1, P2, P3, P4, tFit, F )
             del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
                 P0, P1, P2, P3, P4, tFit, F
@@ -727,7 +745,7 @@ if __name__ == "__main__":
               = P_GR.ComputePowerInLegendreModes()
             tFit, F = P_GR.FitPowerInLegendreModes \
                         ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-            P_GR.PlotData( axs[m,rs], t0, t1, Time, RsAve, RsMin, RsMax, \
+            P_GR.PlotData( axs[mm,rs], m, rs, t0, t1, Time, RsAve, RsMin, RsMax, \
                            P0, P1, P2, P3, P4, tFit, F, \
                            np.float64( M[m] ), np.float64( Rs[rs] ), GR = True )
             del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
@@ -735,6 +753,7 @@ if __name__ == "__main__":
 
     axs[0,0].legend()
     plt.subplots_adjust( wspace = 0.3, hspace = 0.4 )
+#    plt.show()
     plt.savefig( \
     '/home/kkadoogan/fig.PowersInLegendreModes_MultiRun_{:}.png'.format \
     ( Field ), dpi = 300 )

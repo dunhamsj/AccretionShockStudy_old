@@ -10,14 +10,16 @@ M    = np.array( [ '1.4', '2.0', '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
 Rs   = np.array( [ '120', '150', '180' ], str )
 
-G_GR     = np.loadtxt( 'G_GR.dat' )
-G_err_GR = np.loadtxt( 'G_err_GR.dat' )
-G_NR     = np.loadtxt( 'G_NR.dat' )
-G_err_NR = np.loadtxt( 'G_err_NR.dat' )
-T_GR     = np.loadtxt( 'T_GR.dat' )
-T_err_GR = np.loadtxt( 'T_err_GR.dat' )
-T_NR     = np.loadtxt( 'T_NR.dat' )
-T_err_NR = np.loadtxt( 'T_err_NR.dat' )
+Field = 'DivV2'
+
+G_GR     = np.loadtxt( 'G_GR_{:}.dat'.format( Field ) )
+G_err_GR = np.loadtxt( 'G_err_GR_{:}.dat'.format( Field ) )
+G_NR     = np.loadtxt( 'G_NR_{:}.dat'.format( Field ) )
+G_err_NR = np.loadtxt( 'G_err_NR_{:}.dat'.format( Field ) )
+T_GR     = np.loadtxt( 'T_GR_{:}.dat'.format( Field ) )
+T_err_GR = np.loadtxt( 'T_err_GR_{:}.dat'.format( Field ) )
+T_NR     = np.loadtxt( 'T_NR_{:}.dat'.format( Field ) )
+T_err_NR = np.loadtxt( 'T_err_NR_{:}.dat'.format( Field ) )
 
 M    = np.float64( M  )
 Mdot = np.float64( Mdot )
@@ -84,21 +86,23 @@ fig, axs = plt.subplots( 2, 1, figsize = (9,12) )
 
 size = 15
 
-ID_GR = 'GR2D_M2.0_Mdot0.3_Rs120'
+ID_GR = 'GR2D_M2.8_Mdot0.3_Rs180'
 Time, RsAve, RsMin, RsMax, P0, P1G, P2, P3, P4 \
   = np.loadtxt( '.' + ID_GR + '_DivV2_0.80-0.90_PowersInLegendreModes.dat' )
-ID_NR = 'NR2D_M2.0_Mdot0.3_Rs120'
+ID_NR = 'NR2D_M2.8_Mdot0.3_Rs180'
 Time, RsAve, RsMin, RsMax, P0, P1N, P2, P3, P4 \
   = np.loadtxt( '.' + ID_NR + '_DivV2_0.80-0.90_PowersInLegendreModes.dat' )
 
-axs[0].set_title( 'M2.0_Rs120', fontsize = size )
-axs[0].plot( Time, P1N, c = 'r', label = 'NR' )
-axs[0].plot( Time, P1G, c = 'b', label = 'GR' )
+ind = np.where( Time < 150.0 )[0]
+
+axs[0].set_title( 'M2.8_Rs180', fontsize = size )
+axs[0].plot( Time[ind], P1N[ind], c = 'r', label = 'NR' )
+axs[0].plot( Time[ind], P1G[ind], c = 'b', label = 'GR' )
 axs[0].text( 0.3, 0.9, r'$\tau_\mathrm{{NR}}: {:.3f}\ \mathrm{{ms}}$'.format \
-             ( G_NR[1,0] ), fontsize = size, transform = axs[0].transAxes, \
+             ( G_NR[2,2] ), fontsize = size, transform = axs[0].transAxes, \
              color = 'red' )
 axs[0].text( 0.3, 0.8, r'$\tau_\mathrm{{GR}}: {:.3f}\ \mathrm{{ms}}$'.format \
-             ( G_GR[1,0] ), fontsize = size, transform = axs[0].transAxes, \
+             ( G_GR[2,2] ), fontsize = size, transform = axs[0].transAxes, \
              color = 'blue' )
 axs[0].set_xlabel( 'Time [ms]', fontsize = size )
 axs[0].set_yscale( 'log' )
@@ -108,8 +112,8 @@ axs[0].set_ylabel( 'Power [cgs]', fontsize = size )
 axs[0].grid()
 axs[0].legend(prop={'size':15})
 
-#im = axs[1].imshow( ( G_GR - G_NR ) / G_GR, \
-im = axs[1].imshow( G_GR, \
+Data = ( G_GR - G_NR ) / G_GR
+im = axs[1].imshow( Data, \
                     origin = 'lower', \
                     extent = extent, \
                     cmap = 'viridis', \
@@ -127,6 +131,10 @@ for i in range( yticks.shape[0] ):
     j = i + 1
     yticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
 
+for i in range( xticks.shape[0] ):
+    for j in range( yticks.shape[0] ):
+        axs[1].text( 0.9*xticks[i], yticks[j], '{:.3e}'.format( Data[i,j] ), c = 'w' )
+
 axs[1].set_xticks( xticks )
 axs[1].set_yticks( yticks )
 axs[1].set_xticklabels( xticklabels, size = size )
@@ -140,7 +148,7 @@ cbar.set_label( r'$( \tau_{\mathrm{GR}} - \tau_{\mathrm{NR}} ) / \tau_{\mathrm{G
 cbar.ax.tick_params( labelsize = size )
 plt.subplots_adjust( hspace = 0.3 )
 #plt.show()
-plt.savefig( '/home/kkadoogan/fig.GrowthRateComparison_HeatMap.png', dpi = 300, \
+plt.savefig( '/home/kkadoogan/fig.GrowthRateComparison_HeatMap_{:}.png'.format( Field ), dpi = 300, \
              bbox_inches = 'tight' )
 
 import os

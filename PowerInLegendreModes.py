@@ -550,18 +550,18 @@ class PowersInLegendreModes:
         self.perr = np.sqrt( np.diag( pcov ) )
 
         # Propagate error from frequency into period
-        self.perr[1] = self.perr[1] / ( 2.0 * self.beta[1]**2 )
+        #self.perr[1] = self.perr[1] / ( 2.0 * self.beta[1]**2 )
         self.perr[2] = TwoPi * self.perr[2] / self.beta[2]**2
 
         self.beta[0] = np.exp( self.beta[0] )
-        self.beta[1] = 1.0 / ( 2.0 * self.beta[1] )
+        #self.beta[1] = 1.0 / ( 2.0 * self.beta[1] )
         self.beta[2] = TwoPi / self.beta[2]
         self.beta[3] = self.beta[3]
 
         if self.Verbose:
             print( '' )
             print( 'F1 = {:.3e}'.format   ( self.beta[0] ) )
-            print( 'tr = {:.3e} ms'.format( self.beta[1] ) )
+            print( 'wr = {:.3e} kHz'.format( self.beta[1] ) )
             print( 'ti = {:.3e} ms'.format( self.beta[2] ) )
             print( 'd  = {:.3e}'.format   ( self.beta[3] ) )
 
@@ -676,7 +676,7 @@ if __name__ == "__main__":
     #Root = '/scratch/dunhamsj/ProductionRuns/'
     Root = '/lump/data/AccretionShockStudy/'
 
-    Field = 'DivV2'
+    Field = 'Entropy'
     t0    = 000.0
     t1    = 150.0
     fL    = 0.8
@@ -688,9 +688,9 @@ if __name__ == "__main__":
     Mdot  = '0.3'
     Rs    = np.array( [ '120', '150', '180' ], str )
 
-    M     = np.array( [ '2.8' ], str )
-    Mdot  = '0.3'
-    Rs    = np.array( [ '180' ], str )
+    #M     = np.array( [ '2.8' ], str )
+    #Mdot  = '0.3'
+    #Rs    = np.array( [ '180' ], str )
 
     T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
     T_err_GR = np.copy( T_GR )
@@ -788,8 +788,8 @@ if __name__ == "__main__":
               = P_GR.ComputePowerInLegendreModes()
             tFit, F = P_GR.FitPowerInLegendreModes \
                         ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-            P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                           P0, P1, P2, P3, P4, tFit, F )
+            #P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+            #               P0, P1, P2, P3, P4, tFit, F )
             G_GR    [m,rs] = P_GR.beta[1]
             G_err_GR[m,rs] = P_GR.perr[1]
             T_GR    [m,rs] = P_GR.beta[2]
@@ -797,14 +797,14 @@ if __name__ == "__main__":
             del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
                 P0, P1, P2, P3, P4, tFit, F
 
-    #np.savetxt( 'G_GR.dat'    , G_GR )
-    #np.savetxt( 'G_err_GR.dat', G_err_GR )
-    #np.savetxt( 'G_NR.dat'    , G_NR )
-    #np.savetxt( 'G_err_NR.dat', G_err_NR )
-    #np.savetxt( 'T_GR.dat'    , T_GR )
-    #np.savetxt( 'T_err_GR.dat', T_err_GR )
-    #np.savetxt( 'T_NR.dat'    , T_NR )
-    #np.savetxt( 'T_err_NR.dat', T_err_NR )
+    np.savetxt( 'G_GR_{:}.dat'.format( Field )    , G_GR )
+    #np.savetxt( 'G_err_GR_{:}.dat'.format( Field ), G_err_GR )
+    np.savetxt( 'G_NR_{:}.dat'.format( Field )    , G_NR )
+    #np.savetxt( 'G_err_NR_{:}.dat'.format( Field ), G_err_NR )
+    np.savetxt( 'T_GR_{:}.dat'.format( Field )    , T_GR )
+    #np.savetxt( 'T_err_GR_{:}.dat'.format( Field ), T_err_GR )
+    np.savetxt( 'T_NR_{:}.dat'.format( Field )    , T_NR )
+    #np.savetxt( 'T_err_NR_{:}.dat'.format( Field ), T_err_NR )
 
     import os
     os.system( 'rm -rf __pycache__ ' )

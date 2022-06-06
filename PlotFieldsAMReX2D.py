@@ -129,7 +129,7 @@ class PlotFieldsAMReX2D:
 
 if __name__ == '__main__':
 
-    ID = 'GR2D_M2.0_Mdot0.3_Rs150'
+    ID = 'GR2D_M2.8_Mdot0.3_Rs120'
     Field = 'AF_Cs'
     UseLogScale = False
 
