@@ -155,28 +155,28 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
     xL = xL.to_ndarray()
     xU = xU.to_ndarray()
 
-    X1 = CoveringGrid['X1_C'].to_ndarray()[:,0,0]
-    X2 = CoveringGrid['X2_C'].to_ndarray()[0,:,0]
-    X3 = CoveringGrid['X3_C'].to_ndarray()[0,0,:]
-
-    dX1 = CoveringGrid['dX1'].to_ndarray()[:,0,0]
-    dX2 = CoveringGrid['dX2'].to_ndarray()[0,:,0]
-    dX3 = CoveringGrid['dX3'].to_ndarray()[0,0,:]
-
-    if nDimsX < 3:
-        X3  = X3 [0] * np.ones( 1, np.float64 )
-        dX3 = dX3[0] * np.ones( 1, np.float64 )
-    if nDimsX < 2:
-        X2  = X2 [0] * np.ones( 1 )
-        dX2 = dX2[0] * np.ones( 1 )
-
-#    dX1 = ( xU[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
-#    dX2 = ( xU[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
-#    dX3 = ( xU[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2], np.float64 )
+#    X1 = CoveringGrid['X1_C'].to_ndarray()[:,0,0]
+#    X2 = CoveringGrid['X2_C'].to_ndarray()[0,:,0]
+#    X3 = CoveringGrid['X3_C'].to_ndarray()[0,0,:]
 #
-#    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xU[0] - 0.5 * dX1[0], nX[0] )
-#    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xU[1] - 0.5 * dX2[0], nX[1] )
-#    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xU[2] - 0.5 * dX3[0], nX[2] )
+#    dX1 = CoveringGrid['dX1'].to_ndarray()[:,0,0]
+#    dX2 = CoveringGrid['dX2'].to_ndarray()[0,:,0]
+#    dX3 = CoveringGrid['dX3'].to_ndarray()[0,0,:]
+#
+#    if nDimsX < 3:
+#        X3  = X3 [0] * np.ones( 1, np.float64 )
+#        dX3 = dX3[0] * np.ones( 1, np.float64 )
+#    if nDimsX < 2:
+#        X2  = X2 [0] * np.ones( 1 )
+#        dX2 = dX2[0] * np.ones( 1 )
+
+    dX1 = ( xU[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
+    dX2 = ( xU[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
+    dX3 = ( xU[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2], np.float64 )
+
+    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xU[0] - 0.5 * dX1[0], nX[0] )
+    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xU[1] - 0.5 * dX2[0], nX[1] )
+    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xU[2] - 0.5 * dX3[0], nX[2] )
 
     if   Field == 'MPIProcess':
 

@@ -550,18 +550,18 @@ class PowersInLegendreModes:
         self.perr = np.sqrt( np.diag( pcov ) )
 
         # Propagate error from frequency into period
-        #self.perr[1] = self.perr[1] / ( 2.0 * self.beta[1]**2 )
         self.perr[2] = TwoPi * self.perr[2] / self.beta[2]**2
 
         self.beta[0] = np.exp( self.beta[0] )
-        #self.beta[1] = 1.0 / ( 2.0 * self.beta[1] )
+        self.beta[1] = self.beta[1] * 1.0e3
+        self.perr[1] = self.perr[1] * 1.0e3
         self.beta[2] = TwoPi / self.beta[2]
         self.beta[3] = self.beta[3]
 
         if self.Verbose:
             print( '' )
             print( 'F1 = {:.3e}'.format   ( self.beta[0] ) )
-            print( 'wr = {:.3e} kHz'.format( self.beta[1] ) )
+            print( 'wr = {:.3e} Hz'.format( self.beta[1] ) )
             print( 'ti = {:.3e} ms'.format( self.beta[2] ) )
             print( 'd  = {:.3e}'.format   ( self.beta[3] ) )
 
@@ -617,7 +617,7 @@ class PowersInLegendreModes:
 
             axs[1].plot( Time, F, label = 'Fit' )
 
-            txt = r'$\tau$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
+            txt = r'$\omega$ = ( {:.3e} $\pm$ {:.3f} ) Hz'.format \
                     ( self.beta[1], self.perr[1] )
             txt += '\n'
             txt += r'$T$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
@@ -630,7 +630,7 @@ class PowersInLegendreModes:
         axs[1].set_yscale( 'log' )
 
         #xlim = ( t.min(), t.max() )
-        xlim = ( 0.0, 150.0 )
+        xlim = ( t0, t1 )
 
         axs[0].set_xlim( xlim )
         axs[1].set_xlim( xlim )
@@ -676,9 +676,9 @@ if __name__ == "__main__":
     #Root = '/scratch/dunhamsj/ProductionRuns/'
     Root = '/lump/data/AccretionShockStudy/'
 
-    Field = 'Entropy'
+    Field = 'DivV2'
     t0    = 000.0
-    t1    = 150.0
+    t1    = 300.0
     fL    = 0.8
     fU    = 0.9
     R0    = -1.7e2
@@ -686,7 +686,8 @@ if __name__ == "__main__":
 
     M     = np.array( [ '1.4', '2.0', '2.8' ], str )
     Mdot  = '0.3'
-    Rs    = np.array( [ '120', '150', '180' ], str )
+    #Rs    = np.array( [ '120', '150', '180' ], str )
+    Rs    = np.array( [ '180' ], str )
 
     #M     = np.array( [ '2.8' ], str )
     #Mdot  = '0.3'
@@ -711,7 +712,7 @@ if __name__ == "__main__":
             delta  = 0.0
 
             tF0 = 1.0
-            tF1 = 150.0
+            tF1 = 300.0
 
             if M[m] == '1.4':
                 if Rs[rs] == '120':
@@ -751,7 +752,7 @@ if __name__ == "__main__":
                 elif Rs[rs] == '180':
                     T_SASI = 40.0
                     tF0    = 5.0
-                    tF1    = 150.0
+                    tF1    = 300.0
 
             omega_r = 1.0 / ( 2.0 * tauR )
             omega_i = TwoPi / T_SASI
@@ -769,8 +770,8 @@ if __name__ == "__main__":
               = P_NR.ComputePowerInLegendreModes()
             tFit, F = P_NR.FitPowerInLegendreModes \
                          ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-            P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                           P0, P1, P2, P3, P4, tFit, F )
+            #P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+            #               P0, P1, P2, P3, P4, tFit, F )
             G_NR    [m,rs] = P_NR.beta[1]
             G_err_NR[m,rs] = P_NR.perr[1]
             T_NR    [m,rs] = P_NR.beta[2]
@@ -797,13 +798,13 @@ if __name__ == "__main__":
             del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
                 P0, P1, P2, P3, P4, tFit, F
 
-    np.savetxt( 'G_GR_{:}.dat'.format( Field )    , G_GR )
+    #np.savetxt( 'G_GR_{:}.dat'.format( Field )    , G_GR )
     #np.savetxt( 'G_err_GR_{:}.dat'.format( Field ), G_err_GR )
-    np.savetxt( 'G_NR_{:}.dat'.format( Field )    , G_NR )
+    #np.savetxt( 'G_NR_{:}.dat'.format( Field )    , G_NR )
     #np.savetxt( 'G_err_NR_{:}.dat'.format( Field ), G_err_NR )
-    np.savetxt( 'T_GR_{:}.dat'.format( Field )    , T_GR )
+    #np.savetxt( 'T_GR_{:}.dat'.format( Field )    , T_GR )
     #np.savetxt( 'T_err_GR_{:}.dat'.format( Field ), T_err_GR )
-    np.savetxt( 'T_NR_{:}.dat'.format( Field )    , T_NR )
+    #np.savetxt( 'T_NR_{:}.dat'.format( Field )    , T_NR )
     #np.savetxt( 'T_err_NR_{:}.dat'.format( Field ), T_err_NR )
 
     import os

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import yt
 from scipy.integrate import simps
 from scipy.optimize import curve_fit
 import numpy as np
@@ -13,34 +12,7 @@ plt.style.use( 'Publication.sty' )
 
 from UtilitiesModule import ChoosePlotFile, Overwrite, GetFileArray
 
-yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 TwoPi = 2.0 * np.pi
-
-def FittingFunction2( t, logF1, omega_r, omega_i, delta ):
-
-    # Modified fitting function
-    # (log of Eq. (9) in Blondin & Mezzacappa, (2006))
-
-    return logF1 + 2.0 * omega_r * t \
-             + np.log( np.sin( omega_i * t + delta )**2 )
-
-def Jacobian2( t, logF1, omega_r, omega_i, delta ):
-
-    # Jacobian of modified fitting function
-
-    J = np.empty( (t.shape[0],4), np.float64 )
-
-    ImPhase = omega_i * t + delta
-
-    J[:,0] = 1.0
-
-    J[:,1] = 2.0 * t
-
-    J[:,2] = 2.0 * np.cos( ImPhase ) / np.sin( ImPhase ) * t
-
-    J[:,3] = 2.0 * np.cos( ImPhase ) / np.sin( ImPhase )
-
-    return J
 
 class PowersInLegendreModes:
 
@@ -116,29 +88,19 @@ class PowersInLegendreModes:
 
         return
 
-    def FittingFunction( self, t, beta ):
+    def FittingFunction( self, t, logF1, omega_r, omega_i, delta ):
 
         # Modified fitting function
         # (log of Eq. (9) in Blondin & Mezzacappa, (2006))
 
-        logF1   = beta[0]
-        omega_r = beta[1]
-        omega_i = beta[2]
-        delta   = beta[3]
-
         return logF1 + 2.0 * omega_r * t \
                  + np.log( np.sin( omega_i * t + delta )**2 )
 
-    def Jacobian( self, t, beta ):
+    def Jacobian( self, t, logF1, omega_r, omega_i, delta ):
 
         # Jacobian of modified fitting function
 
         J = np.empty( (t.shape[0],4), np.float64 )
-
-        logF1   = beta[0]
-        omega_r = beta[1]
-        omega_i = beta[2]
-        delta   = beta[3]
 
         ImPhase = omega_i * t + delta
 
@@ -152,89 +114,10 @@ class PowersInLegendreModes:
 
         return J
 
-    def CurveFit( self, t, logP, InitialGuess ):
-
-        if self.Verbose:
-            print( '\nCalling PowersInLegendreModes.CurveFit...\n' )
-
-        nIter = 1000
-
-        beta_k = np.copy( InitialGuess )
-
-        eps  = 1.0e-10
-        db   = 1.0
-        iter = 0
-
-        alpha = 0.5
-
-        while( db > eps and iter < nIter ):
-
-            iter += 1
-
-            F = self.FittingFunction( t, beta_k )
-            J = self.Jacobian       ( t, beta_k )
-
-            r = logP - F # Residual
-
-            dbeta = alpha * np.dot( inv( np.dot( J.T, J ) ), \
-                            np.dot( J.T, r ) )
-
-            beta_k += dbeta
-
-            db = np.max( np.abs( dbeta / beta_k ) )
-
-#            if iter > nIter - 5:
-#
-#                print( 'iter = {:d}, db = {:.3e}'.format( iter, db ) )
-
-        print( 'iter = {:d}, db = {:.3e}'.format( iter, db ) )
-
-        return beta_k
-
-    def GetPowersFromDiagnostics( self ):
-
-        if self.Verbose:
-            print( '\nCalling PowersInLegendreModes.GetPowersFromDiagnostics...\n' )
-
-        ID = self.ID
-
-        # --- Read in diagnostics ---
-
-        Data = np.loadtxt( self.DataDirectory + ID + '.Diagnostics.dat', \
-                           skiprows = 1 )
-
-        t     = np.copy( Data[:,0] )
-        P0    = np.copy( Data[:,1] )
-        P1    = np.copy( Data[:,2] )
-        P2    = np.copy( Data[:,3] )
-        RsAve = np.copy( Data[:,4] )
-        RsMin = np.copy( Data[:,5] )
-        RsMax = np.copy( Data[:,6] )
-
-        return t, P0, P1, P2, RsAve, RsMin, RsMax
-
     def ComputeAngleAverage( self, Data, X2 ):
         return 1.0 / 2.0 * simps( Data * np.sin( X2 ), x = X2 )
 
     def GetShockRadiusVsTime( self ):
-
-        if not self.ComputedShockRadius:
-
-            if self.Verbose:
-                print( '\nCalling PowersInLegendreModes.GetShockRadiusVsTime...\n' )
-
-            OW = Overwrite( self.ShockRadiusVsTimeFileName, \
-                            ForceChoice = True, OW = False )
-
-            if OW:
-
-                from ShockRadius import ShockRadius
-                SR = ShockRadius( self.Root, self.ID, \
-                                  EntropyThreshold = self.EntropyThreshold, \
-                                  suffix = self.suffix )
-                SR.ComputeShockRadius()
-
-            self.ComputedShockRadius = True
 
         Time, RsAve, RsMin, RsMax \
           = np.loadtxt( self.ShockRadiusVsTimeFileName )
@@ -243,285 +126,10 @@ class PowersInLegendreModes:
 
     def ComputePowerInLegendreModes( self ):
 
-        Field = self.Field
-
-        ID = self.ID
-
-        PlotFileBaseName = ID + '.plt'
-
-        FileArray = GetFileArray( self.DataDirectory, PlotFileBaseName )
-
-        nFiles = FileArray.shape[0]
-
-        # Get info about computational domain
-
-        ds = yt.load( '{:}'.format( self.DataDirectory + FileArray[0] ) )
-
-        MaxLevel = ds.index.max_level
-        nX       = ds.domain_dimensions
-        xL       = ds.domain_left_edge.to_ndarray()
-        xH       = ds.domain_right_edge.to_ndarray()
-
-        CentimetersPerKilometer = 1.0e5
-
-        xL[0] *= CentimetersPerKilometer
-        xH[0] *= CentimetersPerKilometer
-
-        dX = ( xH - xL ) / np.float64( nX )
-
-        X1 = np.linspace( xL[0] + dX[0] / 2.0, xH[0] - dX[0] / 2.0, nX[0] )
-        X2 = np.linspace( xL[1] + dX[1] / 2.0, xH[1] - dX[1] / 2.0, nX[1] )
-
-        x = np.cos( X2 )
-
-        # Legendre polynomials
-
-        P0 = np.sqrt( 1.0 / 2.0 ) \
-               * np.ones( nX[1] )
-        P1 = np.sqrt( 3.0 / 2.0 ) \
-               * x
-        P2 = np.sqrt( 5.0 / 2.0 ) \
-               * ( 3.0 * x**2 - 1.0 ) / 2.0
-        P3 = np.sqrt( 7.0 / 2.0 ) \
-               * 1.0 / 2.0 * ( 5.0 * x**3 - 3.0 * x )
-        P4 = np.sqrt( 9.0 / 2.0 ) \
-               * 1.0 / 8.0 * ( 35.0 * x**4 - 30.0 * x**2 + 3.0 )
-
-        # Radially-dependent quantity (G)
-
-        G0 = np.empty( (nFiles,nX[0]), np.float64 )
-        G1 = np.empty( (nFiles,nX[0]), np.float64 )
-        G2 = np.empty( (nFiles,nX[0]), np.float64 )
-        G3 = np.empty( (nFiles,nX[0]), np.float64 )
-        G4 = np.empty( (nFiles,nX[0]), np.float64 )
-
-        # Powers in Legendre modes
-
-        Power = np.empty( (nFiles,5), np.float64 )
-
-        if self.ComputedPowers:
-
-            Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
-              = np.loadtxt( self.FileName )
-
-            return Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4
-
-        if self.Verbose:
-            print( \
-              '\nCalling PowersInLegendreModes.ComputePowerInLegendreModes...' )
-            print( \
-              '------------------------------------------------------------\n' )
-
-        OW = Overwrite( self.FileName)#, ForceChoice = True, OW = True )
-
-        self.ComputedPowers = True
-
-        if OW:
-
-            Time = np.empty( nFiles )
-
-            for i in range( nFiles ):
-
-                if (i+1) % 10 == 0:
-                    print( 'File {:}/{:}'.format( i+1, nFiles ) )
-
-                ds = yt.load( '{:}'.format( self.DataDirectory \
-                                              + FileArray[i] ) )
-                Time[i] = ds.current_time
-
-                CoveringGrid \
-                  = ds.covering_grid \
-                      ( level           = ds.index.max_level, \
-                        left_edge       = ds.domain_left_edge, \
-                        dims            = ds.domain_dimensions * 2**MaxLevel, \
-                        num_ghost_zones = ds.domain_dimensions[0] )
-
-                ds.force_periodicity()
-
-                PF_V1 = CoveringGrid['PF_V1'].to_ndarray()[:,:,0] \
-                          * CentimetersPerKilometer
-                PF_V2 = CoveringGrid['PF_V2'].to_ndarray()[:,:,0]
-                PF_D  = CoveringGrid['PF_D' ].to_ndarray()[:,:,0]
-                AF_P  = CoveringGrid['AF_P' ].to_ndarray()[:,:,0]
-                AF_Gm = CoveringGrid['AF_Gm'].to_ndarray()[:,:,0]
-
-                fL = self.fL
-                fU = self.fU
-                Rs = self.Rs
-
-                if self.R0 < 0.0:
-
-                    indX1 \
-                      = np.where( ( X1 > fL * Rs ) & ( X1 < fU * Rs ) )[0]
-
-                else:
-
-                    indX1 \
-                      = np.where(   ( X1 > self.R0 - dX[0] ) \
-                                  & ( X1 < self.R0 + dX[0]) )[0]
-
-                    indX1 = np.array( [ indX1[0] ], np.int64 )
-
-                indX2 = np.linspace( 0, nX[1]-1, nX[1], dtype = np.int64 )
-
-                Data = np.zeros( (nX[0],nX[1]), np.float64 )
-
-                if  ( Field == 'OverPressure' ):
-
-                    AngleAveragedPressure \
-                      = np.zeros( (nX[0],nX[1]), np.float64 )
-
-                    for j in indX1:
-                        AngleAveragedPressure[j]\
-                          = ComputeAngleAverage( AF_P[j,:], X2 )
-
-                    # Loop over radius
-
-                    for j in indX1:
-                        Data[j,:] = ( AF_P[j,:] - AngleAveragedPressure[j] ) \
-                                      / AngleAveragedPressure[j]
-
-                elif( Field == 'RatioOfKineticEnergies' ):
-
-                    for j in indX1:
-                        Data[j,:] = ( X1[j] * PF_V2[j,:] / PF_V1[j,:] )**2
-
-                elif( Field == 'Entropy' ):
-
-                    Data = np.log10( AF_P / PF_D**(AF_Gm) )
-
-                elif( Field == 'V2' ):
-
-                    Data = PF_V2
-
-                elif( Field == 'pr4' ):
-
-                    for j in indX1:
-                        for k in indX2:
-
-                            Data[j,k] = AF_P[j,k] * X1[j]**4
-
-                elif( Field == 'DivV2' ):
-
-                    # --- Sheck et al., (2008), A&A, 477, 931 ---
-
-                    indX2 = np.linspace( 1, nX[1]-2, nX[1]-2, dtype = np.int64 )
-
-                    for j in indX1:
-                        for k in indX2:
-
-                            Data[j,k] \
-                              = 1.0 / ( 2.0 * dX[1] * np.sin( X2[k] ) ) \
-                                  * (   np.sin( X2[k+1] ) * PF_V2[j,k+1] \
-                                      - np.sin( X2[k-1] ) * PF_V2[j,k-1] )
-
-                elif( Field == 'Vorticity' ):
-
-                    indX1 = np.linspace( 0, nX[0]-2, nX[0]-1, dtype = np.int64 )
-                    indX2 = np.linspace( 0, nX[1]-3, nX[1]-2, dtype = np.int64 )
-
-                    for j in indX1:
-                        for k in indX2:
-
-                            Data[j,k] \
-                              = 1.0 / ( 1.0 / 2.0 * ( X1[j+1] + X1[j] ) ) \
-                                  * ( ( X1[j+1]**2 * PF_V2[j+1,k+2] \
-                                          - X1[j]**2 * PF_V2[j,k+1] ) / dX1 \
-                                       - ( PF_V1[j,k+2] - PF_V1[j,k+1] ) / dX2 )
-
-                else:
-
-                    print( 'Invalid choice of field: {:s}'.format( Field ) )
-                    print( 'Valid choices' )
-                    print( '-------------' )
-                    print( '  OverPressure' )
-                    print( '  RatioOfKineticEnergies' )
-                    print( '  Entropy' )
-                    print( '  V2' )
-                    print( '  pr4' )
-                    print( '  DivV2' )
-                    print( '  Vorticity' )
-                    exit( 'Exiting...' )
-
-#                # Subtract off angle-average
-#                for j in indX1:
-#                    Data[j,indX2] \
-#                      -= self.ComputeAngleAverage( Data[j,indX2], X2[indX2] )
-
-                # --- For each radius, j, integrate over full theta range ---
-
-                for j in indX1:
-
-                    G0[i,j] \
-                      = simps( Data[j,indX2] * P0[indX2] \
-                                 * np.sin( X2[indX2] ), x = X2[indX2] )
-                    G1[i,j] \
-                      = simps( Data[j,indX2] * P1[indX2] \
-                                 * np.sin( X2[indX2] ), x = X2[indX2] )
-                    G2[i,j] \
-                      = simps( Data[j,indX2] * P2[indX2] \
-                                 * np.sin( X2[indX2] ), x = X2[indX2] )
-
-                    G3[i,j] \
-                      = simps( Data[j,indX2] * P3[indX2] \
-                                 * np.sin( X2[indX2] ), x = X2[indX2] )
-
-                    G4[i,j] \
-                      = simps( Data[j,indX2] * P4[indX2] \
-                                 * np.sin( X2[indX2] ), x = X2[indX2] )
-
-                # --- Integrate over radial dimension ---
-
-                if self.R0 < 0.0:
-
-                    Power[i,0] \
-                      = TwoPi \
-                          * simps( G0[i,indX1]**2 * X1[indX1]**2, \
-                                   x = X1[indX1] )
-
-                    Power[i,1] \
-                      = TwoPi \
-                          * simps( G1[i,indX1]**2 * X1[indX1]**2, \
-                                   x = X1[indX1] )
-
-                    Power[i,2] \
-                      = TwoPi \
-                          * simps( G2[i,indX1]**2 * X1[indX1]**2, \
-                                   x = X1[indX1] )
-
-                    Power[i,3] \
-                      = TwoPi \
-                          * simps( G3[i,indX1]**2 * X1[indX1]**2, \
-                                   x = X1[indX1] )
-
-                    Power[i,4] \
-                      = TwoPi \
-                          * simps( G4[i,indX1]**2 * X1[indX1]**2, \
-                                   x = X1[indX1] )
-
-                else:
-
-                    Power[i,0] = G0[i,indX1]**2
-                    Power[i,1] = G1[i,indX1]**2
-                    Power[i,2] = G2[i,indX1]**2
-                    Power[i,3] = G3[i,indX1]**2
-                    Power[i,4] = G4[i,indX1]**2
-
-            Time0, RsAve, RsMin, RsMax = self.GetShockRadiusVsTime()
-
-            Data = np.vstack( (Time,RsAve,RsMin,RsMax, \
-                               Power[:,0],Power[:,1], \
-                               Power[:,2],Power[:,3],Power[:,4]) )
-            np.savetxt( self.FileName, Data )
-
         Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
           = np.loadtxt( self.FileName )
 
-#        if( isfile( self.ShockRadiusVsTimeFileName ) ):
-#            os.system( 'rm -f {:}'.format( self.ShockRadiusVsTimeFileName ) )
-
         return Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4
-
 
     def FitPowerInLegendreModes \
       ( self, t, t0, t1, P1, \
@@ -539,34 +147,25 @@ class PowersInLegendreModes:
 
         # --- Fit model to data ---
 
-#        beta = self.CurveFit( tFit, np.log( P1[ind] ), InitialGuess )
-#        F = np.exp( self.FittingFunction( tFit, beta ) )
-
-        beta, pcov = curve_fit( FittingFunction2, tFit, np.log( P1[ind] ), \
-                                p0 = InitialGuess, jac = Jacobian2 )
-        F = np.exp( FittingFunction2( tFit, beta[0], beta[1], \
-                                            beta[2], beta[3] ) )
+        beta, pcov \
+          = curve_fit( self.FittingFunction, tFit, np.log( P1[ind] ), \
+                       p0 = InitialGuess, jac = self.Jacobian )
+        F = np.exp( self.FittingFunction( tFit, beta[0], beta[1], \
+                                          beta[2], beta[3] ) )
 
         self.beta = np.copy( beta )
         self.perr = np.sqrt( np.diag( pcov ) )
 
         # Propagate error from frequency into period
-        self.perr[1] = self.perr[1] / ( 2.0 * self.beta[1]**2 )
         self.perr[2] = TwoPi * self.perr[2] / self.beta[2]**2
 
         self.beta[0] = np.exp( self.beta[0] )
-        self.beta[1] = 1.0 / ( 2.0 * self.beta[1] )
+        self.beta[1] = self.beta[1] * 1.0e3
+        self.perr[1] = self.perr[1] * 1.0e3
         self.beta[2] = TwoPi / self.beta[2]
         self.beta[3] = self.beta[3]
 
-        if self.Verbose:
-            print( '' )
-            print( 'F1 = {:.3e}'.format   ( self.beta[0] ) )
-            print( 'tr = {:.3e} ms'.format( self.beta[1] ) )
-            print( 'ti = {:.3e} ms'.format( self.beta[2] ) )
-            print( 'd  = {:.3e}'.format   ( self.beta[3] ) )
-
-        return tFit+t0, F
+        return tFit + t0, F
 
     def PlotData \
           ( self, ax, m, rs, t0, t1, \
@@ -597,12 +196,15 @@ class PowersInLegendreModes:
 
         ax.plot( Time, P1, c + '-', label = 'P1 ' + suffix )
 
-        ax.text( 0.3, 0.9, r'$\tau_\mathrm{{NR}}: {:.3f}\ \mathrm{{ms}}$'.format \
-                 ( G_NR[m,rs] ), fontsize = 15, transform = ax.transAxes, \
-                 color = 'red' )
-        ax.text( 0.3, 0.8, r'$\tau_\mathrm{{GR}}: {:.3f}\ \mathrm{{ms}}$'.format \
-                 ( G_GR[m,rs] ), fontsize = 15, transform = ax.transAxes, \
-                 color = 'blue' )
+        ax.text( 0.3, 0.9, \
+                 r'$\omega_\mathrm{{NR}}: {:.3f}\ \mathrm{{Hz}}$'.format \
+                 ( G_NR[m,rs] ), fontsize = 15, \
+                 transform = ax.transAxes, color = 'red' )
+        ax.text( 0.3, 0.8, \
+                 r'$\omega_\mathrm{{GR}}: {:.3f}\ \mathrm{{Hz}}$'.format \
+                 ( G_GR[m,rs] ), fontsize = 15, \
+                 transform = ax.transAxes, color = 'blue' )
+
         if type( F ) == np.ndarray:
 
             ind = np.where( ( t >= tF[0] ) & ( t <= tF[-1] ) )[0]
@@ -610,14 +212,6 @@ class PowersInLegendreModes:
             Time = t[ind]
 
             ax.plot( Time, F, c + '--', label = 'Fit ' + suffix )
-
-#            txt = r'$\tau$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
-#                    ( self.beta[1], self.perr[1] )
-#            txt += '\n'
-#            txt += r'$T$ = ( {:.3e} $\pm$ {:.3e} ) ms'.format \
-#                     ( self.beta[2], self.perr[2] )
-#
-#            ax.text( 0.2, 0.8, txt, transform = ax.transAxes )
 
         ax.set_yscale( 'log' )
 
@@ -634,12 +228,11 @@ class PowersInLegendreModes:
 
 if __name__ == "__main__":
 
-    #Root = '/scratch/dunhamsj/ProductionRuns/'
     Root = '/lump/data/AccretionShockStudy/'
 
     Field = 'DivV2'
     t0    = 000.0
-    t1    = 150.0
+    t1    = 300.0
     fL    = 0.8
     fU    = 0.9
     R0    = -1.7e2
@@ -714,6 +307,7 @@ if __name__ == "__main__":
                     tF0    = 5.0
                     tF1    = 150.0
 
+            tF1 = 300.0
             omega_r = 1.0 / ( 2.0 * tauR )
             omega_i = TwoPi / T_SASI
 
