@@ -66,7 +66,7 @@ class TimeScales:
 if __name__ == '__main__':
 
     Root = '/lump/data/AccretionShockStudy/'
-#    Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Euler_Relativistic_IDEAL/'
+    Root = '/home/kkadoogan/Work/Codes/thornado_sjd/SandBox/AMReX/Euler_NonRelativistic_IDEAL/'
 
     M    = np.linspace( 1.0, 3.0, 11 )
     Mdot = np.array( [ 0.3 ], np.float64 )
@@ -75,28 +75,30 @@ if __name__ == '__main__':
     M = np.array( [ 2.0 ], np.float64 )
     Mdot = np.array( [ 0.3 ], np.float64 )
     Rs = np.array( [ 150.0 ], np.float64 )
+    Gm = np.linspace( 1.01, 1.33, 33 )
 
     TS = TimeScales()
 
-    for m in range( M.shape[0] ):
-        for mdot in range( Mdot.shape[0] ):
-            for rs in range( Rs.shape[0] ):
+    for gm in range( Gm.shape[0] ):
+        for m in range( M.shape[0] ):
+            for mdot in range( Mdot.shape[0] ):
+                for rs in range( Rs.shape[0] ):
 
-                ID \
-                  = 'GR1D_M{:.1f}_Mdot{:.1f}_Rs{:g}_entropyPert_PA1.00e-02'.format \
-                      ( M[m], Mdot[mdot], Rs[rs] )
-                DataDirectory = Root + '{:}/{:}.plt_00000000/'.format( ID, ID )
-#                DataDirectory = Root + '{:}.plt_00000000/'.format( ID )
+                    ID \
+                      = 'NR1D_M{:.1f}_Mdot{:.1f}_Rs{:g}_Gm{:.2f}'.format \
+                          ( M[m], Mdot[mdot], Rs[rs], Gm[gm] )
+                    DataDirectory = Root + '{:}.plt_00000000/'.format( ID )
+                    rInner = 4.00e1
+                    rOuter = np.float64( Rs[rs] )
 
-                rInner = 4.00e1
-                rOuter = np.float64( Rs[rs] )
-
-                print( '\nM{:.1f}_Mdot{:.1f}_Rs{:g}'.format \
-                       ( M[m], Mdot[mdot], np.int64( Rs[rs] ) ) )
-                tAd, tAc = TS.ComputeTimeScales( DataDirectory, rInner, rOuter )
-                print( 'tauAd:  {:.3e}'.format( tAd ) )
-                print( 'tauAc:  {:.3e}'.format( tAc ) )
-                print( 'T_SASI: {:.3e}'.format( tAd + tAc ) )
+                    tAd, tAc = TS.ComputeTimeScales( DataDirectory, rInner, rOuter )
+                    print( '{:.2f}, {:.16e}, {:.16e}'.format( Gm[gm], tAd, tAc ) )
+#                    print( '\nM{:.1f}_Mdot{:.1f}_Rs{:g}_Gm{:.2f}'.format \
+#                           ( M[m], Mdot[mdot], np.int64( Rs[rs] ), Gm[gm] ) )
+#                    tAd, tAc = TS.ComputeTimeScales( DataDirectory, rInner, rOuter )
+#                    print( 'tauAd:  {:.3e}'.format( tAd ) )
+#                    print( 'tauAc:  {:.3e}'.format( tAc ) )
+#                    print( 'T_SASI: {:.3e}'.format( tAd + tAc ) )
 
     import os
     os.system( 'rm -rf __pycache__ ' )

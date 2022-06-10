@@ -3,8 +3,8 @@
 import numpy as np
 
 def Overwrite( FileName, ForceChoice = False, OW = False ):
-
     return False
+
     if ForceChoice: return OW
 
     from os.path import isfile, isdir
@@ -556,8 +556,48 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
                     W = 1.0 / np.sqrt( 1.0 - BetaSq )
 
                     Data[iX1,iX2,iX3] \
-                      = rho[iX1,iX2,iX3] * ( c * 1.0e5 )**2 \
+                      = rho[iX1,iX2,iX3] * W * ( c * 1.0e5 )**2 \
                           * W**2 * BetaSq / ( W + 1.0 )
+
+        DataUnits = 'erg/cm**3'
+
+    elif Field == 'AngularKineticEnergyDensity':
+
+        Gm11 = CoveringGrid['GF_Gm_11'].to_ndarray()
+        Gm22 = CoveringGrid['GF_Gm_22'].to_ndarray()
+        Gm33 = CoveringGrid['GF_Gm_33'].to_ndarray()
+
+        D   = CoveringGrid['CF_D' ].to_ndarray()
+        V1  = CoveringGrid['PF_V1'].to_ndarray()
+        V2  = CoveringGrid['PF_V2'].to_ndarray()
+        V3  = CoveringGrid['PF_V3'].to_ndarray()
+
+        c = 2.99792458e5
+
+        Data = np.empty( nX, np.float64 )
+
+        for iX1 in range( nX[0] ):
+
+            # --- Compute angular kinetic energy density ---
+
+            for iX2 in range( nX[1] ):
+                for iX3 in range( nX[2] ):
+
+                    # --- BetaSq = v_i * v^i / c^2 ---
+
+                    BetaSq = (   Gm11[iX1,iX2,iX3] * V1[iX1,iX2,iX3]**2 \
+                               + Gm22[iX1,iX2,iX3] * V2[iX1,iX2,iX3]**2 \
+                               + Gm33[iX1,iX2,iX3] * V3[iX1,iX2,iX3]**2 ) \
+                               / c**2
+
+                    W = 1.0 / np.sqrt( 1.0 - BetaSq )
+
+                    # --- Subtract off radial component ---
+
+                    Data[iX1,iX2,iX3] \
+                      = D[iX1,iX2,iX3] * ( c * 1.0e5 )**2 * W**2 \
+                          * ( BetaSq - Gm11[iX1,iX2,iX3] * V1[iX1,iX2,iX3]**2 \
+                                         / c**2 ) / ( W + 1.0 )
 
         DataUnits = 'erg/cm**3'
 

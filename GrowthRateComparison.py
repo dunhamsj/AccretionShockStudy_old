@@ -91,9 +91,10 @@ cbar.set_label( r'$( \omega_{\mathrm{GR}} - \omega_{\mathrm{NR}} ) / \omega_{\ma
                 size = size+2, labelpad = 10 )
 cbar.ax.tick_params( labelsize = size )
 plt.subplots_adjust( hspace = 0.3 )
-#plt.show()
-plt.savefig( '/home/kkadoogan/fig.GrowthRateComparison_HeatMap_{:}.png'.format( Field ), dpi = 300, \
-             bbox_inches = 'tight' )
+plt.show()
+#plt.savefig( \
+#  '/home/kkadoogan/fig.GrowthRateComparison_HeatMap_{:}.png'.format( Field ), \
+#  dpi = 300, bbox_inches = 'tight' )
 
 import os
 os.system( 'rm -rf __pycache__ ' )

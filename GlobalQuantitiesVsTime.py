@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from scipy.optimize import curve_fit
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -7,6 +9,11 @@ from sys import argv
 plt.style.use( './Publication.sty' )
 
 from UtilitiesModule import GetData as GD, GetFileArray, Overwrite
+
+def FittingFunction( t, dlog10AKEdt, log10AKE0 ):
+
+    return dlog10AKEdt * t + log10AKE0
+
 
 class GlobalQuantities:
 
@@ -54,7 +61,7 @@ class GlobalQuantities:
 
         FileName = self.ID + '_' + Field + '.dat'
 
-        OW = Overwrite( FileName, ForceChoice = True, OW = False )
+        OW = Overwrite( FileName)#, ForceChoice = True, OW = False )
 
         if OW:
 
@@ -82,71 +89,89 @@ class GlobalQuantities:
 
         return Time, Q
 
+    def FitCurve( self, Time, AKE ):
+
+        beta, pcov = curve_fit( FittingFunction, Time, np.log10( AKE ) )
+
+        return beta
+
+
 if __name__ == '__main__':
 
     Root = '/lump/data/AccretionShockStudy/'
-    IDs = np.array( [ 'GR2D_M2.0_Mdot0.3_Rs150', \
-                      'NR2D_M2.0_Mdot0.3_Rs150' ], str )
+    IDs = np.array( [ 'NR2D_M2.0_Mdot0.3_Rs150', \
+                      'GR2D_M2.0_Mdot0.3_Rs150' ], str )
 
-    Fields = np.array( [ 'NonRelativisticTurbulentEnergyDensity', \
-                         'TurbulentEnergyDensity' ], str )
+    Fields = np.array( [ 'AngularKineticEnergyDensity' ], str )
 
     fig, axs = plt.subplots( Fields.shape[0], 1 )
-    axs[-1].set_xlabel( 'Time [ms]' )
+    axs.set_title( IDs[0][5:] )
+    axs.set_xlabel( 'Coordinate Time [ms]' )
 
-    GR = GlobalQuantities( Root, IDs[0] )
-    NR = GlobalQuantities( Root, IDs[1] )
+    NR = GlobalQuantities( Root, IDs[0] )
+    GR = GlobalQuantities( Root, IDs[1] )
 
     c = [ 'r', 'b' ]
 
     for i in range( Fields.shape[0] ):
 
-        Time, dataGR = GR.GetData( Fields[i] )
         Time, dataNR = NR.GetData( Fields[i] )
+        Time, dataGR = GR.GetData( Fields[i] )
 
         ind = np.where( Time > 10.0 )[0]
 
         Time   = np.copy( Time  [ind] )
-        dataGR = np.copy( dataGR[ind] )
         dataNR = np.copy( dataNR[ind] )
+        dataGR = np.copy( dataGR[ind] )
+
+        betaNR = NR.FitCurve( Time, dataNR )
+        betaGR = GR.FitCurve( Time, dataGR )
 
         if i == 0:
 
-            #axs[i].plot( Time, ( dataGR - dataGR[0] ) / dataGR[0], \
-            #             c[0], label = 'GR' )
-            #axs[i].plot( Time, ( dataNR - dataNR[0] ) / dataNR[0], \
-            #             c[1], label = 'NR' )
+            #axs.plot( Time, ( dataNR - dataNR[0] ) / dataNR[0], \
+            #          c[0], label = 'NR' )
+            #axs.plot( Time, ( dataGR - dataGR[0] ) / dataGR[0], \
+            #          c[1], label = 'NR' )
 
-            axs[i].plot( Time, dataGR, \
-                         c[0], label = 'GR' )
-            axs[i].plot( Time, dataNR, \
-                         c[1], label = 'NR' )
+            axs.plot( Time, dataNR, \
+                      c[0], label = 'NR' )
+            axs.plot( Time, dataGR, \
+                      c[1], label = 'GR' )
+
+            axs.plot( Time, 10**( betaNR[0] * Time + betaNR[1] ), c[0] + '--' )
+            axs.plot( Time, 10**( betaGR[0] * Time + betaGR[1] ), c[1] + '--' )
+
+            axs.text( 0.5, 0.3, 'm = {:.3e}'.format( betaNR[0] ), \
+                      c = c[0], transform = axs.transAxes )
+            axs.text( 0.5, 0.2, 'm = {:.3e}'.format( betaGR[0] ), \
+                      c = c[1], transform = axs.transAxes )
+            axs.text( 0.5, 0.1, r'(m$_{{GR}}$-m$_{{NR}}$)/m$_{{GR}}$ = {:.3e}' \
+                      .format( ( betaGR[0] - betaNR[0] ) / betaGR[0] ), \
+                      c = 'k', transform = axs.transAxes )
 
         else:
 
-            #axs[i].plot( Time, ( dataGR - dataGR[0] ) / dataGR[0], \
-            #             c[0] )
-            #axs[i].plot( Time, ( dataNR - dataNR[0] ) / dataNR[0], \
-            #             c[1] )
+            #axs.plot( Time, ( dataNR - dataNR[0] ) / dataNR[0], \
+            #          c[0] )
+            #axs.plot( Time, ( dataGR - dataGR[0] ) / dataGR[0], \
+            #          c[1] )
 
-            axs[i].plot( Time, dataGR, \
-                         c[0] )
-            axs[i].plot( Time, dataNR, \
-                         c[1] )
+            axs.plot( Time, dataNR, \
+                      c[0] )
+            axs.plot( Time, dataGR, \
+                      c[1] )
 
-    axs[0].text( 0.2, 0.7, r'$\frac{1}{2}\,\rho\,\tilde{v}\cdot\tilde{v}$', \
-                 transform = axs[0].transAxes )
+    axs.text( 0.2, 0.7, \
+    r'$y\left(t\right)=2\pi\int\frac{W^{2}}{W+1}\,D\,v_{2}\,v^{2}\,\sqrt{\gamma}\,dr\,d\theta$', \
+              transform = axs.transAxes )
 
-    axs[1].text( 0.2, 0.7, r'$\frac{\widetilde{W}^{2}}{\widetilde{W}+1}\,\rho\,\tilde{v}\cdot\tilde{v}$', \
-                 transform = axs[1].transAxes )
-    axs[0].set_ylabel( 'NRTE' )
-    axs[1].set_ylabel( 'SRTE' )
+    axs.set_ylabel( 'Angular Kinetic Energy erg/cm$^{3}$' )
 
-    axs[0].legend()
-    axs[0].set_yscale( 'log' )
-    axs[1].set_yscale( 'log' )
+    axs.legend()
+    axs.set_yscale( 'log' )
 
-    #plt.savefig( 'fig.TEComparison.png', dpi = 300 )
-    plt.show()
+    plt.savefig( 'fig.AKEComparison.png', dpi = 300 )
+    #plt.show()
 
     os.system( 'rm -rf __pycache__' )
