@@ -12,12 +12,14 @@ tauAc = TS[:,2]
 tauSASI = tauAd + tauAc
 
 plt.title( 'NR1D_M2.0_Mdot0.3_Rs150' )
-#plt.semilogy( Gm, tauAd, '.', label = r'$\tau_{\mathrm{Advective}}$' )
-plt.semilogy( Gm, tauAd/tauAc, '.', label = r'$\tau_{\mathrm{Acoustic}}$' )
+plt.semilogy( Gm, tauAd, '.', label = r'$\tau_{\mathrm{Advective}}$' )
+plt.semilogy( Gm, tauAc, '.', label = r'$\tau_{\mathrm{Acoustic}}$' )
+plt.semilogy( Gm, tauAd/tauAc, '.', label = 'ratio' )
 #plt.semilogy( Gm, tauSASI, '.', label = r'$\tau_{\mathrm{SASI}}$' )
 plt.grid()
+plt.ylim( 1.0e0, 1.0e4 )
 plt.xlabel( 'Gamma' )
 plt.ylabel( 'Time [ms]' )
 plt.legend()
-#plt.savefig( 'fig.VaryGm.png', dpi = 300 )
-plt.show()
+plt.savefig( 'fig.VaryGm.png', dpi = 300 )
+#plt.show()
