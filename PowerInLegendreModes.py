@@ -222,8 +222,7 @@ class PowersInLegendreModes:
       if self.Verbose:
         print( '\nCalling PowersInLegendreModes.GetShockRadiusVsTime...\n' )
 
-      OW = Overwrite( self.ShockRadiusVsTimeFileName, \
-                      ForceChoice = True, OW = False )
+      OW = Overwrite( self.ShockRadiusVsTimeFileName )
 
       if OW:
 
