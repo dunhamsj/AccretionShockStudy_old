@@ -11,20 +11,39 @@ yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 
 class ShockRadius:
 
-    def __init__( self, Root, ID, EntropyThreshold = 1.0e15, suffix = '' ):
+    def __init__( self, RootDirectory, ID, EntropyThreshold = 1.0e15, \
+                  PlotFileDirectorySuffix = '', \
+                  ForceChoice = False, OW = True, ModPlotFile = 1, \
+                  Verbose = False ):
 
-        print( '\nCreating instance of ShockRadius class...\n' )
 
-        self.Root             = Root
-        self.ID               = ID
-        self.EntropyThreshold = EntropyThreshold
+        self.RootDirectory           = RootDirectory
+        self.ID                      = ID
+        self.EntropyThreshold        = EntropyThreshold
+        self.PlotFileDirectorySuffix = PlotFileDirectorySuffix
+        self.ForceChoice             = ForceChoice
+        self.OW                      = OW
+        self.ModPlotFile             = ModPlotFile
+        self.Verbose                 = Verbose
 
-        print( '  Variables:' )
-        print( '  ----------' )
-        print( '    Root:             {:s}'.format( self.Root ) )
-        print( '    ID:               {:s}'.format( self.ID ) )
-        print( '    EntropyThreshold: {:.3e}\n'.format \
-          ( self.EntropyThreshold ) )
+        if self.Verbose:
+
+            print( '\n  Creating instance of ShockRadius class...\n' )
+            print( '    Variables:' )
+            print( '    ----------' )
+            print( '{:>29}: {:}'.format( 'RootDirectory', self.RootDirectory ) )
+            print( '{:>29}: {:}'.format( 'ID', self.ID ) )
+            print( '{:>29}: {:.3e} cgs'.format \
+              ( 'EntropyThreshold', self.EntropyThreshold ) )
+            print( '{:>29}: {:}'.format \
+              ( 'PlotFileDirectorySuffix', self.PlotFileDirectorySuffix ) )
+            print( '{:>29}: {:}'.format \
+              ( 'ForceChoice', self.ForceChoice ) )
+            print( '{:>29}: {:}'.format \
+              ( 'OW', self.OW ) )
+            print( '{:>29}: {:}'.format \
+              ( 'ModPlotFile', self.ModPlotFile ) )
+            print('')
 
         self.DataFileName              \
           = '.{:}_ShockRadiusVsTimeData_{:}.dat'.format \
@@ -39,17 +58,21 @@ class ShockRadius:
           = 'fig.ShockRadiusVsTime_{:}_{:}.png'.format \
             ( ID, 'PolytropicConstant' )
 
-        self.DataDirectory = self.Root + self.ID + '{:}/'.format( suffix )
+        self.PlotFileDirectory \
+          = self.RootDirectory \
+              + self.ID + '{:}/'.format( PlotFileDirectorySuffix )
 
         self.PlotFileBaseName = self.ID + '.plt'
 
-        self.FileArray \
-          = GetFileArray( self.DataDirectory, self.PlotFileBaseName )
+        self.PlotFileArray \
+          = GetFileArray( self.PlotFileDirectory, self.PlotFileBaseName )
+
+        self.PlotFileArray = self.PlotFileArray[::self.ModPlotFile]
 
         File \
-          = ChoosePlotFile( self.DataDirectory, self.PlotFileBaseName )
+          = ChoosePlotFile( self.PlotFileDirectory, self.PlotFileBaseName )
 
-        self.ds = yt.load( '{:}'.format( self.DataDirectory + File ) )
+        self.ds = yt.load( '{:}'.format( self.PlotFileDirectory + File ) )
 
         self.nX = self.ds.domain_dimensions
         self.xL = self.ds.domain_left_edge.to_ndarray()
@@ -69,8 +92,6 @@ class ShockRadius:
 
 
     def MakeLineOutPlot( self ):
-
-        print( '\nCalling ShockRadius.MakeLineOutPlot...\n' )
 
         ds = self.ds
 
@@ -96,52 +117,51 @@ class ShockRadius:
         return
 
 
-    def MakeDataFile( self, OW_Option = False ):
+    def MakeDataFile( self ):
 
-        print( '\nCalling ShockRadius.MakeDataFile...\n' )
-
-        if OW_Option:
-
-            OW = OW_Option
-
-        else:
-
-            OW = Overwrite( self.DataFileName )
+        OW = Overwrite( self.DataFileName, \
+                        ForceChoice = self.ForceChoice, OW = self.OW )
 
         if not OW: return
 
-        FileArray        = self.FileArray
-        nX               = self.nX
-        DataDirectory    = self.DataDirectory
-        PlotFileBaseName = self.PlotFileBaseName
-        DataFileName     = self.DataFileName
-        TimeFileName     = self.TimeFileName
+        PlotFileArray     = self.PlotFileArray
+        nX                = self.nX
+        PlotFileDirectory = self.PlotFileDirectory
+        PlotFileBaseName  = self.PlotFileBaseName
+        DataFileName      = self.DataFileName
+        TimeFileName      = self.TimeFileName
 
         # Put all time-slices into one array to use for movie making
 
-        Data = np.empty( (FileArray.shape[0],nX[0],nX[1]), np.float64 )
+        if nX[1] > 1:
+            Data = np.empty( (PlotFileArray.shape[0],nX[0],nX[1]), np.float64 )
+        else:
+            Data = np.empty( (PlotFileArray.shape[0],nX[0]), np.float64 )
 
-        Time = np.empty( (FileArray.shape[0]), np.float64 )
+        Time = np.empty( (PlotFileArray.shape[0]), np.float64 )
 
-        print( '\nMaking data array for shock radius vs. time...' )
-        print(   '----------------------------------------------' )
+        if self.Verbose:
+            print( '\n    Making data array for shock radius vs. time...' )
+            print(   '    ----------------------------------------------' )
 
-        for i in range( FileArray.shape[0] ):
+        for i in range( PlotFileArray.shape[0] ):
 
-            if (i+1) % 10 == 0:
-                print( 'File {:}/{:}'.format( i+1, FileArray.shape[0] ) )
+            if self.Verbose and ( (i+1) % 10 == 0 ):
+                print( '      File {:}/{:}'.format \
+                  ( i+1, PlotFileArray.shape[0] ) )
 
             Data[i], DataUnit, r, theta, phi, dr, dtheta, dphi, \
             xL, xU, nX, Time[i] \
-              = GetData( DataDirectory, PlotFileBaseName, \
-                         'PolytropicConstant', 'spherical', \
-                         [ 'a', FileArray[i] ], \
+              = GetData( PlotFileDirectory, PlotFileBaseName, \
+                         'PolytropicConstant', 'spherical', True, \
+                         argv = [ 'a', PlotFileArray[i] ], \
                          ReturnMesh = True, ReturnTime = True )
 
         np.savetxt( TimeFileName, Time )
 
-        print( '\nMaking data file for shock radius vs. time...' )
-        print(   '---------------------------------------------' )
+        if self.Verbose:
+            print( '\n  Making data file for shock radius vs. time...' )
+            print(   '---------------------------------------------' )
 
         # Save multi-D array with np.savetxt. Taken from:
         # https://stackoverflow.com/questions/3685265/
@@ -157,8 +177,9 @@ class ShockRadius:
 
                 i += 1
 
-                if i % 10 == 0:
-                    print( 'File {:}/{:}'.format( i, FileArray.shape[0] ) )
+                if self.Verbose and ( i % 10 == 0 ):
+                    print( '    File {:}/{:}'.format \
+                      ( i, PlotFileArray.shape[0] ) )
 
                 np.savetxt( FileOut, TimeSlice )
                 FileOut.write( '# New slice\n' )
@@ -168,48 +189,50 @@ class ShockRadius:
 
     def ComputeShockRadius( self ):
 
-        print( '\nCalling ShockRadius.ComputeShockRadius...\n' )
-
-        OW = Overwrite( self.ShockRadiusVsTimeFileName )
+        OW = Overwrite( self.ShockRadiusVsTimeFileName, \
+                        ForceChoice = self.ForceChoice, OW = self.OW )
 
         if not OW: return
 
         #self.MakeLineOutPlot()
 
-        print( '\nComputing average shock radius...' )
+        if self.Verbose:
+            print( '\n    Computing average shock radius...' )
 
-        FileArray    = self.FileArray
-        nX           = self.nX
-        DataFileName = self.DataFileName
-        TimeFileName = self.TimeFileName
-        X1           = self.X1
-        X2           = self.X2
-        dX           = self.dX
+        PlotFileArray = self.PlotFileArray
+        nX            = self.nX
+        DataFileName  = self.DataFileName
+        TimeFileName  = self.TimeFileName
+        X1            = self.X1
+        X2            = self.X2
+        dX            = self.dX
 
         dX1 = dX[0]
         dX2 = dX[1]
 
-        OW = Overwrite( DataFileName )
+        OW = Overwrite( self.DataFileName, \
+                        ForceChoice = self.ForceChoice, OW = self.OW )
 
-        self.MakeDataFile( OW_Option = OW )
+        self.MakeDataFile()
 
         Data = np.loadtxt( DataFileName ).reshape( \
-                 (FileArray.shape[0],nX[0],nX[1]) )
+                 (PlotFileArray.shape[0],nX[0],nX[1]) )
         Time = np.loadtxt( TimeFileName )
 
         DataUnit = 'erg/cm**3/(g/cm**3)**(4/3)'
 
-        Volume = np.zeros( FileArray.shape[0], np.float64 )
-        Min    = np.empty( FileArray.shape[0], np.float64 )
-        Max    = np.empty( FileArray.shape[0], np.float64 )
+        Volume = np.zeros( PlotFileArray.shape[0], np.float64 )
+        Min    = np.empty( PlotFileArray.shape[0], np.float64 )
+        Max    = np.empty( PlotFileArray.shape[0], np.float64 )
 
-        print( '\nComputing shock radius...' )
-        print(   '-------------------------' )
+        if self.Verbose:
+            print( '\n  Computing shock radius...' )
+            print(     '-------------------------' )
 
         for iT in range( Data.shape[0] ):
 
-            if (iT+1) % 10 == 0:
-                print( '  File {:}/{:}'.format( iT+1, Data.shape[0] ) )
+            if self.Verbose and ( (iT+1) % 10 == 0 ):
+                print( '    File {:}/{:}'.format( iT+1, Data.shape[0] ) )
 
             # Sum volumes of elements containing shocked fluid
 
@@ -249,15 +272,13 @@ class ShockRadius:
 
     def PlotShockRadiusVsTime( self ):
 
-        print( '\nCalling ShockRadius.PlotShockRadiusVsTime...\n' )
-
         t, r, Min, Max = np.loadtxt( self.ShockRadiusVsTimeFileName )
 
         r0 = r[0]
 
-        plt.plot( t, r  /r0, 'k-', label = 'Average' )
-        plt.plot( t, Max/r0, 'b-', label = 'Max' )
-        plt.plot( t, Min/r0, 'r-', label = 'Min' )
+        plt.plot( t, ( r - r0 ) / r0, 'k-', label = 'Average' )
+        #plt.plot( t, Max/r0, 'b-', label = 'Max' )
+        #plt.plot( t, Min/r0, 'r-', label = 'Min' )
         plt.xlim( t[0], t[-1] )
         plt.xlabel( 'Time [ms]' )
         plt.ylabel( r'$R_{s}/R_{s,0}$' )
@@ -269,12 +290,15 @@ class ShockRadius:
 
 if __name__ == "__main__":
 
-    Root = '/home/dunhamsj/AccretionShockData/'
+    RootDirectory = '/Users/dunhamsj/Work/Data/AccretionShockParameterStudy/'
     EntropyThreshold = 1.0e15
 
-    ID = 'GR1D_M2.0_Mdot0.3_Rs180'
+    ID = 'NR1D_M1.4_Mdot0.3_Rs180_PA1.00e-05_nX640'
 
-    SR = ShockRadius( Root, ID, EntropyThreshold )
+    SR = ShockRadius( RootDirectory, ID, EntropyThreshold = EntropyThreshold, \
+                      PlotFileDirectorySuffix = '', \
+                      ForceChoice = False, OW = True, ModPlotFile = 10, \
+                      Verbose = True )
 
     SR.ComputeShockRadius()
     SR.PlotShockRadiusVsTime()
