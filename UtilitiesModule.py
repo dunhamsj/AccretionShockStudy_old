@@ -3,7 +3,6 @@
 import numpy as np
 
 def Overwrite( FileName, ForceChoice = False, OW = False ):
-    return True
 
     if ForceChoice: return OW
 
