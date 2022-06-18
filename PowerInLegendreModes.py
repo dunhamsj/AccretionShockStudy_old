@@ -227,9 +227,9 @@ class PowersInLegendreModes:
       if OW:
 
         from ShockRadius import ShockRadius
-        SR = ShockRadius( self.Root, self.ID, \
+        SR = ShockRadius( self.RootDirectory, self.ID, \
                           EntropyThreshold = self.EntropyThreshold, \
-                          suffix = self.suffix )
+                          PlotFileDirectorySuffix = self.suffix )
         SR.ComputeShockRadius()
 
       self.ComputedShockRadius = True
