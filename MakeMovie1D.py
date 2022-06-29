@@ -73,16 +73,16 @@ class MakeMovie1D:
 if __name__ == '__main__':
 
     MovieRunTime = 30.0 # [s]
-    UseLogScale  = False
+    UseLogScale  = True
     nSS          = -1
     Field        = 'PF_D'
-    suffix       = '_UnRelaxed'
+    suffix       = ''
 
     MM1D = MakeMovie1D( nSS = nSS, suffix = suffix )
 
     PlotFileDirectory = '/lump/data/AccretionShockStudy/'
     IDs               = np.array( \
-      [ 'GR1D_M2.0_Mdot0.3_Rs150_entropyPert_PA1.00e-05' ], str )
+      [ 'GR1D_M1.4_Mdot0.3_Rs180' ], str )
 
     Data = np.empty( IDs.shape[0], object )
 
@@ -94,14 +94,14 @@ if __name__ == '__main__':
         d = MM1D.GetData( PlotFileDirectory, IDs[i], \
                           PlotFileBaseName, Field, nX1 = 640 )
         BG = np.copy( d[-1] )
-        Data[i] = ( d[:-1] - BG ) / BG
+        Data[i] = np.copy(d)#( d[:-1] - BG ) / BG
 
         ymin = min( ymin, Data[i].min() )
         ymax = max( ymax, Data[i].max() )
 
     SaveFileAs   = 'mov.{:}_1D{:}.mp4'.format( IDs[0][5:], suffix )
 
-    nSS = MM1D.nSS - 1
+    nSS = MM1D.nSS# - 1
 
     # Plotting
 
@@ -111,16 +111,17 @@ if __name__ == '__main__':
 
     r    = MM1D.X1_C
     xmin = MM1D.xlim[0]
-    xmax = 151.0#MM1D.xlim[1]
-    ymin = -1.0e-04#Data.min()
-    ymax = +1.0e-04#Data.max()
+    xmax = MM1D.xlim[1]
+    ymin = Data.min()
+    ymax = Data.max()
+    plt.plot( r, Data[0,0] );plt.show();exit()
 
     if UseLogScale: ax.set_yscale( 'log' )
 
     ax.set_xlabel( 'Radial Coordinate [km]' )
     ax.set_ylabel( r'$\left(\rho\left(t\right)-\rho\left(0\right)\right)/\rho\left(0\right)$' )
-    ax.set_xlim( xmin, xmax )
-    ax.set_ylim( ymin, ymax )
+    #ax.set_xlim( xmin, xmax )
+    #ax.set_ylim( ymin, ymax )
     ax.grid()
 
     c = np.array( [ 'r-', 'b-', 'm-' ] )

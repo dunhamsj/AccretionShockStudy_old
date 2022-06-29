@@ -6,9 +6,9 @@ plt.style.use( './Publication.sty' )
 
 Root = '/lump/data/AccretionShockStudy/'
 
-M    = np.array( [ '1.4', '2.0', '2.8' ], str )
+M    = np.array( [ '1.4', '2.0', '2.4', '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '120', '150', '180' ], str )
+Rs   = np.array( [ '120', '150', '165', '180' ], str )
 
 Field = 'DivV2'
 

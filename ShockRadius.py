@@ -93,21 +93,22 @@ class ShockRadius:
 
     def MakeLineOutPlot( self ):
 
-        ds = self.ds
-
-        X1 = self.X1
-
-        oray = ds.ortho_ray( axis = 0, coords = (0,0) )
-
-        PolytropicConstant = oray['AF_P'] / oray['PF_D']**oray['AF_Gm']
+        Data, DataUnit, r, theta, phi, dr, dtheta, dphi, \
+        xL, xU, nX, Time \
+          = GetData( self.PlotFileDirectory, self.PlotFileBaseName, \
+                     'PolytropicConstant', 'spherical', True, \
+                     argv = [ 'a' ], \
+                     ReturnMesh = True, ReturnTime = True )
 
         fig2 = plt.figure()
 
-        plt.semilogy( X1, PolytropicConstant, 'k-' )
+        plt.semilogy( r, Data, 'k-' )
         plt.axhline( self.EntropyThreshold, label = 'Shock radius cut-off' )
 
         plt.legend()
-        plt.show()
+        plt.savefig( '{:}_EntropyThresholdCheck.png'.format( self.ID ), \
+                     dpi = 300 )
+        #plt.show()
         plt.close()
 
         del fig2
@@ -194,7 +195,7 @@ class ShockRadius:
 
         if not OW: return
 
-        #self.MakeLineOutPlot()
+        self.MakeLineOutPlot()
 
         if self.Verbose:
             print( '\n    Computing average shock radius...' )
@@ -281,19 +282,20 @@ class ShockRadius:
         #plt.plot( t, Min/r0, 'r-', label = 'Min' )
         plt.xlim( t[0], t[-1] )
         plt.xlabel( 'Time [ms]' )
-        plt.ylabel( r'$R_{s}/R_{s,0}$' )
+        plt.ylabel( r'$\left(R_{s}-R_{s,0}\right)/R_{s,0}$' )
         plt.legend()
-        plt.show()
+        #plt.show()
+        plt.savefig( self.SaveFigAs, dpi = 300 )
         plt.close()
-        #plt.savefig( self.SaveFigAs, dpi = 300 )
 
 
 if __name__ == "__main__":
 
-    RootDirectory = '/Users/dunhamsj/Work/Data/AccretionShockParameterStudy/'
+    #RootDirectory = '/Users/dunhamsj/Work/Data/AccretionShockParameterStudy/'
+    RootDirectory = '/lump/data/AccretionShockStudy/'
     EntropyThreshold = 1.0e15
 
-    ID = 'NR1D_M1.4_Mdot0.3_Rs180_PA1.00e-05_nX640'
+    ID = 'GR1D_M2.4_Mdot0.3_Rs165'
 
     SR = ShockRadius( RootDirectory, ID, EntropyThreshold = EntropyThreshold, \
                       PlotFileDirectorySuffix = '', \

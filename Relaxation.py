@@ -7,7 +7,8 @@ from matplotlib import animation
 
 class Relaxation:
 
-    Root = '/home/dunhamsj/AccretionShockData/'
+    #Root = '/home/dunhamsj/AccretionShockData/'
+    Root = '/lump/data/AccretionShockStudy/'
 
     def __init__( self, nX, SSi, SSf, nSS = -1, \
                   ForceChoice = False, Overwrite = False ):
@@ -22,16 +23,16 @@ class Relaxation:
         print( '' )
         print( '  Creating instance of Relaxation...' )
         print( '  ----------------------------------' )
-        print( '    nX:  {:}'.format( self.nX ) )
-        print( '    SSi: {:}'.format( self.SSi ) )
-        print( '    SSf: {:}'.format( self.SSf ) )
-        print( '    nSS: {:}'.format( self.nSS ) )
+        print( '{:>8} {:}'.format( 'nX:' , self.nX ) )
+        print( '{:>8} {:}'.format( 'SSi:', self.SSi ) )
+        print( '{:>8} {:}'.format( 'SSf:', self.SSf ) )
+        print( '{:>8} {:}'.format( 'nSS:', self.nSS ) )
         print( '' )
 
         self.ind = np.linspace( self.SSi, self.SSf, self.nSS, dtype = np.int64 )
 
         self.ForceChoice = ForceChoice
-        self.Overwrite = Overwrite
+        self.OW = Overwrite
 
         return
 
@@ -40,8 +41,8 @@ class Relaxation:
 
         self.DataDirectory = self.Root + ID + '{:}/'.format( suffix )
 
-        print( '    ID:            {:}'.format( ID ) )
-        print( '    DataDirectory: {:}'.format( self.DataDirectory ) )
+        print( '{:>18} {:}'.format( 'ID:', ID ) )
+        print( '{:>18} {:}'.format( 'DataDirectory:', self.DataDirectory ) )
         print( '' )
 
         return
@@ -53,11 +54,15 @@ class Relaxation:
 
         self.SetDataDirectory( ID )
 
+        print( '{:>10} {:}'.format( 'Field:', Field ) )
+
         FileName = '.{:}_Relaxation_{:}.dat'.format( ID, Field )
 
         OW = UM.Overwrite( FileName, self.ForceChoice, self.OW )
 
         if OW:
+
+            print( '    Generating File: {:}'.format( FileName ) )
 
             PlotFileBaseName = ID + '.plt'
 
@@ -75,10 +80,13 @@ class Relaxation:
                 if i % 10 == 0:
                     print( 'File {:d}/{:d}'.format( i, self.nSS ) )
 
-                NodalData[i], DataUnit, r, theta, Time[i], xL, xU \
-                  = UM.GetData( self.DataDirectory, PlotFileBaseName, \
-                                [ 'a', FileArray[self.ind[i]] ], Field, \
-                                Verbose = False )
+                NodalData[i], DataUnit, r, theta, phi, dr, dtheta, dphi, \
+                  xL, xU, nX, Time[i] \
+                    = UM.GetData( self.DataDirectory, PlotFileBaseName, \
+                                  Field, 'spherical', True, \
+                                  argv = [ 'a', FileArray[self.ind[i]] ], \
+                                  ReturnTime = True, ReturnMesh = True, \
+                                  Verbose = False )
 
             Den = np.empty( (self.nX), np.float64 )
 
@@ -125,11 +133,11 @@ if __name__ == '__main__':
 
     Relax \
       = Relaxation( nX, SSi, SSf, nSS, \
-                    ForceChoice = True, Overwrite = True )
+                    ForceChoice = False, Overwrite = True )
 
     UseLogScale = True
 
-    ID = 'NR1D_M1.4_Mdot0.3_Rs180_PA0.00e-00_nX640'
+    ID = 'GR1D_M2.4_Mdot0.3_Rs180'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 
@@ -144,7 +152,7 @@ if __name__ == '__main__':
 
     fig, axs = plt.subplots( 3, 1 )
 
-    fig.suptitle( 'Gaussian perturbation below shock\n{:}'.format( ID ) )
+#    fig.suptitle( 'Gaussian perturbation below shock\n{:}'.format( ID ) )
 
     Relax.PlotRelaxationVsTime( axs[0], Time_D, Data_D, D, ID, UseLogScale )
     Relax.PlotRelaxationVsTime( axs[1], Time_V, Data_V, V, ID, UseLogScale )
@@ -153,6 +161,9 @@ if __name__ == '__main__':
 #    axs[0].set_ylim( 1.0e-6, 5.0 )
 #    axs[1].set_ylim( 1.0e-6, 5.0 )
 #    axs[2].set_ylim( 1.0e-6, 5.0 )
+    axs[0].grid()
+    axs[1].grid()
+    axs[2].grid()
 
 #    plt.show()
 
