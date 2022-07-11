@@ -667,7 +667,7 @@ class PowersInLegendreModes:
 if __name__ == "__main__":
 
   #Root = '/scratch/dunhamsj/ProductionRuns/'
-  Root = '/lump/data/AccretionShockStudy/'
+  Root = '/lump/data/accretionShockStudy/'
 
   Field = 'DivV2'
   t0    = 001.0
@@ -677,13 +677,13 @@ if __name__ == "__main__":
   R0    = -1.7e2
   suffix = ''
 
-  M     = np.array( [ '1.4', '2.0', '2.4', '2.8' ], str )
-  Mdot  = np.array( [ '0.3' ], str )
-  Rs    = np.array( [ '120', '150', '165', '180' ], str )
-
-  #M     = np.array( [ '2.8' ], str )
+  #M     = np.array( [ '1.4', '2.0', '2.8' ], str )
   #Mdot  = np.array( [ '0.3' ], str )
-  #Rs    = np.array( [ '165' ], str )
+  #Rs    = np.array( [ '120', '150', '180' ], str )
+
+  M     = np.array( [ '2.4', '2.8' ], str )
+  Mdot  = np.array( [ '0.3' ], str )
+  Rs    = np.array( [ '165', '180' ], str )
 
   T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
   T_err_GR = np.copy( T_GR )
@@ -699,7 +699,7 @@ if __name__ == "__main__":
     for mdot in range( Mdot.shape[0] ):
       for rs in range( Rs.shape[0] ):
 
-        print( 'M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] ) )
+#        print( 'M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] ) )
 
         LogF0  = np.log( 1.0e14 )
         tauR   = 200.0
@@ -793,13 +793,14 @@ if __name__ == "__main__":
         G_err_GR[m,rs] = P_GR.perr[1]
         T_GR    [m,rs] = P_GR.beta[2]
         T_err_GR[m,rs] = P_GR.perr[2]
+        print( 'M{:}_Mdot{:}_Rs{:}, omega: {:}'.format( M[m], Mdot[mdot], Rs[rs], G_GR[m,rs] ) )
         del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
             P0, P1, P2, P3, P4, tFit, F
 
-  np.savetxt( 'G_GR_{:}.dat'.format( Field )    , G_GR )
-  np.savetxt( 'G_err_GR_{:}.dat'.format( Field ), G_err_GR )
-  np.savetxt( 'T_GR_{:}.dat'.format( Field )    , T_GR )
-  np.savetxt( 'T_err_GR_{:}.dat'.format( Field ), T_err_GR )
+  #np.savetxt( 'G_GR_{:}.dat'.format( Field )    , G_GR )
+  #np.savetxt( 'G_err_GR_{:}.dat'.format( Field ), G_err_GR )
+  #np.savetxt( 'T_GR_{:}.dat'.format( Field )    , T_GR )
+  #np.savetxt( 'T_err_GR_{:}.dat'.format( Field ), T_err_GR )
   #np.savetxt( 'G_NR_{:}.dat'.format( Field )    , G_NR )
   #np.savetxt( 'G_err_NR_{:}.dat'.format( Field ), G_err_NR )
   #np.savetxt( 'T_NR_{:}.dat'.format( Field )    , T_NR )
