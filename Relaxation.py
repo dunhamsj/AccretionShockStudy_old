@@ -4,11 +4,12 @@ import numpy as np
 from sys import argv
 import matplotlib.pyplot as plt
 from matplotlib import animation
+from multiprocessing import Process, cpu_count, Manager
 
 class Relaxation:
 
     #Root = '/home/dunhamsj/AccretionShockData/'
-    Root = '/lump/data/AccretionShockStudy/'
+    Root = '/lump/data/accretionShockStudy/'
 
     def __init__( self, nX, SSi, SSf, nSS = -1, \
                   ForceChoice = False, Overwrite = False ):
@@ -71,22 +72,72 @@ class Relaxation:
               = UM.ChoosePlotFile( self.DataDirectory, PlotFileBaseName, argv, \
                                    Verbose = False )
 
-            NodalData = np.empty( (self.nSS,self.nX), np.float64 )
-            DiffData  = np.empty( (self.nSS-1), np.float64 )
-            Time      = np.empty( (self.nSS), np.float64 )
+            def loop( iLo, iHi, NodalData, Time, iProc, \
+                      return_data, return_time ):
 
-            for i in range( self.ind.shape[0] ):
+                for i in range( iLo, iHi ):
 
-                if i % 10 == 0:
-                    print( 'File {:d}/{:d}'.format( i, self.nSS ) )
+                    j = i - iLo
 
-                NodalData[i], DataUnit, r, theta, phi, dr, dtheta, dphi, \
-                  xL, xU, nX, Time[i] \
-                    = UM.GetData( self.DataDirectory, PlotFileBaseName, \
-                                  Field, 'spherical', True, \
-                                  argv = [ 'a', FileArray[self.ind[i]] ], \
-                                  ReturnTime = True, ReturnMesh = True, \
-                                  Verbose = False )
+                    if i % 10 == 0:
+                        print( 'File {:d}/{:d}'.format( i, self.nSS ) )
+
+                    NodalData[j], DataUnit, r, theta, phi, dr, dtheta, dphi, \
+                      xL, xU, nX, Time[j] \
+                        = UM.GetData( self.DataDirectory, PlotFileBaseName, \
+                                      Field, 'spherical', True, \
+                                      argv = [ 'a', FileArray[self.ind[i]] ], \
+                                      ReturnTime = True, ReturnMesh = True, \
+                                      Verbose = False )
+
+                return_data[iProc] = NodalData
+                return_time[iProc] = Time
+
+            # Adapted from:
+            # https://www.benmather.info/post/
+            # 2018-11-24-multiprocessing-in-python/
+
+            nProcs = cpu_count()
+
+            processes = []
+
+            nSS = self.ind.shape[0]
+
+            manager = Manager()
+            return_data = manager.dict()
+            return_time = manager.dict()
+
+            for i in range( nProcs ):
+
+                iLo \
+                  = np.int64( np.float64( i     ) / np.float64( nProcs ) * nSS )
+                iHi \
+                  = np.int64( np.float64( i + 1 ) / np.float64( nProcs ) * nSS )
+
+                nd = np.empty( (iHi-iLo,self.nX), np.float64 )
+                t  = np.empty( (iHi-iLo)        , np.float64 )
+
+                p = Process \
+                      ( target = loop, \
+                        args = (iLo,iHi,nd,t,i,return_data,return_time) )
+                p.start()
+                processes.append( p )
+
+            # MPI BARRIER
+            [ p.join() for p in processes ]
+
+            NodalData = np.zeros( (self.nSS,self.nX), np.float64 )
+            DiffData  = np.zeros( (self.nSS-1)      , np.float64 )
+            Time      = np.zeros( (self.nSS)        , np.float64 )
+
+            for i in range( nProcs ):
+                iLo \
+                  = np.int64( np.float64( i     ) / np.float64( nProcs ) * nSS )
+                iHi \
+                  = np.int64( np.float64( i + 1 ) / np.float64( nProcs ) * nSS )
+
+                NodalData[iLo:iHi] = return_data[i]
+                Time     [iLo:iHi] = return_time[i]
 
             Den = np.empty( (self.nX), np.float64 )
 
@@ -135,9 +186,9 @@ if __name__ == '__main__':
       = Relaxation( nX, SSi, SSf, nSS, \
                     ForceChoice = False, Overwrite = True )
 
-    UseLogScale = True
+    UseLogScale = False
 
-    ID = 'GR1D_M2.4_Mdot0.3_Rs180'
+    ID = 'GR1D_M2.0_Mdot0.3_Rs150_Gm1.13'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 

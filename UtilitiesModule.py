@@ -2,38 +2,38 @@
 
 import numpy as np
 
-def Overwrite( FileName, ForceChoice = False, OW = False ):
+def Overwrite( FileOrDirName, ForceChoice = False, OW = False ):
 
-    return False
     if ForceChoice: return OW
 
     from os.path import isfile, isdir
 
     OW = True
 
-    if( isfile( FileName ) or isdir( FileName ) ):
+    if ( isfile( FileOrDirName ) or isdir( FileOrDirName ) ) :
 
-        YN = input( '{:} exists. overwrite? (Y/N): '.format( FileName ) )
+        if ( isdir( FileOrDirName ) and FileOrDirName[-1] != '/' ) :
+            FileOrDirName += '/'
 
-        if( not YN == 'Y' ):
+        YN = input( '{:} exists. overwrite? (Y/N): '.format( FileOrDirName ) )
 
-            print( 'Not overwriting file' )
+        if YN == 'Y' :
+            print( 'Overwriting' )
+            OW = True
+        else:
+            print( 'Not overwriting' )
             OW = False
 
     return OW
 
-# End of Overwrite
 
-
-def GetFileArray( DataDirectory, PlotFileBaseName, Verbose = False ):
+def GetFileArray( PlotFileDataDirectory, PlotFileBaseName ):
 
     from os import listdir
 
-    if Verbose: print( '\nCalling GetFileArray...\n' )
-
-    # Get last plotfile in directory
-
-    FileArray = np.sort( np.array( [ f for f in listdir( DataDirectory ) ] ) )
+    FileArray \
+      = np.sort( np.array( \
+          [ file for file in listdir( PlotFileDataDirectory ) ] ) )
 
     FileList = []
 
@@ -41,38 +41,33 @@ def GetFileArray( DataDirectory, PlotFileBaseName, Verbose = False ):
 
         sFile = FileArray[iFile]
 
-        if( sFile[0:len(PlotFileBaseName)+1] == PlotFileBaseName + '_' \
-              and sFile[len(PlotFileBaseName)+1].isdigit() ):
+        if( sFile[0:len(PlotFileBaseName)] == PlotFileBaseName \
+              and sFile[len(PlotFileBaseName)+1].isdigit() ) :
             FileList.append( sFile )
 
     FileArray = np.array( FileList )
 
-    if FileArray.shape[0] <= 0:
+    if not FileArray.shape[0] > 0:
 
-        msg = '\n  No files found in DataDirectory:'
-        msg += ' {:s}\n\nDouble check the path\n'.format( DataDirectory )
-        msg += '\n  Exiting...\n'
-        assert FileArray.shape[0] > 0, msg
+        msg = 'No files found in path {:s}\n'.format( PlotFileDataDirectory )
+        msg += 'Double check the path.\n'
+        msg += 'Is it plt_ or just plt?\n'
+
+        assert ( FileArray.shape[0] > 0 ), msg
 
     return FileArray
 
-# End of GetFileArray
-
 
 def ChoosePlotFile \
-      ( DataDirectory, PlotFileBaseName, argv = ['a'], \
-        Verbose = False ):
+      ( FileArray, PlotFileBaseName = 'plt', argv = [ 'a' ], Verbose = False ):
 
-    if Verbose: print( '\nCalling ChoosePlotFile...\n' )
-
-    if( len( argv ) == 1 ):
+    if len( argv ) == 1:
 
         # Get last plotfile in directory
 
-        FileArray = GetFileArray( DataDirectory, PlotFileBaseName, Verbose )
         File = FileArray[-1]
 
-    elif( len( argv ) == 2 ):
+    elif len( argv ) == 2:
 
         if argv[1][0].isalpha():
 
@@ -80,23 +75,26 @@ def ChoosePlotFile \
 
         else:
 
-            File = PlotFileBaseName + '_{:}'.format( argv[1].zfill(8) )
+            File = PlotFileBaseName + '{:}'.format( argv[1].zfill(8) )
 
-        if Verbose: print( '  File: {:}'.format( File ) )
+        FileArray = np.array( File )
 
     else:
 
-        msg = 'Invalid number of optional parameters: {:d}'.format \
-                ( len( argv ) )
-        msg += '\n  Exiting...\n'
-        assert len( argv ) <= 2, msg
+        n = len( argv )
+
+        msg = 'len( argv ) must be > 0 and < 3: len( argv ) = {:d}'.format( n )
+
+        arg = ( n > 0 ) & ( n < 3 )
+        print( arg )
+        assert arg, msg
 
     # Remove "/" at end of filename, if present
-    if ( File[-1] == '/' ): File = File[:-1]
+    if File[-1] == '/' : File = np.copy( File[:-1] )
+
+    if Verbose: print( File )
 
     return File
-
-# End of ChoosePlotFile
 
 
 def GetData( DataDirectory, PlotFileBaseName, Field, \
@@ -121,7 +119,9 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
     # https://yt-project.org/doc/faq/index.html#how-can-i-change-yt-s-log-level
     yt.funcs.mylog.setLevel(40) # Suppress yt warnings
 
-    File = ChoosePlotFile( DataDirectory, PlotFileBaseName, argv = argv, \
+    FileArray = GetFileArray( DataDirectory, PlotFileBaseName )
+
+    File = ChoosePlotFile( FileArray, PlotFileBaseName, argv = argv, \
                            Verbose = Verbose )
 
     ds = yt.load( '{:}'.format( DataDirectory + File ) )
@@ -142,9 +142,9 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
           ( level           = MaxLevel, \
             left_edge       = xL, \
             dims            = nX * 2**MaxLevel, \
-            num_ghost_zones = nX[0] )
+            num_ghost_zones = 0 )
 
-    ds.force_periodicity()
+#    ds.force_periodicity()
 
     nDimsX = 1
     if nX[1] > 1: nDimsX += 1
@@ -162,21 +162,21 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 #    dX1 = CoveringGrid['dX1'].to_ndarray()[:,0,0]
 #    dX2 = CoveringGrid['dX2'].to_ndarray()[0,:,0]
 #    dX3 = CoveringGrid['dX3'].to_ndarray()[0,0,:]
-#
+
+    dX1 = ( xU[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0] )
+    dX2 = ( xU[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1] )
+    dX3 = ( xU[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2] )
+
+    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xU[0] - 0.5 * dX1[0], nX[0] )
+    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xU[1] - 0.5 * dX2[0], nX[1] )
+    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xU[2] - 0.5 * dX3[0], nX[2] )
+
 #    if nDimsX < 3:
 #        X3  = X3 [0] * np.ones( 1, np.float64 )
 #        dX3 = dX3[0] * np.ones( 1, np.float64 )
 #    if nDimsX < 2:
 #        X2  = X2 [0] * np.ones( 1 )
 #        dX2 = dX2[0] * np.ones( 1 )
-
-    dX1 = ( xU[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
-    dX2 = ( xU[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
-    dX3 = ( xU[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2], np.float64 )
-
-    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xU[0] - 0.5 * dX1[0], nX[0] )
-    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xU[1] - 0.5 * dX2[0], nX[1] )
-    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xU[2] - 0.5 * dX3[0], nX[2] )
 
     if   Field == 'MPIProcess':
 
@@ -260,6 +260,21 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         Data = CoveringGrid[Field].to_ndarray()
         DataUnits = 'erg/cm**3'
 
+    elif Field == 'AF_Ye':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = ''
+
+    elif Field == 'AF_T':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = 'K'
+
+    elif Field == 'AF_S':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = 'kb/baryon'
+
     elif Field == 'AF_Cs':
 
         Data = CoveringGrid[Field].to_ndarray()
@@ -286,14 +301,6 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         elif CoordinateSystem == 'cylindrical': DataUnits = 'km**2'
         elif CoordinateSystem == 'spherical'  : DataUnits = 'km**2'
 
-    elif Field == 'GF_SqrtGm':
-
-        Data = CoveringGrid[Field].to_ndarray()
-
-        if   CoordinateSystem == 'cartesian'  : DataUnits = ''
-        elif CoordinateSystem == 'cylindrical': DataUnits = 'km'
-        elif CoordinateSystem == 'spherical'  : DataUnits = 'km**2'
-
     elif Field == 'GF_Psi':
 
         Data = CoveringGrid[Field].to_ndarray()
@@ -303,6 +310,11 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 
         Data = CoveringGrid[Field].to_ndarray()
         DataUnits = ''
+
+    elif Field == 'GF_Beta_1':
+
+        Data = CoveringGrid[Field].to_ndarray()
+        DataUnits = 'km/s'
 
     elif Field == 'DF_TCI':
 
@@ -426,12 +438,12 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
                     AngleAveragedMass[iX1] \
                       += rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
 
                     AngleAveragedRadialVelocity[iX1] \
                       += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
 
             AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
 
@@ -447,58 +459,6 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
                             + Gm33[iX1,iX2,iX3] * V3[iX1,iX2,iX3]**2 )
 
         DataUnits = 'km/s'
-
-    elif Field == 'NonRelativisticTurbulentEnergyDensity':
-
-        Gm11 = CoveringGrid['GF_Gm_11'].to_ndarray()
-        Gm22 = CoveringGrid['GF_Gm_22'].to_ndarray()
-        Gm33 = CoveringGrid['GF_Gm_33'].to_ndarray()
-
-        rho = CoveringGrid['PF_D' ].to_ndarray()
-        V1  = CoveringGrid['PF_V1'].to_ndarray()
-        V2  = CoveringGrid['PF_V2'].to_ndarray()
-        V3  = CoveringGrid['PF_V3'].to_ndarray()
-
-        AngleAveragedMass           = np.zeros( (nX[0]), np.float64 )
-        AngleAveragedRadialVelocity = np.zeros( (nX[0]), np.float64 )
-
-        c = 2.99792458e5
-
-        Data = np.empty( nX, np.float64 )
-
-        for iX1 in range( nX[0] ):
-
-            # --- Compute angle-averaged and
-            #     mass density weighted radial velocity ---
-
-            for iX2 in range( nX[1] ):
-                for iX3 in range( nX[2] ):
-
-                    AngleAveragedMass[iX1] \
-                      += rho[iX1,iX2,iX3] \
-                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
-
-                    AngleAveragedRadialVelocity[iX1] \
-                      += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
-                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
-
-            AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
-
-            # --- Compute turbulent energy density ---
-
-            for iX2 in range( nX[1] ):
-                for iX3 in range( nX[2] ):
-
-                    VSq =   Gm11[iX1,iX2,iX3] \
-                              * ( V1[iX1,iX2,iX3] \
-                                    - AngleAveragedRadialVelocity[iX1] )**2 \
-                          + Gm22[iX1,iX2,iX3] * V2[iX1,iX2,iX3]**2 \
-                          + Gm33[iX1,iX2,iX3] * V3[iX1,iX2,iX3]**2
-
-                    Data[iX1,iX2,iX3] \
-                      = 0.5 * rho[iX1,iX2,iX3] * VSq * ( 1.0e5 )**2
-
-        DataUnits = 'erg/cm**3'
 
     elif Field == 'TurbulentEnergyDensity':
 
@@ -530,12 +490,12 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
                     AngleAveragedMass[iX1] \
                       += rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
 
                     AngleAveragedRadialVelocity[iX1] \
                       += V1[iX1,iX2,iX3] * rho[iX1,iX2,iX3] \
                            * Psi[iX1,iX2,iX3]**4 \
-                           * np.sin( X2[iX2] ) * dX2[iX2] * dX3[iX3]
+                           * np.sin( X2[iX2] ) * dX1[iX1] * dX2[iX2]
 
             AngleAveragedRadialVelocity[iX1] /= AngleAveragedMass[iX1]
 
@@ -556,48 +516,8 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
                     W = 1.0 / np.sqrt( 1.0 - BetaSq )
 
                     Data[iX1,iX2,iX3] \
-                      = rho[iX1,iX2,iX3] * W * ( c * 1.0e5 )**2 \
+                      = rho[iX1,iX2,iX3] * ( c * 1.0e5 )**2 \
                           * W**2 * BetaSq / ( W + 1.0 )
-
-        DataUnits = 'erg/cm**3'
-
-    elif Field == 'AngularKineticEnergyDensity':
-
-        Gm11 = CoveringGrid['GF_Gm_11'].to_ndarray()
-        Gm22 = CoveringGrid['GF_Gm_22'].to_ndarray()
-        Gm33 = CoveringGrid['GF_Gm_33'].to_ndarray()
-
-        D   = CoveringGrid['CF_D' ].to_ndarray()
-        V1  = CoveringGrid['PF_V1'].to_ndarray()
-        V2  = CoveringGrid['PF_V2'].to_ndarray()
-        V3  = CoveringGrid['PF_V3'].to_ndarray()
-
-        c = 2.99792458e5
-
-        Data = np.empty( nX, np.float64 )
-
-        for iX1 in range( nX[0] ):
-
-            # --- Compute angular kinetic energy density ---
-
-            for iX2 in range( nX[1] ):
-                for iX3 in range( nX[2] ):
-
-                    # --- BetaSq = v_i * v^i / c^2 ---
-
-                    BetaSq = (   Gm11[iX1,iX2,iX3] * V1[iX1,iX2,iX3]**2 \
-                               + Gm22[iX1,iX2,iX3] * V2[iX1,iX2,iX3]**2 \
-                               + Gm33[iX1,iX2,iX3] * V3[iX1,iX2,iX3]**2 ) \
-                               / c**2
-
-                    W = 1.0 / np.sqrt( 1.0 - BetaSq )
-
-                    # --- Subtract off radial component ---
-
-                    Data[iX1,iX2,iX3] \
-                      = D[iX1,iX2,iX3] * ( c * 1.0e5 )**2 * W**2 \
-                          * ( BetaSq - Gm11[iX1,iX2,iX3] * V1[iX1,iX2,iX3]**2 \
-                                         / c**2 ) / ( W + 1.0 )
 
         DataUnits = 'erg/cm**3'
 
@@ -677,9 +597,9 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         print( '  GF_Gm_11' )
         print( '  GF_Gm_22' )
         print( '  GF_Gm_33' )
-        print( '  GF_SqrtGm' )
         print( '  GF_Psi' )
         print( '  GF_Alpha' )
+        print( '  GF_Beta1' )
         print( '  DF_TCI' )
         print( '  pr4' )
         print( '  RelativisticBernoulliConstant' )
@@ -691,27 +611,22 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         print( '  TurbulentEnergyDensity' )
         print( '  Vorticity' )
 
-        assert 0, 'Invalid choice of field: {:}'.format( Field )
+        assert 0, 'Invalid choice of field'
+
+    if not UsePhysicalUnits: DataUnits = '[]'
+    else:                    DataUnits = '[' + DataUnits + ']'
 
     if nDimsX == 1:
 
-        Data = np.copy( Data[:,0,0] )
+        Data = Data[:,0,0]
 
     elif nDimsX == 2:
 
-        Data = np.copy( Data[:,:,0] )
+        Data = Data[:,:,0]
 
     else:
 
-        Data = np.copy( Data[:,:,iX3_CS] )
-
-#    dX1 = ( xU[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
-#    dX2 = ( xU[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
-#    dX3 = ( xU[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2], np.float64 )
-#
-#    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xU[0] - 0.5 * dX1[0], nX[0] )
-#    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xU[1] - 0.5 * dX2[0], nX[1] )
-#    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xU[2] - 0.5 * dX3[0], nX[2] )
+        Data = Data[:,:,iX3_CS]
 
     if ReturnTime and ReturnMesh:
 
@@ -730,8 +645,7 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         return Data, DataUnits
 
 
-def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
-             linthresh = 1.0e-2 ):
+def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100 ):
 
     import matplotlib.pyplot as plt
     from matplotlib.colors import LogNorm, SymLogNorm
@@ -739,28 +653,12 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
     if vmin > +1.0e99: vmin = Data.min()
     if vmax < -1.0e99: vmax = Data.max()
 
-    if( UseLogScale ):
+    if UseLogScale:
 
-        if np.all( Data <= 0.0 ):
-
-            Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
-                               linthresh = linthresh, base = 10 )
-
-        elif np.any( Data <= 0.0 ):
-
-            vmn = min( vmin, -vmax )
-            vmx = max( -vmin, vmax )
-
-            if vmx > -vmin:
-
-                vmin = -vmax
-
-            else:
-
-                vmax = -vmin
+        if np.any( Data <= 0.0 ):
 
             Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
-                               linthresh = linthresh, base = 10 )
+                               linthresh = 1.0e-2, base = 10 )
 
         else:
 
@@ -771,5 +669,3 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
         Norm = plt.Normalize ( vmin = vmin, vmax = vmax )
 
     return Norm
-
-# End of GetNorm

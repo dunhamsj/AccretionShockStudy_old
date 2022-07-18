@@ -1,163 +1,188 @@
 #!/usr/bin/env python3
 
 import numpy as np
+import subprocess
+from os.path import isfile
 import matplotlib.pyplot as plt
 from matplotlib import animation
+
+from UtilitiesModule import GetNorm, GetFileArray
+from MakeDataFile_new import MakeDataFile, ReadHeader
+
+# --- Get user's HOME directory ---
+
+HOME = subprocess.check_output( ["echo $HOME"], shell = True )
+HOME = HOME[:-1].decode( "utf-8" ) + '/'
+
+# --- Get user's THORNADO_DIR directory ---
+
+THORNADO_DIR = subprocess.check_output( ["echo $THORNADO_DIR"], shell = True )
+THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
+
+#### ========== User Input ==========
+
+# ID to be used for naming purposes
+ID = 'GR1D_M2.0_Mdot0.3_Rs150_Gm1.13'
+
+# Directory containing AMReX plotfiles
+PlotFileDirectory = '/lump/data/accretionShockStudy/'
+PlotFileDirectory += ID + '/'
+
+# PlotFile base name (e.g., Advection2D.plt######## -> Advection2D.plt )
+PlotFileBaseName = ID + '.plt_'
+
+# Field to plot
+Field = 'PF_D'
+
+# Plot data in log10-scale?
+UseLogScale = True
+
+# Unit system of the data
+UsePhysicalUnits = True
+
+# Coordinate system (currently supports 'cartesian' and 'spherical' )
+CoordinateSystem = 'spherical'
+
+# First and last snapshots and number of snapshots to include in movie
+SSi = -1 # -1 -> SSi = 0
+SSf = -1 # -1 -> PlotFileArray.shape[0] - 1
+nSS = -1 # -1 -> PlotFileArray.shape[0]
+
+# Max level of refinement to include
+MaxLevel = -1
+
+# Include initial conditions in movie?
+ShowIC = True
+
+PlotMesh = False
+
+Verbose = True
+
+UseCustomLimits = False
+ymin = 0.0
+ymax = 2.0
+
+MovieRunTime = 10.0 # seconds
+
+#### ====== End of User Input =======
+
+DataFileDirectory = '.{:s}_{:s}_MovieData1D'.format( ID, Field )
+MovieName         = 'mov.{:s}_{:s}.mp4'.format( ID, Field )
+
+# Append "/" if not present
+if( not PlotFileDirectory[-1] == '/' ): PlotFileDirectory += '/'
+if( not DataFileDirectory[-1] == '/' ): DataFileDirectory += '/'
+
+MakeDataFile( Field, PlotFileDirectory, DataFileDirectory, \
+              PlotFileBaseName, CoordinateSystem, \
+              SSi = SSi, SSf = SSf, nSS = nSS, \
+              UsePhysicalUnits = UsePhysicalUnits, \
+              MaxLevel = MaxLevel, Verbose = Verbose )
+
+PlotFileArray = GetFileArray( PlotFileDirectory, PlotFileBaseName )[:-1]
+
+if SSi < 0: SSi = 0
+if SSf < 0: SSf = PlotFileArray.shape[0] - 1
+if nSS < 0: nSS = PlotFileArray.shape[0]
+
+fig = plt.figure()
+ax  = fig.add_subplot( 111 )
+
+if UseCustomLimits: ax.set_ylim( ymin, ymax )
+ymin = +np.inf
+ymax = -np.inf
+for j in range( nSS ):
+    iSS = SSi + np.int64( ( SSf - SSi ) / ( nSS - 1 ) * j )
+    DataFile = DataFileDirectory + PlotFileArray[iSS] + '.dat'
+    Data = np.loadtxt( DataFile )
+    ymin = min( ymin, Data.min() )
+    ymax = max( ymax, Data.max() )
+if not UseCustomLimits: ax.set_ylim( ymin, ymax )
+
+def f(t):
+
+    iSS = SSi + np.int64( ( SSf - SSi + 1 ) / nSS ) * t
+
+    DataFile = DataFileDirectory + PlotFileArray[iSS] + '.dat'
+
+    DataShape, DataUnits, Time, X1_C, X2_C, X3_C, dX1, dX2, dX3 \
+      = ReadHeader( DataFile )
+
+    Data = np.loadtxt( DataFile ).reshape( np.int64( DataShape ) )
+
+    return Data, DataUnits, X1_C, dX1, Time
+
+Data0, DataUnits, X1_C0, dX10, Time0 = f(0)
+
+xL = np.array( [ X1_C0[0 ]-0.5*dX10[0 ] ], np.float64 )
+xU = np.array( [ X1_C0[-1]+0.5*dX10[-1] ], np.float64 )
+
+Norm = GetNorm( UseLogScale, Data0, vmin = ymin, vmax = ymax )
+
+TimeUnits = ''
+LengthUnits = ''
+if UsePhysicalUnits:
+    TimeUnits   = 'ms'
+    LengthUnits = 'km'
+
+ax.set_xlim( xL[0], xU[0] )
+
+ax.set_xlabel( 'X1' + ' ' + LengthUnits )
+ax.set_ylabel( Field + ' ' + DataUnits )
+
+time_text = plt.text( 0.5, 0.7, '', transform = ax.transAxes )
+
+if( UseLogScale ): ax.set_yscale( 'log' )
+
+line, = ax.plot( [],[], 'k.', label = 'u(t)' )
+if ShowIC: IC, = ax.plot( [],[], 'r.', label = 'u(0)' )
+if PlotMesh: mesh, = ax.plot( [],[], 'b.', label = 'mesh' )
+
+def InitializeFrame():
+
+    line.set_data([],[])
+    time_text.set_text('')
+    if ShowIC: IC.set_data([],[])
+    if PlotMesh: mesh.set_data([],[])
+
+    if ShowIC and PlotMesh: ret = ( line, time_text, IC, mesh )
+    elif ShowIC:            ret = ( line, time_text, IC )
+    elif PlotMesh:          ret = ( line, time_text, mesh )
+    else:                   ret = ( line, time_text )
+
+    return ret
+
+def UpdateFrame( t ):
+
+    Data, DataUnits, X1_C, dX1, Time = f(t)
+
+    line.set_data( X1_C, Data.flatten() )
+    time_text.set_text( 'Time = {:.3e} {:}'.format( Time, TimeUnits ) )
+    if ShowIC: IC.set_data( X1_C0, Data0.flatten() )
+    if PlotMesh: mesh.set_data( X1_C - 0.5 * dX1, 0.5 * ( ymin + ymax ) )
+
+    if ShowIC and PlotMesh: ret = ( line, time_text, IC, mesh )
+    elif ShowIC:            ret = ( line, time_text, IC )
+    elif PlotMesh:          ret = ( line, time_text, mesh )
+    else:                   ret = ( line, time_text )
+
+    return ret
+
+ax.legend()
+
+anim = animation.FuncAnimation( fig, UpdateFrame, \
+                                init_func = InitializeFrame, \
+                                frames = nSS, \
+                                blit = True )
+
+
+fps = max( 1, nSS / MovieRunTime )
+
+print( 'Saving movie {:}...'.format( MovieName ) )
+
+anim.save( MovieName, fps = fps )
+
+print( 'Done!' )
+
 import os
-
-from UtilitiesModule import GetFileArray
-from MakeDataFile_new import MakeDataFile_new, ReadHeader
-
-class MakeMovie1D:
-
-    def __init__( self, SSi = -1, SSf = -1, nSS = -1, suffix = '' ):
-
-        self.SSi = SSi
-        self.SSf = SSf
-        self.nSS = nSS
-        self.suffix = suffix
-
-        return
-
-
-    def GetData( self, PlotFileDirectory, ID, \
-                 PlotFileBaseName, Field, nX1 = 640 ):
-
-        DataFileDirectory \
-          = '.{:}_{:}{:}_MovieData1D'.format( ID, Field, self.suffix )
-
-        PlotFileDirectory += ID + self.suffix + '/'
-
-        MakeDataFile_new( Field, PlotFileDirectory, \
-                          DataFileDirectory, PlotFileBaseName, \
-                          CoordinateSystem = 'spherical', \
-                          SSi = self.SSi, SSf = self.SSf, nSS = self.nSS, \
-                          Verbose = True )
-
-        PlotFileArray = GetFileArray( PlotFileDirectory, \
-                                      PlotFileBaseName )
-
-        if self.SSi < 0: self.SSi = 0
-        if self.SSf < 0: self.SSf = PlotFileArray.shape[0] - 1
-        if self.nSS < 0: self.nSS = PlotFileArray.shape[0]
-
-        Data = np.empty( (self.nSS,nX1), np.float64 )
-        Time = np.empty( (self.nSS)    , np.float64 )
-
-        for i in range( self.nSS ):
-
-            iSS = self.SSi \
-                    + np.int64( ( self.SSf - self.SSi + 1 ) / self.nSS ) * i
-
-            PlotFile = PlotFileArray[iSS]
-
-            DataFile = DataFileDirectory + '/' + PlotFile + '.dat'
-
-            DataShape, DataUnits, t, X1_C, X2_C, X3_C, dX1, dX2, dX3 \
-              = ReadHeader( DataFile )
-
-            Time[i] = t
-            Data[i] = np.loadtxt( DataFile )
-
-        xL = X1_C[0 ] - 0.5 * dX1[0 ]
-        xU = X1_C[-1] + 0.5 * dX1[-1]
-
-        self.X1_C = X1_C
-
-        self.xlim = np.array( [ xL, xU ], np.float64 )
-
-        self.Time = Time
-
-        return Data
-
-if __name__ == '__main__':
-
-    MovieRunTime = 30.0 # [s]
-    UseLogScale  = True
-    nSS          = -1
-    Field        = 'PF_D'
-    suffix       = ''
-
-    MM1D = MakeMovie1D( nSS = nSS, suffix = suffix )
-
-    PlotFileDirectory = '/lump/data/AccretionShockStudy/'
-    IDs               = np.array( \
-      [ 'GR1D_M1.4_Mdot0.3_Rs180' ], str )
-
-    Data = np.empty( IDs.shape[0], object )
-
-    ymin = +np.inf
-    ymax = -np.inf
-
-    for i in range( Data.shape[0] ):
-        PlotFileBaseName = IDs[i] + '.plt'
-        d = MM1D.GetData( PlotFileDirectory, IDs[i], \
-                          PlotFileBaseName, Field, nX1 = 640 )
-        BG = np.copy( d[-1] )
-        Data[i] = np.copy(d)#( d[:-1] - BG ) / BG
-
-        ymin = min( ymin, Data[i].min() )
-        ymax = max( ymax, Data[i].max() )
-
-    SaveFileAs   = 'mov.{:}_1D{:}.mp4'.format( IDs[0][5:], suffix )
-
-    nSS = MM1D.nSS# - 1
-
-    # Plotting
-
-    fig, ax = plt.subplots()
-
-    fig.suptitle( IDs[0][5:] )
-
-    r    = MM1D.X1_C
-    xmin = MM1D.xlim[0]
-    xmax = MM1D.xlim[1]
-    ymin = Data.min()
-    ymax = Data.max()
-    plt.plot( r, Data[0,0] );plt.show();exit()
-
-    if UseLogScale: ax.set_yscale( 'log' )
-
-    ax.set_xlabel( 'Radial Coordinate [km]' )
-    ax.set_ylabel( r'$\left(\rho\left(t\right)-\rho\left(0\right)\right)/\rho\left(0\right)$' )
-    #ax.set_xlim( xmin, xmax )
-    #ax.set_ylim( ymin, ymax )
-    ax.grid()
-
-    c = np.array( [ 'r-', 'b-', 'm-' ] )
-
-    lines = np.empty( Data.shape[0], object )
-    for i in range( lines.shape[0] ):
-        lines[i], = ax.plot( [], [], c[i], label = IDs[i][0:2] )
-    time_text = plt.text( 0.2, 0.9, '', transform = ax.transAxes )
-
-    ax.legend( loc = 3 )
-
-    def InitializeFrame():
-        ret = []
-        for i in range( lines.shape[0] ):
-            lines[i].set_data( [], [] )
-            ret.append( lines[i] )
-        time_text.set_text('')
-        ret.append( time_text )
-        return tuple( ret )
-
-    def UpdateFrame(t):
-        ret = []
-        for i in range( lines.shape[0] ):
-            lines[i].set_data( r, Data[i][t] )
-            ret.append( lines[i] )
-        time_text.set_text( 'time = {:.3e} ms'.format( MM1D.Time[t] ) )
-        ret.append( time_text )
-        return tuple( ret )
-
-    fps = max( 1, np.float64( nSS ) / MovieRunTime )
-
-    anim = animation.FuncAnimation( fig, UpdateFrame, \
-                                    init_func = InitializeFrame, \
-                                    frames = nSS, \
-                                    blit = True )
-
-    anim.save( SaveFileAs, fps = fps, dpi = 300 )
-
-    os.system( 'rm -rf __pycache__ ' )
+os.system( 'rm -rf __pycache__ ' )
