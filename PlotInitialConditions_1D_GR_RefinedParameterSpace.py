@@ -21,7 +21,7 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 
 #### ========== User Input ==========
 
-Root = '/lump/data/AccretionShockStudy/FineGridRuns_1D/'
+Root = '/lump/data/accretionShockStudy/FineGridRuns_1D/'
 #Root = HOME + 'AccretionShockData/'
 
 M_lo = 1.0
@@ -90,7 +90,7 @@ for iF in range( Fields.shape[0] ):
             print( '  {:}'.format( IDs[iID] ) )
             ID = IDs[iID]
 
-            PlotFileBaseName = ID + '.plt'
+            PlotFileBaseName = ID + '.plt_'
 
             DataDirectory = Root
 
