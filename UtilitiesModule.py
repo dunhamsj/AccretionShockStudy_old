@@ -4,6 +4,7 @@ import numpy as np
 
 def Overwrite( FileOrDirName, ForceChoice = False, OW = False ):
 
+    return True
     if ForceChoice: return OW
 
     from os.path import isfile, isdir
@@ -142,9 +143,9 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
           ( level           = MaxLevel, \
             left_edge       = xL, \
             dims            = nX * 2**MaxLevel, \
-            num_ghost_zones = 0 )
+            num_ghost_zones = nX[0] )
 
-#    ds.force_periodicity()
+    ds.force_periodicity()
 
     nDimsX = 1
     if nX[1] > 1: nDimsX += 1
@@ -645,7 +646,8 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         return Data, DataUnits
 
 
-def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100 ):
+def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
+             linthresh = 1.0e-2 ):
 
     import matplotlib.pyplot as plt
     from matplotlib.colors import LogNorm, SymLogNorm
@@ -658,7 +660,7 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100 ):
         if np.any( Data <= 0.0 ):
 
             Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
-                               linthresh = 1.0e-2, base = 10 )
+                               linthresh = linthresh, base = 10 )
 
         else:
 

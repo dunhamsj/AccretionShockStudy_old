@@ -22,7 +22,7 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 #### ========== User Input ==========
 
 # ID to be used for naming purposes
-ID = 'GR1D_M2.0_Mdot0.3_Rs150_Gm1.13'
+ID = 'GR1D_M2.0_Mdot0.3_Rs150_ColdStart'
 
 # Directory containing AMReX plotfiles
 PlotFileDirectory = '/lump/data/accretionShockStudy/'

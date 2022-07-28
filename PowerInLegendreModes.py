@@ -658,8 +658,8 @@ class PowersInLegendreModes:
         'fig.LegendrePowerSpectrum_{:}_{:}_{:.2f}km.png'.format \
         ( self.ID, self.Field, self.R0 / 1.0e5 ), dpi = 300 )
 
-    plt.show()
-    #plt.close()
+    #plt.show()
+    plt.close()
 
     return
 
@@ -671,7 +671,7 @@ if __name__ == "__main__":
 
   Field = 'DivV2'
   t0    = 001.0
-  t1    = 150.0
+  t1    = 100.0
   fL    = 0.8
   fU    = 0.9
   R0    = -1.7e2
@@ -681,9 +681,9 @@ if __name__ == "__main__":
   #Mdot  = np.array( [ '0.3' ], str )
   #Rs    = np.array( [ '120', '150', '180' ], str )
 
-  M     = np.array( [ '2.4', '2.8' ], str )
+  M     = np.array( [ '2.0' ], str )
   Mdot  = np.array( [ '0.3' ], str )
-  Rs    = np.array( [ '165', '180' ], str )
+  Rs    = np.array( [ '150' ], str )
 
   T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
   T_err_GR = np.copy( T_GR )
@@ -774,12 +774,13 @@ if __name__ == "__main__":
         #del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
         #    P0, P1, P2, P3, P4, tFit, F
 
-        ID_GR = 'GR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] )
+        ID_GR = 'GR2D_M{:}_Mdot{:}_Rs{:}_ColdStart'.format( M[m], Mdot[mdot], Rs[rs] )
         P_GR = PowersInLegendreModes( Root, ID_GR, Field, \
                                       Rs = np.float64( Rs[rs] ), \
                                       fL = fL, fU = fU, R0 = R0, \
                                       EntropyThreshold = 4.0e14, \
-                                      Verbose = False )
+                                      suffix = suffix, \
+                                      Verbose = True )
 
         if not isdir( P_GR.DataDirectory ): continue
 
@@ -787,8 +788,8 @@ if __name__ == "__main__":
           = P_GR.ComputePowerInLegendreModes()
         tFit, F = P_GR.FitPowerInLegendreModes \
                     ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-        #P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-        #               P0, P1, P2, P3, P4, tFit, F )
+        P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+                       P0, P1, P2, P3, P4, tFit, F )
         G_GR    [m,rs] = P_GR.beta[1]
         G_err_GR[m,rs] = P_GR.perr[1]
         T_GR    [m,rs] = P_GR.beta[2]

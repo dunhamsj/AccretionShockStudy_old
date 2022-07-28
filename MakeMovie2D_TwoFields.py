@@ -6,7 +6,7 @@ from matplotlib import animation
 from matplotlib.colors import LogNorm, SymLogNorm
 import os
 
-from MakeDataFile import MakeDataFile
+from MakeDataFile_new import MakeDataFile
 from UtilitiesModule import GetNorm
 
 def ComputeAngleAverage( nX, theta, Data, dt ):
@@ -27,7 +27,7 @@ def MakeMovie2D( ID1, ID2, Field1, Field2, MovieName = 'TwoFields.mp4' ):
 
     ############# User input #############
 
-    Root = '/home/dunhamsj/AccretionShockData'
+    Root = '/lump/data/accretionShockStudy'
     DataDirectory1 = Root + '/{:}/'.format( ID1 )
     DataDirectory2 = Root + '/{:}/'.format( ID2 )
 
@@ -46,8 +46,8 @@ def MakeMovie2D( ID1, ID2, Field1, Field2, MovieName = 'TwoFields.mp4' ):
 
     ############# End of user input #############
 
-    PlotFileBaseName1 = ID1 + '.plt'
-    PlotFileBaseName2 = ID2 + '.plt'
+    PlotFileBaseName1 = ID1 + '.plt_'
+    PlotFileBaseName2 = ID2 + '.plt_'
 
     ID1 = '{:}_{:}'.format( ID1, Field1 )
     ID2 = '{:}_{:}'.format( ID2, Field2 )
@@ -57,11 +57,11 @@ def MakeMovie2D( ID1, ID2, Field1, Field2, MovieName = 'TwoFields.mp4' ):
 
     xL1, xU1, nX1, FileArray1 \
       = MakeDataFile( Field1, DataDirectory1, DataFileName1, \
-                      PlotFileBaseName1)#, SSi = 0, SSf = 600 )
+                      PlotFileBaseName1, SSi = 0, SSf = 100 )
 
     xL2, xU2, nX2, FileArray2 \
       = MakeDataFile( Field2, DataDirectory2, DataFileName2, \
-                      PlotFileBaseName2)#, SSi = 0, SSf = 600 )
+                      PlotFileBaseName2, SSi = 0, SSf = 100 )
 
     xL1 = xL1
     xU1 = xU1
@@ -294,10 +294,10 @@ def MakeMovie2D( ID1, ID2, Field1, Field2, MovieName = 'TwoFields.mp4' ):
     os.system( 'rm -rf __pycache__ ' )
 
 Field1 = 'Entropy'
-ID1 = 'NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-04_nX640x064'
+ID1 = 'GR2D_M2.0_Mdot0.3_Rs150_ColdStart'
 
-Field2 = 'PF_V2'
-ID2 = 'NR2D_M1.4_Mdot0.3_Rs180_PA1.00e-04_nX640x064'
+Field2 = 'Entropy'
+ID2 = 'GR2D_M2.0_Mdot0.3_Rs150'
 
 MovieName \
   = 'mov.{:}_{:}_{:}_{:}.mp4'.format \

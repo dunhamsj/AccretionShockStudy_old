@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 import os
 
-from MakeDataFile_new import MakeDataFile_new, ReadHeader
+from MakeDataFile_new import MakeDataFile, ReadHeader
 
 from UtilitiesModule import GetNorm, GetFileArray
 
@@ -34,11 +34,11 @@ class MakeMovie2D:
 
         DataFileDirectory = '.{:}_{:}_MovieData2D'.format( ID, Field )
 
-        MakeDataFile_new( Field, PlotFileDirectory + ID + '/', \
-                          DataFileDirectory, PlotFileBaseName, \
-                          CoordinateSystem = 'spherical', \
-                          SSi = self.SSi, SSf = self.SSf, nSS = self.nSS, \
-                          Verbose = True )
+        MakeDataFile( Field, PlotFileDirectory + ID + '/', \
+                      DataFileDirectory, PlotFileBaseName, \
+                      CoordinateSystem = 'spherical', \
+                      SSi = self.SSi, SSf = self.SSf, nSS = self.nSS, \
+                      Verbose = True )
 
         PlotFileArray = GetFileArray( PlotFileDirectory + ID + '/', \
                                       PlotFileBaseName )
@@ -96,9 +96,9 @@ if __name__ == '__main__':
 
     MM2D = MakeMovie2D( nSS = nSS )
 
-    PlotFileDirectory = '/lump/data/AccretionShockStudy/'
-    ID                = 'GR2D_M2.0_Mdot0.3_Rs150'
-    PlotFileBaseName  = ID + '.plt'
+    PlotFileDirectory = '/lump/data/accretionShockStudy/'
+    ID                = 'GR2D_M2.0_Mdot0.3_Rs150_ColdStart'
+    PlotFileBaseName  = ID + '.plt_'
     Data, Data_K \
       = MM2D.GetData( PlotFileDirectory, ID, PlotFileBaseName, Field, \
                       nX1 = 640, nX2 = 64 )
@@ -112,17 +112,17 @@ if __name__ == '__main__':
     theta     = MM2D.theta
     r         = MM2D.r
 
-    for t in range( nSS ):
-
-        for iX2 in range( 64 ):
-
-            Data[t,:,iX2] = ( Data[t,:,iX2] - Data_K[t] ) / Data_K[t]
+#    for t in range( nSS ):
+#
+#        for iX2 in range( 64 ):
+#
+#            Data[t,:,iX2] = ( Data[t,:,iX2] - Data_K[t] ) / Data_K[t]
 
     vmax = Data[0].max()
     vmin = Data[0].min()
 
-    Norm = GetNorm( UseLogScale, Data[0], vmin = vmin, vmax = vmax, \
-                    linthresh = 1.0e-8 )
+    Norm = GetNorm( UseLogScale, Data[0], vmin = vmin, vmax = vmax )#, \
+#                    linthresh = 1.0e-8 )
 
     def f(t):
         return Data[t]
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     ax.set_thetamin( 180.0/np.pi * xL[1] )
     ax.set_thetamax( 180.0/np.pi * xU[1] )
    # ax.set_rlim( 80.0, 100.0 )
-    ax.set_ylim( [80.0,100.0] )
+   # ax.set_ylim( [80.0,100.0] )
     ax.set_rorigin(0.0)
     ax.set_theta_direction( -1 )
 

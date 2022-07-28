@@ -62,7 +62,7 @@ class ShockRadius:
           = self.RootDirectory \
               + self.ID + '{:}/'.format( PlotFileDirectorySuffix )
 
-        self.PlotFileBaseName = self.ID + '.plt'
+        self.PlotFileBaseName = self.ID + '.plt_'
 
         self.PlotFileArray \
           = GetFileArray( self.PlotFileDirectory, self.PlotFileBaseName )
@@ -70,7 +70,7 @@ class ShockRadius:
         self.PlotFileArray = self.PlotFileArray[::self.ModPlotFile]
 
         File \
-          = ChoosePlotFile( self.PlotFileDirectory, self.PlotFileBaseName )
+          = ChoosePlotFile( self.PlotFileArray, self.PlotFileBaseName )
 
         self.ds = yt.load( '{:}'.format( self.PlotFileDirectory + File ) )
 

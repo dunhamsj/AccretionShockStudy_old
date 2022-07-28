@@ -9,7 +9,7 @@ from UtilitiesModule import GetData as GD
 from UtilitiesModule import GetNorm
 
 #Root = '/home/dunhamsj/AccretionShockData/'
-Root = '/lump/data/AccretionShockStudy/'
+Root = '/lump/data/accretionShockStudy/'
 #Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Euler_Relativistic_IDEAL/'
 
 class PlotFieldsAMReX2D:
@@ -29,7 +29,7 @@ class PlotFieldsAMReX2D:
 
     def GetData( self ):
 
-        PlotFileBaseName = self.ID + '.plt'
+        PlotFileBaseName = self.ID + '.plt_'
 
         self.Data, self.DataUnit, self.r, self.theta, x3, dx1, dx2, dx3, \
           self.xL, self.xU, nX, self.Time \
@@ -129,9 +129,9 @@ class PlotFieldsAMReX2D:
 
 if __name__ == '__main__':
 
-    ID = 'GR2D_M2.8_Mdot0.3_Rs120'
-    Field = 'AF_Cs'
-    UseLogScale = False
+    ID = 'GR2D_M2.0_Mdot0.3_Rs150_ColdStart'
+    Field = 'AF_P'
+    UseLogScale = True
 
     PlotFields \
       = PlotFieldsAMReX2D( ID, Field, cmap = 'viridis', UseLogScale = UseLogScale )
