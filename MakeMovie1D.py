@@ -22,7 +22,7 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 #### ========== User Input ==========
 
 # ID to be used for naming purposes
-ID = 'GR1D_M2.0_Mdot0.3_Rs150_ColdStart'
+ID = 'GR1D_M2.0_Mdot0.3_Rs150_Gm1.13_nX2560'
 
 # Directory containing AMReX plotfiles
 PlotFileDirectory = '/lump/data/accretionShockStudy/'
@@ -134,8 +134,9 @@ time_text = plt.text( 0.5, 0.7, '', transform = ax.transAxes )
 
 if( UseLogScale ): ax.set_yscale( 'log' )
 
-line, = ax.plot( [],[], 'k.', label = 'u(t)' )
-if ShowIC: IC, = ax.plot( [],[], 'r.', label = 'u(0)' )
+ms = 5
+line, = ax.plot( [],[], 'k.', markersize = ms, label = 'u(t)' )
+if ShowIC: IC, = ax.plot( [],[], 'r.', markersize = ms, label = 'u(0)' )
 if PlotMesh: mesh, = ax.plot( [],[], 'b.', label = 'mesh' )
 
 def InitializeFrame():
@@ -180,7 +181,7 @@ fps = max( 1, nSS / MovieRunTime )
 
 print( 'Saving movie {:}...'.format( MovieName ) )
 
-anim.save( MovieName, fps = fps )
+anim.save( MovieName, fps = fps, dpi = 300 )
 
 print( 'Done!' )
 
