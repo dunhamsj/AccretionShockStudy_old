@@ -177,7 +177,7 @@ class Relaxation:
 
 if __name__ == '__main__':
 
-    nX  = 2560
+    nX  = 640
     SSi = 0
     SSf = 1999
     nSS = 2000
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 
     UseLogScale = False
 
-    ID = 'GR1D_M2.0_Mdot0.3_Rs150_Gm1.13_nX2560'
+    ID = 'GR1D_M2.0_Mdot0.3_Rs150'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 
