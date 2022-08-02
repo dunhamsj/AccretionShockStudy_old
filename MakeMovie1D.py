@@ -32,7 +32,7 @@ PlotFileDirectory += ID + '/'
 PlotFileBaseName = ID + '.plt_'
 
 # Field to plot
-Field = 'PF_D'
+Field = 'AF_P'
 
 # Plot data in log10-scale?
 UseLogScale = True

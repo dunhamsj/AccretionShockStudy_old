@@ -201,6 +201,15 @@ if __name__ == '__main__':
     P = 'AF_P'
     Time_P, Data_P = Relax.GetData( P, ID )
 
+    ind = np.where( Time_D > 150.0 )[0]
+
+    Time_D = np.copy( Time_D[ind] )
+    Time_V = np.copy( Time_V[ind] )
+    Time_P = np.copy( Time_P[ind] )
+    Data_D = np.copy( Data_D[ind] )
+    Data_V = np.copy( Data_V[ind] )
+    Data_P = np.copy( Data_P[ind] )
+
     fig, axs = plt.subplots( 3, 1 )
 
 #    fig.suptitle( 'Gaussian perturbation below shock\n{:}'.format( ID ) )
@@ -209,12 +218,9 @@ if __name__ == '__main__':
     Relax.PlotRelaxationVsTime( axs[1], Time_V, Data_V, V, ID, UseLogScale )
     Relax.PlotRelaxationVsTime( axs[2], Time_P, Data_P, P, ID, UseLogScale )
 
-#    axs[0].set_ylim( 1.0e-6, 5.0 )
-#    axs[1].set_ylim( 1.0e-6, 5.0 )
-#    axs[2].set_ylim( 1.0e-6, 5.0 )
-    axs[0].grid()
-    axs[1].grid()
-    axs[2].grid()
+    for i in range( axs.shape[0] ):
+        axs[i].grid()
+        axs[i].set_yscale( 'log' )
 
 #    plt.show()
 

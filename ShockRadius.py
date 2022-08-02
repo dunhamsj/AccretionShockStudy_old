@@ -271,39 +271,47 @@ class ShockRadius:
 
         return
 
-    def PlotShockRadiusVsTime( self ):
-
-        t, r, Min, Max = np.loadtxt( self.ShockRadiusVsTimeFileName )
-
-        r0 = r[0]
-
-        plt.plot( t, ( r - r0 ) / r0, 'k-', label = 'Average' )
-        #plt.plot( t, Max/r0, 'b-', label = 'Max' )
-        #plt.plot( t, Min/r0, 'r-', label = 'Min' )
-        plt.xlim( t[0], t[-1] )
-        plt.xlabel( 'Time [ms]' )
-        plt.ylabel( r'$\left(R_{s}-R_{s,0}\right)/R_{s,0}$' )
-        plt.legend()
-        #plt.show()
-        plt.savefig( self.SaveFigAs, dpi = 300 )
-        plt.close()
-
 
 if __name__ == "__main__":
 
-    #RootDirectory = '/Users/dunhamsj/Work/Data/AccretionShockParameterStudy/'
-    RootDirectory = '/lump/data/AccretionShockStudy/'
+    RootDirectory = '/lump/data/accretionShockStudy/'
     EntropyThreshold = 1.0e15
 
-    ID = 'GR1D_M2.4_Mdot0.3_Rs165'
+    SaveFigAs                 \
+      = 'fig.ShockRadiusVsTime_CompareGamma_{:}.png'.format \
+        ( 'PolytropicConstant' )
 
+    plt.suptitle( 'GR1D_M2.0_Mdot0.3_Rs150' )
+
+    ID = 'GR1D_M2.0_Mdot0.3_Rs150'
     SR = ShockRadius( RootDirectory, ID, EntropyThreshold = EntropyThreshold, \
                       PlotFileDirectorySuffix = '', \
-                      ForceChoice = False, OW = True, ModPlotFile = 10, \
+                      ForceChoice = False, OW = True, ModPlotFile = 1, \
                       Verbose = True )
-
     SR.ComputeShockRadius()
-    SR.PlotShockRadiusVsTime()
+    t133, r133, Min133, Max133 = np.loadtxt( SR.ShockRadiusVsTimeFileName )
+    r133_0 = r133[0]
+    plt.plot( t133, ( r133 - r133_0 ) / r133_0, 'r.', label = r'$\Gamma=4/3$' )
+
+    ID = 'GR1D_M2.0_Mdot0.3_Rs150_Gm1.13_nX2560'
+    SR = ShockRadius( RootDirectory, ID, EntropyThreshold = EntropyThreshold, \
+                      PlotFileDirectorySuffix = '', \
+                      ForceChoice = False, OW = True, ModPlotFile = 1, \
+                      Verbose = True )
+    SR.ComputeShockRadius()
+    t113, r113, Min113, Max113 = np.loadtxt( SR.ShockRadiusVsTimeFileName )
+    r113_0 = r113[0]
+
+    plt.plot( t113, ( r113 - r113_0 ) / r113_0, 'b.', label = r'$\Gamma=1.13$' )
+
+    plt.xlim( min( t133[0], t113[0] ), max( t133[-1], t113[-1] ))
+
+    plt.xlabel( 'Time [ms]' )
+    plt.ylabel( r'$\left(R_{s}-R_{s,0}\right)/R_{s,0}$', labelpad = -0.05 )
+    plt.legend()
+    #plt.show()
+    plt.savefig( SaveFigAs, dpi = 300 )
+    plt.close()
 
     import os
     os.system( 'rm -rf __pycache__ ' )
