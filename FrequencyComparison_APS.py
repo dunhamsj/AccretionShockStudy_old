@@ -6,7 +6,7 @@ plt.style.use( './Publication.sty' )
 
 from TimeScales import TimeScales
 
-Root = '/lump/data/AccretionShockStudy/'
+Root = '/lump/data/accretionShockStudy/'
 
 M    = np.array( [ '1.4', '2.0', '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
