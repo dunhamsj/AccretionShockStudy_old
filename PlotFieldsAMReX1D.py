@@ -22,11 +22,12 @@ THORNADO_DIR = THORNADO_DIR[:-1].decode( "utf-8" ) + '/'
 #### ========== User Input ==========
 
 #Root = '/lump/data/AccretionShockStudy/'
-Root = THORNADO_DIR + 'SandBox/AMReX/Euler_Relativistic_IDEAL/'
+#Root = THORNADO_DIR + 'SandBox/AMReX/Euler_Relativistic_IDEAL/'
+Root = '/home/kkadoogan/'
 
-IDs = np.array( [ 'GR1D_M2.8_Mdot0.3_Rs120' ], str )
+IDs = np.array( [ 'NR1D_M2.0_Mdot0.3_Rs120' ], str )
 
-Field = 'PolytropicConstant'
+Field = 'PF_D'
 
 UseLogScale = True
 
@@ -68,8 +69,8 @@ ax.grid()
 if( UseLogScale ): ax.set_yscale( 'log' )
 ax.set_xlabel( r'Radial Coordinate $\left[\mathrm{km}\right]$' )
 
-plt.savefig( SaveFileAs, dpi = 300 )
-#plt.show()
+#plt.savefig( SaveFileAs, dpi = 300 )
+plt.show()
 plt.close()
 
 import os
