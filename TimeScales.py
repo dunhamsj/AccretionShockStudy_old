@@ -25,7 +25,7 @@ class TimeScales:
               ( level           = MaxLevel, \
                 left_edge       = xL, \
                 dims            = nX * 2**MaxLevel, \
-                num_ghost_zones = 0 )
+                num_ghost_zones = nX[0] )
 
         xL = xL.to_ndarray()
         xU = xU.to_ndarray()
