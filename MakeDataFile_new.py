@@ -170,7 +170,7 @@ def MakeDataFile( Field, PlotFileDirectory, DataFileDirectory, \
         # Adapted from:
         # https://www.benmather.info/post/2018-11-24-multiprocessing-in-python/
 
-        nProc = cpu_count()
+        nProc = 4#cpu_count()
 
         print( 'Generating {:} with {:} processes...\n'.format \
              ( DataFileDirectory, nProc ) )

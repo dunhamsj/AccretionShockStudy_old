@@ -336,6 +336,36 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 
         DataUnits = 'erg*cm'
 
+    elif Field == 'RadialFlux':
+
+        c = 2.99792458e10
+
+        rho = CoveringGrid['PF_D'].to_ndarray()
+        e   = CoveringGrid['PF_E'].to_ndarray()
+        p   = CoveringGrid['AF_P'].to_ndarray()
+
+        h = c**2 + ( e + p ) / rho
+
+        Gm11 = CoveringGrid['GF_Gm_11'].to_ndarray()
+        Gm22 = CoveringGrid['GF_Gm_22'].to_ndarray() * ( 1.0e5 )**2
+        Gm33 = CoveringGrid['GF_Gm_33'].to_ndarray() * ( 1.0e5 )**2
+
+        v1 = CoveringGrid['PF_V1'].to_ndarray() * 1.0e5
+        v2 = CoveringGrid['PF_V2'].to_ndarray()
+        v3 = CoveringGrid['PF_V3'].to_ndarray()
+
+        VSq = Gm11 * v1**2 + Gm22 * v2**2 + Gm33 * v3**2
+        W   = 1.0 / np.sqrt( 1.0 - VSq / c**2 )
+
+        S_u1_d2 = rho * h/c**2 * W**2 * v1 * Gm22 * v2
+
+        alpha  = CoveringGrid['GF_Alpha' ].to_ndarray()
+        SqrtGm = CoveringGrid['GF_SqrtGm'].to_ndarray()
+
+        Data = SqrtGm * alpha * S_u1_d2
+
+        DataUnits = 'g*cm**2/s**2'
+
     elif Field == 'RelativisticBernoulliConstant':
 
         c = 2.99792458e10

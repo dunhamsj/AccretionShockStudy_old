@@ -681,9 +681,9 @@ if __name__ == "__main__":
   #Mdot  = np.array( [ '0.3' ], str )
   #Rs    = np.array( [ '120', '150', '180' ], str )
 
-  M     = np.array( [ '2.0' ], str )
+  M     = np.array( [ '2.8' ], str )
   Mdot  = np.array( [ '0.3' ], str )
-  Rs    = np.array( [ '150' ], str )
+  Rs    = np.array( [ '120' ], str )
 
   T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
   T_err_GR = np.copy( T_GR )
@@ -755,26 +755,27 @@ if __name__ == "__main__":
         InitialGuess = np.array( [ LogF0, omega_r, omega_i, delta ], \
                                  np.float64 )
 
-        #ID_NR = 'NR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] )
-        #P_NR = PowersInLegendreModes( Root, ID_NR, Field, \
-        #                              Rs = np.float64( Rs[rs] ), \
-        #                              fL = fL, fU = fU, R0 = R0, \
-        #                              EntropyThreshold = 4.0e14, \
-        #                              Verbose = False )
-        #Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
-        #  = P_NR.ComputePowerInLegendreModes()
-        #tFit, F = P_NR.FitPowerInLegendreModes \
-        #             ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-        ##P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-        ##               P0, P1, P2, P3, P4, tFit, F )
-        #G_NR    [m,rs] = P_NR.beta[1]
-        #G_err_NR[m,rs] = P_NR.perr[1]
-        #T_NR    [m,rs] = P_NR.beta[2]
-        #T_err_NR[m,rs] = P_NR.perr[2]
-        #del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
-        #    P0, P1, P2, P3, P4, tFit, F
+        ID_NR = 'NR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] )
+        P_NR = PowersInLegendreModes( Root, ID_NR, Field, \
+                                      Rs = np.float64( Rs[rs] ), \
+                                      fL = fL, fU = fU, R0 = R0, \
+                                      EntropyThreshold = 4.0e14, \
+                                      Verbose = False )
+        Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
+          = P_NR.ComputePowerInLegendreModes()
+        tFit, F = P_NR.FitPowerInLegendreModes \
+                     ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
+        P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+                       P0, P1, P2, P3, P4, tFit, F )
 
-        ID_GR = 'GR2D_M{:}_Mdot{:}_Rs{:}_ColdStart'.format( M[m], Mdot[mdot], Rs[rs] )
+        G_NR    [m,rs] = P_NR.beta[1]
+        G_err_NR[m,rs] = P_NR.perr[1]
+        T_NR    [m,rs] = P_NR.beta[2]
+        T_err_NR[m,rs] = P_NR.perr[2]
+        del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
+            P0, P1, P2, P3, P4, tFit, F
+
+        ID_GR = 'GR2D_M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] )
         P_GR = PowersInLegendreModes( Root, ID_GR, Field, \
                                       Rs = np.float64( Rs[rs] ), \
                                       fL = fL, fU = fU, R0 = R0, \

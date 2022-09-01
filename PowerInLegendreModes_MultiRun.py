@@ -10,10 +10,9 @@ if __name__ == '__main__':
 
     fig, axs = plt.subplots( 2, 1 )
 
-    suptitle = 'GR_Mdot0.3_Rs150'
-    IDs = np.array( ['GR2D_M1.4_Mdot0.3_Rs150', \
-                     'GR2D_M2.0_Mdot0.3_Rs150', \
-                     'GR2D_M2.8_Mdot0.3_Rs150' ], str )
+    suptitle = 'M2.8_Mdot0.3_Rs120'
+    IDs = np.array( ['NR2D_M2.8_Mdot0.3_Rs120', \
+                     'GR2D_M2.8_Mdot0.3_Rs120' ], str )
 
     #suptitle = 'GR_M2.8_Mdot0.3'
     #IDs = np.array( ['GR2D_M2.8_Mdot0.3_Rs120', \
@@ -33,8 +32,16 @@ if __name__ == '__main__':
         RsAve = np.copy( RsAve[ind] )
         P1    = np.copy( P1   [ind] )
 
-        axs[0].plot( tS, ( RsAve - RsAve[0] ) / RsAve[0], label = IDs[ID] )
-        axs[1].semilogy( tS, P1 )
+        if IDs[ID][0:2] == 'GR':
+            xscale = np.linspace( 0.8, 1.0, 5 )
+            for xs in xscale:
+                axs[0].plot( xs*tS, ( RsAve - RsAve[0] ) / RsAve[0], \
+                             label = r'$\alpha=${:.2f}'.format( xs ) )
+                axs[1].semilogy( xs*tS, P1 )
+        else:
+            axs[0].plot( tS, ( RsAve - RsAve[0] ) / RsAve[0], \
+                         label = 'NR' )
+            axs[1].semilogy( tS, P1 )
 
     axs[0].legend()
     axs[0].xaxis.set_ticklabels([])
