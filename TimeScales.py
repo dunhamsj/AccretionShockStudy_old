@@ -27,8 +27,10 @@ class TimeScales:
                 dims            = nX * 2**MaxLevel, \
                 num_ghost_zones = nX[0] )
 
-        xL = xL.to_ndarray()
-        xU = xU.to_ndarray()
+        ds.force_periodicity()
+
+        xL = np.copy( xL.to_ndarray() )
+        xU = np.copy( xU.to_ndarray() )
 
         # Get mesh and isolate elements below shock
 
@@ -40,8 +42,8 @@ class TimeScales:
 
         ind = np.where( ( r > rInner ) & ( r < rOuter ) )[0]
 
-        V1 = CoveringGrid['PF_V1'].to_ndarray()[ind,0,0]
-        Cs = CoveringGrid['AF_Cs'].to_ndarray()[ind,0,0]
+        V1 = np.copy( CoveringGrid['PF_V1'].to_ndarray()[ind,0,0] )
+        Cs = np.copy( CoveringGrid['AF_Cs'].to_ndarray()[ind,0,0] )
 
         # Integrate over shocked region to get advection/acoustic times
 
@@ -61,7 +63,7 @@ class TimeScales:
         tauAc *= 1.0e3
         T_SASI = tauAd + tauAc
 
-        return tauAd, tauAc
+        return T_SASI
 
 if __name__ == '__main__':
 

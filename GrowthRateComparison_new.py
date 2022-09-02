@@ -29,8 +29,8 @@ extent = [ 0, Rs.shape[0], 0, M.shape[0] ]
 
 cmap = plt.get_cmap( 'viridis' )
 
-#Data = ( G_GR - G_NR ) / G_GR
-Data = G_GR
+Data = ( G_GR - G_NR ) / G_GR
+#Data = G_GR
 im = ax.imshow( Data, \
                     origin = 'lower', \
                     extent = extent, \
@@ -39,18 +39,18 @@ im = ax.imshow( Data, \
                     interpolation = 'bilinear', \
                     aspect = 'auto' )
 
-a1 = min( Data.min(), 26.687800769228687 )
-a2 = max( Data.max(), 31.128138422245645 )
-norm = plt.Normalize( a1, a2 )
-
-c1 = cmap( norm( 31.128138422245645 ) )
-ax.plot( 2.0, 2.5, 'o', color = c1, markeredgecolor = 'k' )
-
-c2 = cmap( norm( 26.687800769228687 ) )
-ax.plot( 2.5, 2.0, 'o', color = c2, markeredgecolor = 'k' )
-
-c3 = cmap( norm( 27.2280909909708 ) )
-ax.plot( 2.0, 2.0, 'o', color = c3, markeredgecolor = 'k' )
+#a1 = min( Data.min(), 26.687800769228687 )
+#a2 = max( Data.max(), 31.128138422245645 )
+#norm = plt.Normalize( a1, a2 )
+#
+#c1 = cmap( norm( 31.128138422245645 ) )
+#ax.plot( 2.0, 2.5, 'o', color = c1, markeredgecolor = 'k' )
+#
+#c2 = cmap( norm( 26.687800769228687 ) )
+#ax.plot( 2.5, 2.0, 'o', color = c2, markeredgecolor = 'k' )
+#
+#c3 = cmap( norm( 27.2280909909708 ) )
+#ax.plot( 2.0, 2.0, 'o', color = c3, markeredgecolor = 'k' )
 
 xticks = np.empty( Rs.shape[0], np.float64 )
 yticks = np.empty( M.shape [0], np.float64 )

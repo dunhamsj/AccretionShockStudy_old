@@ -195,7 +195,7 @@ class ShockRadius:
 
         if not OW: return
 
-        self.MakeLineOutPlot()
+        #self.MakeLineOutPlot()
 
         if self.Verbose:
             print( '\n    Computing average shock radius...' )

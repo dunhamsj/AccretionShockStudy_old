@@ -337,6 +337,7 @@ class PowersInLegendreModes:
         PF_V1 = CoveringGrid['PF_V1'].to_ndarray()[:,:,0] \
                   * CentimetersPerKilometer
         PF_V2 = CoveringGrid['PF_V2'].to_ndarray()[:,:,0]
+        h2    = CoveringGrid['GF_h_2'].to_ndarray()[:,:,0]
         PF_D  = CoveringGrid['PF_D' ].to_ndarray()[:,:,0]
         AF_P  = CoveringGrid['AF_P' ].to_ndarray()[:,:,0]
         AF_Gm = CoveringGrid['AF_Gm'].to_ndarray()[:,:,0]
@@ -671,19 +672,19 @@ if __name__ == "__main__":
 
   Field = 'DivV2'
   t0    = 001.0
-  t1    = 100.0
+  t1    = 150.0
   fL    = 0.8
   fU    = 0.9
   R0    = -1.7e2
   suffix = ''
 
-  #M     = np.array( [ '1.4', '2.0', '2.8' ], str )
-  #Mdot  = np.array( [ '0.3' ], str )
-  #Rs    = np.array( [ '120', '150', '180' ], str )
-
-  M     = np.array( [ '2.8' ], str )
+  M     = np.array( [ '1.4', '2.0', '2.8' ], str )
   Mdot  = np.array( [ '0.3' ], str )
-  Rs    = np.array( [ '120' ], str )
+  Rs    = np.array( [ '120', '150', '180' ], str )
+
+  #M     = np.array( [ '2.8' ], str )
+  #Mdot  = np.array( [ '0.3' ], str )
+  #Rs    = np.array( [ '120' ], str )
 
   T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
   T_err_GR = np.copy( T_GR )
@@ -699,7 +700,7 @@ if __name__ == "__main__":
     for mdot in range( Mdot.shape[0] ):
       for rs in range( Rs.shape[0] ):
 
-#        print( 'M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] ) )
+        print( 'M{:}_Mdot{:}_Rs{:}'.format( M[m], Mdot[mdot], Rs[rs] ) )
 
         LogF0  = np.log( 1.0e14 )
         tauR   = 200.0
@@ -707,7 +708,7 @@ if __name__ == "__main__":
         delta  = 0.0
 
         tF0 = 1.0
-        tF1 = 300.0
+        tF1 = 150.0
 
         if M[m] == '1.4':
             if Rs[rs] == '120':
@@ -747,7 +748,7 @@ if __name__ == "__main__":
             elif Rs[rs] == '180':
                 T_SASI = 40.0
                 tF0    = 5.0
-                tF1    = 300.0
+                tF1    = 150.0
 
         omega_r = 1.0 / ( 2.0 * tauR )
         omega_i = TwoPi / T_SASI
@@ -765,8 +766,8 @@ if __name__ == "__main__":
           = P_NR.ComputePowerInLegendreModes()
         tFit, F = P_NR.FitPowerInLegendreModes \
                      ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-        P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                       P0, P1, P2, P3, P4, tFit, F )
+        #P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+        #               P0, P1, P2, P3, P4, tFit, F )
 
         G_NR    [m,rs] = P_NR.beta[1]
         G_err_NR[m,rs] = P_NR.perr[1]
@@ -789,8 +790,8 @@ if __name__ == "__main__":
           = P_GR.ComputePowerInLegendreModes()
         tFit, F = P_GR.FitPowerInLegendreModes \
                     ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-        P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                       P0, P1, P2, P3, P4, tFit, F )
+        #P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
+        #               P0, P1, P2, P3, P4, tFit, F )
         G_GR    [m,rs] = P_GR.beta[1]
         G_err_GR[m,rs] = P_GR.perr[1]
         T_GR    [m,rs] = P_GR.beta[2]
@@ -799,14 +800,14 @@ if __name__ == "__main__":
         del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
             P0, P1, P2, P3, P4, tFit, F
 
-  #np.savetxt( 'G_GR_{:}.dat'.format( Field )    , G_GR )
-  #np.savetxt( 'G_err_GR_{:}.dat'.format( Field ), G_err_GR )
-  #np.savetxt( 'T_GR_{:}.dat'.format( Field )    , T_GR )
-  #np.savetxt( 'T_err_GR_{:}.dat'.format( Field ), T_err_GR )
-  #np.savetxt( 'G_NR_{:}.dat'.format( Field )    , G_NR )
-  #np.savetxt( 'G_err_NR_{:}.dat'.format( Field ), G_err_NR )
-  #np.savetxt( 'T_NR_{:}.dat'.format( Field )    , T_NR )
-  #np.savetxt( 'T_err_NR_{:}.dat'.format( Field ), T_err_NR )
+  np.savetxt( 'G_GR_{:}.dat'.format( Field )    , G_GR )
+  np.savetxt( 'G_err_GR_{:}.dat'.format( Field ), G_err_GR )
+  np.savetxt( 'T_GR_{:}.dat'.format( Field )    , T_GR )
+  np.savetxt( 'T_err_GR_{:}.dat'.format( Field ), T_err_GR )
+  np.savetxt( 'G_NR_{:}.dat'.format( Field )    , G_NR )
+  np.savetxt( 'G_err_NR_{:}.dat'.format( Field ), G_err_NR )
+  np.savetxt( 'T_NR_{:}.dat'.format( Field )    , T_NR )
+  np.savetxt( 'T_err_NR_{:}.dat'.format( Field ), T_err_NR )
 
   import os
   os.system( 'rm -rf __pycache__ ' )
