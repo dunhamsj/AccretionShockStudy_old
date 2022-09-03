@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import os
 from os.path import isfile, isdir
 from sys import argv
+plt.style.use( './Publication.sty' )
 
 from UtilitiesModule import ChoosePlotFile, Overwrite, GetFileArray
 
@@ -676,6 +677,15 @@ class PowersInLegendreModes:
 
 if __name__ == "__main__":
 
+  def AddToPlot( ax, Time, P1, tFit, F, lab ):
+
+      if lab == 'GR':
+          ax.plot( Time, P1, 'r-', lw = 2  )
+          ax.plot( tFit, F , 'k-', lw = 1 )
+      else:
+          ax.plot( Time, P1, 'b-', lw = 2  )
+          ax.plot( tFit, F , color = 'orange', lw = 1 )
+
   #Root = '/scratch/dunhamsj/ProductionRuns/'
   Root = '/lump/data/accretionShockStudy/'
 
@@ -691,19 +701,7 @@ if __name__ == "__main__":
   Mdot  = np.array( [ '0.3' ], str )
   Rs    = np.array( [ '120', '150', '180' ], str )
 
-  #M     = np.array( [ '2.8' ], str )
-  #Mdot  = np.array( [ '0.3' ], str )
-  #Rs    = np.array( [ '120' ], str )
-
-  T_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
-  T_err_GR = np.copy( T_GR )
-  T_NR     = np.copy( T_GR )
-  T_err_NR = np.copy( T_GR )
-
-  G_GR     = np.empty( (M.shape[0],Rs.shape[0]), np.float64 )
-  G_err_GR = np.copy( G_GR )
-  G_NR     = np.copy( G_GR )
-  G_err_NR = np.copy( G_GR )
+  fig, axs = plt.subplots( 3, 3 )
 
   for m in range( M.shape[0] ):
     for mdot in range( Mdot.shape[0] ):
@@ -775,13 +773,9 @@ if __name__ == "__main__":
           = P_NR.ComputePowerInLegendreModes()
         tFit, F = P_NR.FitPowerInLegendreModes \
                      ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-        P_NR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                       P0, P1, P2, P3, P4, tFit, F )
 
-        G_NR    [m,rs] = P_NR.beta[1]
-        G_err_NR[m,rs] = P_NR.perr[1]
-        T_NR    [m,rs] = P_NR.beta[2]
-        T_err_NR[m,rs] = P_NR.perr[2]
+        AddToPlot( axs[rs,m], Time, P1, tFit, F, lab = 'NR' )
+
         del ID_NR, P_NR, Time, RsAve, RsMin, RsMax, \
             P0, P1, P2, P3, P4, tFit, F
 
@@ -791,32 +785,29 @@ if __name__ == "__main__":
                                       fL = fL, fU = fU, R0 = R0, \
                                       EntropyThreshold = 4.0e14, \
                                       suffix = suffix, \
-                                      Verbose = True )
-
-        if not isdir( P_GR.DataDirectory ): continue
+                                      Verbose = False )
 
         Time, RsAve, RsMin, RsMax, P0, P1, P2, P3, P4 \
           = P_GR.ComputePowerInLegendreModes()
         tFit, F = P_GR.FitPowerInLegendreModes \
                     ( Time, tF0, tF1, P1, InitialGuess = InitialGuess )
-        P_GR.PlotData( t0, t1, Time, RsAve, RsMin, RsMax, \
-                       P0, P1, P2, P3, P4, tFit, F )
-        G_GR    [m,rs] = P_GR.beta[1]
-        G_err_GR[m,rs] = P_GR.perr[1]
-        T_GR    [m,rs] = P_GR.beta[2]
-        T_err_GR[m,rs] = P_GR.perr[2]
-        print( 'M{:}_Mdot{:}_Rs{:}, omega: {:}'.format( M[m], Mdot[mdot], Rs[rs], G_GR[m,rs] ) )
+
+        AddToPlot( axs[rs,m], Time, P1, tFit, F, lab = 'GR' )
+
         del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
             P0, P1, P2, P3, P4, tFit, F
 
-  np.savetxt( 'G_GR_{:}.dat'.format( Field )    , G_GR )
-  np.savetxt( 'G_err_GR_{:}.dat'.format( Field ), G_err_GR )
-  np.savetxt( 'T_GR_{:}.dat'.format( Field )    , T_GR )
-  np.savetxt( 'T_err_GR_{:}.dat'.format( Field ), T_err_GR )
-  np.savetxt( 'G_NR_{:}.dat'.format( Field )    , G_NR )
-  np.savetxt( 'G_err_NR_{:}.dat'.format( Field ), G_err_NR )
-  np.savetxt( 'T_NR_{:}.dat'.format( Field )    , T_NR )
-  np.savetxt( 'T_err_NR_{:}.dat'.format( Field ), T_err_NR )
+        axs[rs,m].text( 0.1, 0.8, 'M{:}_Rs{:}'.format( M[m], Rs[rs] ), transform = axs[rs,m].transAxes )
+        axs[rs,m].set_yscale( 'log' )
+        axs[rs,m].set_xlim( 0.0, 150.0 )
+        if( m == 0 ):
+            axs[rs,m].set_ylabel( r'$H_{1}$ [cgs]' )
+        if( rs < Rs.shape[0]-1 ):
+            axs[rs,m].xaxis.set_visible( False )
+        else:
+            axs[rs,m].set_xlabel( 'Time [ms]' )
 
+  plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
+  plt.savefig( '/home/kkadoogan/fig.PowerInLegendreModes.png', dpi = 300 )
   import os
   os.system( 'rm -rf __pycache__ ' )

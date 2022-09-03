@@ -11,8 +11,24 @@ if __name__ == '__main__':
     fig, axs = plt.subplots( 2, 1 )
 
     suptitle = 'M2.8_Mdot0.3_Rs120'
-    IDs = np.array( ['NR2D_M2.8_Mdot0.3_Rs120', \
-                     'GR2D_M2.8_Mdot0.3_Rs120' ], str )
+    IDs = np.array( ['NR2D_M1.4_Mdot0.3_Rs120', \
+                     'GR2D_M1.4_Mdot0.3_Rs120', \
+                     'NR2D_M1.4_Mdot0.3_Rs150', \
+                     'GR2D_M1.4_Mdot0.3_Rs150', \
+                     'NR2D_M1.4_Mdot0.3_Rs180', \
+                     'GR2D_M1.4_Mdot0.3_Rs180', \
+                     'NR2D_M2.0_Mdot0.3_Rs120', \
+                     'GR2D_M2.0_Mdot0.3_Rs120', \
+                     'NR2D_M2.0_Mdot0.3_Rs150', \
+                     'GR2D_M2.0_Mdot0.3_Rs150', \
+                     'NR2D_M2.0_Mdot0.3_Rs180', \
+                     'GR2D_M2.0_Mdot0.3_Rs180', \
+                     'NR2D_M2.8_Mdot0.3_Rs120', \
+                     'GR2D_M2.8_Mdot0.3_Rs120', \
+                     'NR2D_M2.8_Mdot0.3_Rs150', \
+                     'GR2D_M2.8_Mdot0.3_Rs150', \
+                     'NR2D_M2.8_Mdot0.3_Rs180', \
+                     'GR2D_M2.8_Mdot0.3_Rs180' ], str )
 
     #suptitle = 'GR_M2.8_Mdot0.3'
     #IDs = np.array( ['GR2D_M2.8_Mdot0.3_Rs120', \
@@ -33,11 +49,14 @@ if __name__ == '__main__':
         P1    = np.copy( P1   [ind] )
 
         if IDs[ID][0:2] == 'GR':
-            xscale = np.linspace( 0.8, 1.0, 5 )
-            for xs in xscale:
-                axs[0].plot( xs*tS, ( RsAve - RsAve[0] ) / RsAve[0], \
-                             label = r'$\alpha=${:.2f}'.format( xs ) )
-                axs[1].semilogy( xs*tS, P1 )
+           # xscale = np.linspace( 0.8, 1.0, 5 )
+           # for xs in xscale:
+           #     axs[0].plot( xs*tS, ( RsAve - RsAve[0] ) / RsAve[0], \
+           #                  label = r'$\alpha=${:.2f}'.format( xs ) )
+           #     axs[1].semilogy( xs*tS, P1 )
+           axs[0].plot( tS, ( RsAve - RsAve[0] ) / RsAve[0], \
+                        label = 'GR' )
+           axs[1].semilogy( tS, P1 )
         else:
             axs[0].plot( tS, ( RsAve - RsAve[0] ) / RsAve[0], \
                          label = 'NR' )
@@ -55,7 +74,7 @@ if __name__ == '__main__':
     plt.subplots_adjust( hspace = 0.0 )
 
 #    plt.show()
-    plt.savefig( 'fig.PowerInLegendreModes_MultiRun_{:}.png'.format \
+    plt.savefig( '/home/kkadoogan/fig.PowerInLegendreModes_MultiRun_{:}.png'.format \
                  ( suptitle ), dpi = 300 )
     plt.close()
 

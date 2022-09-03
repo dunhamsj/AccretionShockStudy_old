@@ -4,6 +4,7 @@ import numpy as np
 
 def Overwrite( FileOrDirName, ForceChoice = False, OW = False ):
 
+    return False
     if ForceChoice: return OW
 
     from os.path import isfile, isdir

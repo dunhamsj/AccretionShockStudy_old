@@ -25,7 +25,7 @@ Rs   = np.int64  ( Rs   )
 
 fig, ax = plt.subplots( 1, 1, figsize = (9,12) )
 
-extent = [ 0, Rs.shape[0], 0, M.shape[0] ]
+extent = [ Rs[0], Rs[-1], M[0], M[-1] ]
 
 cmap = plt.get_cmap( 'viridis' )
 
@@ -52,19 +52,21 @@ im = ax.imshow( Data, \
 #c3 = cmap( norm( 27.2280909909708 ) )
 #ax.plot( 2.0, 2.0, 'o', color = c3, markeredgecolor = 'k' )
 
-xticks = np.empty( Rs.shape[0], np.float64 )
-yticks = np.empty( M.shape [0], np.float64 )
-for i in range( xticks.shape[0] ):
-    j = i + 1
-    xticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
-for i in range( yticks.shape[0] ):
-    j = i + 1
-    yticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
+#xticks = np.empty( Rs.shape[0], np.float64 )
+#yticks = np.empty( M.shape [0], np.float64 )
+#for i in range( xticks.shape[0] ):
+#    j = i + 1
+#    xticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
+#for i in range( yticks.shape[0] ):
+#    j = i + 1
+#    yticks[i] = ( 2.0 * np.float64( j ) - 1.0 ) / 2.0
+xticks = np.copy( Rs )
+yticks = np.copy( M  )
 
-for i in range( xticks.shape[0] ):
-    for j in range( yticks.shape[0] ):
-        ax.text( xticks[i]-0.15, yticks[j], \
-                     '{:.3e}'.format( Data[j,i] ), c = 'w' )
+#for i in range( xticks.shape[0] ):
+#    for j in range( yticks.shape[0] ):
+#        ax.text( xticks[i]-0.15, yticks[j], \
+#                     '{:.3e}'.format( Data[j,i] ), c = 'w' )
 
 size = 15
 
