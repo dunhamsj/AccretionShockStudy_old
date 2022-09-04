@@ -797,7 +797,8 @@ if __name__ == "__main__":
         del ID_GR, P_GR, Time, RsAve, RsMin, RsMax, \
             P0, P1, P2, P3, P4, tFit, F
 
-        axs[rs,m].text( 0.1, 0.8, 'M{:}_Rs{:}'.format( M[m], Rs[rs] ), transform = axs[rs,m].transAxes )
+        axs[rs,m].text( 0.1, 0.8, 'M{:}_Rs{:}'.format( M[m], Rs[rs] ), \
+                        transform = axs[rs,m].transAxes )
         axs[rs,m].set_yscale( 'log' )
         axs[rs,m].set_xlim( 0.0, 150.0 )
         if( m == 0 ):
@@ -808,6 +809,7 @@ if __name__ == "__main__":
             axs[rs,m].set_xlabel( 'Time [ms]' )
 
   plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
-  plt.savefig( '/home/kkadoogan/fig.PowerInLegendreModes.png', dpi = 300 )
+  plt.show()
+  #plt.savefig( '/home/kkadoogan/fig.PowerInLegendreModes.png', dpi = 300 )
   import os
   os.system( 'rm -rf __pycache__ ' )

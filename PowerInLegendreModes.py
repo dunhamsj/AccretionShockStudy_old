@@ -543,6 +543,13 @@ class PowersInLegendreModes:
     self.beta = np.copy( beta )
     self.perr = np.sqrt( np.diag( pcov ) )
 
+    np.savetxt \
+      ( self.ID + '_Fit.dat', \
+        [ t0, \
+          t1, \
+          self.beta[0], self.beta[1], self.beta[2], self.beta[3], \
+          self.perr[0], self.perr[1], self.perr[2], self.perr[3] ] )
+
     # F
     self.beta[0] = np.exp( self.beta[0] )
 
