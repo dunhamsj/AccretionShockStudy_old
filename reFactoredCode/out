@@ -1,0 +1,531 @@
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M1.4_Mdot0.3_Rs120/
+     plotFileBaseName : NR2D_M1.4_Mdot0.3_Rs120.plt_
+         dataFileName : .NR2D_M1.4_Mdot0.3_Rs120_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 120.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M1.4_Mdot0.3_Rs150/
+     plotFileBaseName : NR2D_M1.4_Mdot0.3_Rs150.plt_
+         dataFileName : .NR2D_M1.4_Mdot0.3_Rs150_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 150.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M1.4_Mdot0.3_Rs180/
+     plotFileBaseName : NR2D_M1.4_Mdot0.3_Rs180.plt_
+         dataFileName : .NR2D_M1.4_Mdot0.3_Rs180_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 180.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M2.0_Mdot0.3_Rs120/
+     plotFileBaseName : NR2D_M2.0_Mdot0.3_Rs120.plt_
+         dataFileName : .NR2D_M2.0_Mdot0.3_Rs120_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 120.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M2.0_Mdot0.3_Rs150/
+     plotFileBaseName : NR2D_M2.0_Mdot0.3_Rs150.plt_
+         dataFileName : .NR2D_M2.0_Mdot0.3_Rs150_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 150.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M2.0_Mdot0.3_Rs180/
+     plotFileBaseName : NR2D_M2.0_Mdot0.3_Rs180.plt_
+         dataFileName : .NR2D_M2.0_Mdot0.3_Rs180_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 180.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M2.8_Mdot0.3_Rs120/
+     plotFileBaseName : NR2D_M2.8_Mdot0.3_Rs120.plt_
+         dataFileName : .NR2D_M2.8_Mdot0.3_Rs120_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 120.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M2.8_Mdot0.3_Rs150/
+     plotFileBaseName : NR2D_M2.8_Mdot0.3_Rs150.plt_
+         dataFileName : .NR2D_M2.8_Mdot0.3_Rs150_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 150.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/NR2D_M2.8_Mdot0.3_Rs180/
+     plotFileBaseName : NR2D_M2.8_Mdot0.3_Rs180.plt_
+         dataFileName : .NR2D_M2.8_Mdot0.3_Rs180_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 180.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M1.4_Mdot0.3_Rs120/
+     plotFileBaseName : GR2D_M1.4_Mdot0.3_Rs120.plt_
+         dataFileName : .GR2D_M1.4_Mdot0.3_Rs120_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 120.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M1.4_Mdot0.3_Rs150/
+     plotFileBaseName : GR2D_M1.4_Mdot0.3_Rs150.plt_
+         dataFileName : .GR2D_M1.4_Mdot0.3_Rs150_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 150.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M1.4_Mdot0.3_Rs180/
+     plotFileBaseName : GR2D_M1.4_Mdot0.3_Rs180.plt_
+         dataFileName : .GR2D_M1.4_Mdot0.3_Rs180_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 180.0 km
+
+  File 10/302
+  File 20/302
+  File 30/302
+  File 40/302
+  File 50/302
+  File 60/302
+  File 70/302
+  File 80/302
+  File 90/302
+  File 100/302
+  File 110/302
+  File 120/302
+  File 130/302
+  File 140/302
+  File 150/302
+  File 160/302
+  File 170/302
+  File 180/302
+  File 190/302
+  File 200/302
+  File 210/302
+  File 220/302
+  File 230/302
+  File 240/302
+  File 250/302
+  File 260/302
+  File 270/302
+  File 280/302
+  File 290/302
+  File 300/302
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M2.0_Mdot0.3_Rs120/
+     plotFileBaseName : GR2D_M2.0_Mdot0.3_Rs120.plt_
+         dataFileName : .GR2D_M2.0_Mdot0.3_Rs120_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 120.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M2.0_Mdot0.3_Rs150/
+     plotFileBaseName : GR2D_M2.0_Mdot0.3_Rs150.plt_
+         dataFileName : .GR2D_M2.0_Mdot0.3_Rs150_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 150.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M2.0_Mdot0.3_Rs180/
+     plotFileBaseName : GR2D_M2.0_Mdot0.3_Rs180.plt_
+         dataFileName : .GR2D_M2.0_Mdot0.3_Rs180_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 180.0 km
+
+  File 10/302
+  File 20/302
+  File 30/302
+  File 40/302
+  File 50/302
+  File 60/302
+  File 70/302
+  File 80/302
+  File 90/302
+  File 100/302
+  File 110/302
+  File 120/302
+  File 130/302
+  File 140/302
+  File 150/302
+  File 160/302
+  File 170/302
+  File 180/302
+  File 190/302
+  File 200/302
+  File 210/302
+  File 220/302
+  File 230/302
+  File 240/302
+  File 250/302
+  File 260/302
+  File 270/302
+  File 280/302
+  File 290/302
+  File 300/302
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M2.8_Mdot0.3_Rs120/
+     plotFileBaseName : GR2D_M2.8_Mdot0.3_Rs120.plt_
+         dataFileName : .GR2D_M2.8_Mdot0.3_Rs120_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 120.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M2.8_Mdot0.3_Rs150/
+     plotFileBaseName : GR2D_M2.8_Mdot0.3_Rs150.plt_
+         dataFileName : .GR2D_M2.8_Mdot0.3_Rs150_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 150.0 km
+
+  File 10/152
+  File 20/152
+  File 30/152
+  File 40/152
+  File 50/152
+  File 60/152
+  File 70/152
+  File 80/152
+  File 90/152
+  File 100/152
+  File 110/152
+  File 120/152
+  File 130/152
+  File 140/152
+  File 150/152
+
+  Calling ComputePowerInLegendreModes...
+  --------------------------------------
+
+    plotFileDirectory : /lump/data/accretionShockStudy/GR2D_M2.8_Mdot0.3_Rs180/
+     plotFileBaseName : GR2D_M2.8_Mdot0.3_Rs180.plt_
+         dataFileName : .GR2D_M2.8_Mdot0.3_Rs180_LegendrePowerSpectrum.dat
+                field : DivV2
+                   fL : 0.8
+                   fU : 0.9
+                   Rs : 180.0 km
+
+  File 10/302
+  File 20/302
+  File 30/302
+  File 40/302
+  File 50/302
+  File 60/302
+  File 70/302
+  File 80/302
+  File 90/302
+  File 100/302
+  File 110/302
+  File 120/302
+  File 130/302
+  File 140/302
+  File 150/302
+  File 160/302
+  File 170/302
+  File 180/302
+  File 190/302
+  File 200/302
+  File 210/302
+  File 220/302
+  File 230/302
+  File 240/302
+  File 250/302
+  File 260/302
+  File 270/302
+  File 280/302
+  File 290/302
+  File 300/302
