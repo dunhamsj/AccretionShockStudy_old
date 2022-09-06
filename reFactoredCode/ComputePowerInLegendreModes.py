@@ -3,7 +3,7 @@
 from scipy.integrate import simps
 import numpy as np
 
-from UtilitiesModule import GetFileArray, Overwrite
+from UtilitiesModule import GetFileArray, Overwrite, ComputeAngleAverage
 from PowerSpectrumUtilitiesModule import ReadFields
 
 def ComputePowerInLegendreModes \
@@ -83,13 +83,13 @@ def ComputePowerInLegendreModes \
 
             indX1 = np.where( ( X1 > fL * Rs ) & ( X1 < fU * Rs ) )[0]
             indX2 = np.linspace( 1, nX[1]-2, nX[1]-2, dtype = np.int64 )
-            indX3 = np.linspace( 0, nX[2]-1, nX[2]  , dtype = np.int64 )
+            indX3 = np.linspace( 0, nX[2]  , nX[2]  , dtype = np.int64 )
 
             for i in indX1:
                 for j in indX2:
                     for k in indX3:
                         A[i,j,k] \
-                          = 1.0 / ( 2.0 * dX2 * np.sin( X2[j] ) ) \
+                          = 1.0 / ( 2.0 * dX2[j] * np.sin( X2[j] ) ) \
                               * (   np.sin( X2[j+1] ) * PF_V2[i,j+1,k] \
                                   - np.sin( X2[j-1] ) * PF_V2[i,j-1,k] )
 
@@ -101,17 +101,25 @@ def ComputePowerInLegendreModes \
             print( '  DivV2' )
             exit( 'Exiting...' )
 
-#        # Subtract off angle-average
-#        for i in indX1:
-#          A[i,indX2,indX3] \
-#            -= self.ComputeAngleAverage( A[i,indX2,indX3], X2[indX2] )
+        Psi    = data[0]
+        Psi_AA = np.empty( nX[0], np.float64 )
 
-        Psi = data[0]
-        #Psi[indX1] = 1.0
+        for i in indX1:
+
+          Psi_AA[i] \
+            = ComputeAngleAverage \
+                ( Psi[i,indX2,indX3], X2[indX2], dX2[indX2], dX3[indX3] )
+
+          # Subtract off angle-average
+          A[i,indX2,indX3] \
+            -= ComputeAngleAverage \
+                 ( A[i,indX2,indX3], X2[indX2], dX2[indX2], dX3[indX3] )
+
+        #Psi_AA[indX1] = 1.0
 
         for p in range( nLeg ):
 
-            # --- Compute expansion coefficient ---
+            # --- Compute p-th expansion coefficient ---
 
             for i in indX1:
 
@@ -123,7 +131,7 @@ def ComputePowerInLegendreModes \
 
             H[iSS,p] \
               = 2.0 * np.pi \
-                  * simps( G[p,indX1]**2 * Psi[indX1,0,0]**6 * X1[indX1]**2, \
+                  * simps( G[p,indX1]**2 * Psi_AA[indX1]**6 * X1[indX1]**2, \
                            x = X1[indX1] )
 
     # END for iSS in range( nSS )

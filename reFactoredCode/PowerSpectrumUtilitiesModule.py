@@ -82,13 +82,21 @@ def ReadFields( plotFile, field, verbose = False ):
     xL = ds.domain_left_edge .to_ndarray()
     xH = ds.domain_right_edge.to_ndarray()
 
-    dX1 = ( xH[0] - xL[0] ) / np.float64( nX[0] )
-    dX2 = ( xH[1] - xL[1] ) / np.float64( nX[1] )
-    dX3 = ( xH[2] - xL[2] ) / np.float64( nX[2] )
+    dX1 = ( xH[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
+    dX2 = ( xH[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
+    dX3 = ( xH[2] - xL[2] ) / np.float64( nX[2] ) * np.ones( nX[2], np.float64 )
 
-    X1 = np.linspace( xL[0] + 0.5 * dX1, xH[0] - 0.5 * dX1, nX[0] )
-    X2 = np.linspace( xL[1] + 0.5 * dX2, xH[1] - 0.5 * dX2, nX[1] )
-    X3 = np.linspace( xL[2] + 0.5 * dX3, xH[2] - 0.5 * dX3, nX[2] )
+    X1 = np.linspace( xL[0] + 0.5 * dX1[0], xH[0] - 0.5 * dX1[-1], nX[0] )
+    X2 = np.linspace( xL[1] + 0.5 * dX2[0], xH[1] - 0.5 * dX2[-1], nX[1] )
+    X3 = np.linspace( xL[2] + 0.5 * dX3[0], xH[2] - 0.5 * dX3[-1], nX[2] )
+
+    if( nDimsX < 3 ):
+        dX3[0] = 2.0 * np.pi
+        X3 [0] = np.pi
+
+    if( nDimsX < 2 ):
+        dX2[0] = np.pi
+        X2 [0] = np.pi / 2.0
 
     # yt has memory leakage issues
     del ds
@@ -147,7 +155,8 @@ NR2D_M2.0_Mdot0.3_Rs120/NR2D_M2.0_Mdot0.3_Rs120.plt_00412668'
     field = [ 'PF_V1', 'PF_D' ]
     start = printMemUsage( verbose = False )
     for i in range( 1 ):
-        t, F = ReadFields( plotFile, field, verbose = True )
+        t, F, X1, X2, X3, dX1, dX2, dX3, nX \
+          = ReadFields( plotFile, field, verbose = True )
     stop = printMemUsage( verbose = False )
     print( stop - start )
 

@@ -10,23 +10,25 @@ M    = np.array( [ '1.4', '2.0', '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
 Rs   = np.array( [ '120', '150', '180' ], str )
 
-ID = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
+arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
-t  = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-P0 = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-P1 = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-P2 = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-P3 = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-P4 = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
+ID = np.empty( arrShape, object )
 
-t0      = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-t1      = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-LogF    = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-omegaR  = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-omegaI  = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-delta   = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-domegaR  = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
-domegaI  = np.empty( (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0]), object )
+t  = np.empty( arrShape, object )
+P0 = np.empty( arrShape, object )
+P1 = np.empty( arrShape, object )
+P2 = np.empty( arrShape, object )
+P3 = np.empty( arrShape, object )
+P4 = np.empty( arrShape, object )
+
+t0      = np.empty( arrShape, object )
+t1      = np.empty( arrShape, object )
+LogF    = np.empty( arrShape, object )
+omegaR  = np.empty( arrShape, object )
+omegaI  = np.empty( arrShape, object )
+delta   = np.empty( arrShape, object )
+domegaR = np.empty( arrShape, object )
+domegaI = np.empty( arrShape, object )
 
 for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
@@ -72,10 +74,13 @@ for r in range( R.shape[0] ):
 
 fig, axs = plt.subplots( M.shape[0], Rs.shape[0], figsize = (12,9) )
 
+nr   = 0
+gr   = 1
+mdot = 0
 for m in range( M.shape[0] ):
     for rs in range( Rs.shape[0] ):
-        axs[m,rs].semilogy( t[0,m,0,rs], P1[0,m,0,rs] )
-        axs[m,rs].semilogy( t[1,m,0,rs], P1[1,m,0,rs] )
+        axs[m,rs].semilogy( t[nr,m,mdot,rs], P1[nr,m,mdot,rs] )
+        axs[m,rs].semilogy( t[gr,m,mdot,rs], P1[gr,m,mdot,rs] )
 
 import os
 os.system( 'rm -rf __pycache__ ' )

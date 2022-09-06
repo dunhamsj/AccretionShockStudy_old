@@ -2,6 +2,30 @@
 
 import numpy as np
 
+def ComputeAngleAverage( Q, theta, dtheta, dphi ):
+
+    AA = 0.0
+
+    if( Q.ndim > 1 ):
+
+        for iX2 in range( dtheta.shape[0] ):
+            for iX3 in range( dphi.shape[0] ):
+                AA += Q[iX2,iX3] * np.sin( theta[iX2] ) \
+                        * dtheta[iX2] * dphi[iX3]
+
+    else:
+
+        for iX2 in range( dtheta.shape[0] ):
+            for iX3 in range( dphi.shape[0] ):
+                AA += Q[iX2] * np.sin( theta[iX2] ) \
+                        * dtheta[iX2] * dphi[iX3]
+
+    AA  = AA / ( 4.0 * np.pi )
+
+    return AA
+# END ComputeAngleAverage
+
+
 def Overwrite( FileOrDirName, ForceChoice = False, OW = False ):
 
     if ForceChoice: return OW
