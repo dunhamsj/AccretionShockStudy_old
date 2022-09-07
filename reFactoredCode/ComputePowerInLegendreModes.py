@@ -82,16 +82,34 @@ def ComputePowerInLegendreModes \
             PF_V2 = data[1]
 
             indX1 = np.where( ( X1 > fL * Rs ) & ( X1 < fU * Rs ) )[0]
-            indX2 = np.linspace( 1, nX[1]-2, nX[1]-2, dtype = np.int64 )
-            indX3 = np.linspace( 0, nX[2]  , nX[2]  , dtype = np.int64 )
+            indX2 = np.linspace( 0, nX[1]-1, nX[1], dtype = np.int64 )
+            indX3 = np.linspace( 0, nX[2]  , nX[2], dtype = np.int64 )
 
             for i in indX1:
                 for j in indX2:
                     for k in indX3:
+
+                        # Reflecting boundary conditions in theta
+                        if j == 0:
+                            X2m = X2[j]
+                            X2p = X2[j+1]
+                            V2m = -PF_V2[i,j  ,k]
+                            V2p = +PF_V2[i,j+1,k]
+                        elif j == nX[1]-1:
+                            X2m = X2[j-1]
+                            X2p = X2[j]
+                            V2m = +PF_V2[i,j-1,k]
+                            V2p = -PF_V2[i,j  ,k]
+                        else:
+                            X2m = X2[j-1]
+                            X2p = X2[j+1]
+                            V2m = PF_V2[i,j-1,k]
+                            V2p = PF_V2[i,j+1,k]
+
                         A[i,j,k] \
                           = 1.0 / ( 2.0 * dX2[j] * np.sin( X2[j] ) ) \
-                              * (   np.sin( X2[j+1] ) * PF_V2[i,j+1,k] \
-                                  - np.sin( X2[j-1] ) * PF_V2[i,j-1,k] )
+                              * (   np.sin( X2p ) * V2p \
+                                  - np.sin( X2m ) * V2m )
 
         else:
 
