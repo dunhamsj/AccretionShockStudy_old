@@ -90,12 +90,12 @@ def ComputePowerInLegendreModes \
                     for k in indX3:
 
                         # Reflecting boundary conditions in theta
-                        if j == 0:
+                        if( j == 0 ):
                             X2m = X2[j]
                             X2p = X2[j+1]
                             V2m = -PF_V2[i,j  ,k]
                             V2p = +PF_V2[i,j+1,k]
-                        elif j == nX[1]-1:
+                        elif( j == nX[1]-1 ):
                             X2m = X2[j-1]
                             X2p = X2[j]
                             V2m = +PF_V2[i,j-1,k]
