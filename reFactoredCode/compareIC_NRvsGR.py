@@ -15,11 +15,18 @@ rootDirectory_GR \
   = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
 StandingAccretionShock_Relativistic/'
 
-IDs = np.array( [ '1D_M3.0_Mdot0.3_Rs060_Rpns020', \
-                  '1D_M3.0_Mdot0.3_Rs075_Rpns020', \
-                  '1D_M3.0_Mdot0.3_Rs090_Rpns020' ], str )
+#IDs = np.array( [ '1D_M2.8_Mdot0.3_Rs060_nX380', \
+#                  '1D_M2.8_Mdot0.3_Rs075_nX380', \
+#                  '1D_M2.8_Mdot0.3_Rs090_nX380', \
+#                  '1D_M2.8_Mdot0.3_Rs120_nX380', \
+#                  '1D_M2.8_Mdot0.3_Rs150_nX380', \
+#                  '1D_M2.8_Mdot0.3_Rs180_nX380' ], str )
+
+IDs = np.array( [ '1D_M3.0_Mdot0.3_Rs020_nX400' ], str )
+
 R_PNS = 10.0
-Rsh = np.array( [ 60.0, 75.0, 90.0 ], np.float64 )
+#Rsh = np.array( [ 60.0, 75.0, 90.0, 120.0, 150.0, 180.0 ], np.float64 )
+Rsh = np.array( [ 20.0 ], np.float64 )
 
 nRows = 2
 nCols = 1
@@ -47,10 +54,17 @@ ax1.set_ylabel( yLabels[1] )
 plotFileDirectory_NR = rootDirectory_NR
 plotFileDirectory_GR = rootDirectory_GR
 
-c = [ [ 'r-', 'r--' ], \
-      [ 'b-', 'b--' ], \
-      [ 'm-', 'm--' ] ]
+c = [ 'red',  \
+      'orange',  \
+      'yellow',  \
+      'green',  \
+      'blue',  \
+      'magenta' ]
 
+y0Min = +np.inf
+y0Max = -np.inf
+y1Min = +np.inf
+y1Max = -np.inf
 for i in range( IDs.shape[0] ):
 
     plotFileBaseName_NR = 'NR' + IDs[i] + '.plt'
@@ -86,23 +100,33 @@ for i in range( IDs.shape[0] ):
     lab = IDs[i][16:21]
 
     eta = np.copy( ( X1 - R_PNS ) / ( Rsh[i] - R_PNS ) )
+    #eta = np.copy( X1 )
 
-    ax0.plot( eta, p_NR[:,0,0] / rho_NR[:,0,0], c[i][0], \
+    ind = np.where( eta <= 1.0 )[0]
+    eta = np.copy( eta[ind] )
+
+    y0_NR = np.copy( p_NR[ind,0,0] / rho_NR[ind,0,0] )
+    y0_GR = np.copy( p_GR[ind,0,0] / rho_GR[ind,0,0] )
+    y1_NR = np.copy( v_NR[ind,0,0] )
+    y1_GR = np.copy( v_GR[ind,0,0] )
+
+    ax0.plot( eta, y0_NR, color = c[i], ls = '-', \
               label = r'\texttt{{NR_'+'{:}}}'.format( lab ) )
-    ax0.plot( eta, p_GR[:,0,0] / rho_GR[:,0,0], c[i][1], \
+    ax0.plot( eta, y0_GR, color = c[i], ls = '--', \
               label = r'\texttt{{GR_'+'{:}}}'.format( lab ) )
 
-    ax1.plot( eta, v_NR[:,0,0], c[i][0] )
-    ax1.plot( eta, v_GR[:,0,0], c[i][1] )
+    ax1.plot( eta, y1_NR, color = c[i], ls = '-' )
+    ax1.plot( eta, y1_GR, color = c[i], ls = '--' )
 
-ax0.set_xlim( 0.0, 1.0 )
-ax1.set_xlim( 0.0, 1.0 )
-#ax1.set_xlim( R_PNS, 1.0e2 )
+#ax0.set_xlim( R_PNS, 5.0e1 )
+#ax1.set_xlim( R_PNS, 5.0e1 )
 
 #ax0.set_xlabel( r'Radial Coordinate $\left[\mathrm{km}\right]$' )
 #ax1.set_xlabel( r'Radial Coordinate $\left[\mathrm{km}\right]$' )
-ax0.set_xlabel( r'$\left(r-R_{\textsc{pns}}\right)/\left(R_{s}-R_{\textsc{pns}}\right)$' )
-ax1.set_xlabel( r'$\left(r-R_{\textsc{pns}}\right)\left(R_{s}-R_{\textsc{pns}}\right)$' )
+ax0.set_xlabel \
+  ( r'$\left(r-R_{\textsc{pns}}\right)/\left(R_{s}-R_{\textsc{pns}}\right)$' )
+ax1.set_xlabel \
+  ( r'$\left(r-R_{\textsc{pns}}\right)\left(R_{s}-R_{\textsc{pns}}\right)$' )
 
 ax0.tick_params( axis = 'x', colors = 'k', labelsize = 15 )
 ax0.tick_params( axis = 'y', colors = 'k', labelsize = 15 )
@@ -110,10 +134,6 @@ ax1.tick_params( axis = 'x', colors = 'k', labelsize = 15 )
 ax1.tick_params( axis = 'y', colors = 'k', labelsize = 15 )
 
 ax0.legend( loc = 1, prop = { 'size' : 13 } )
-
-#ax0.set_yscale( 'log' )
-ax0.set_ylim( 1.0e-2, 1.5e-1 )
-ax1.set_ylim( -6.0e-2, 0.0 )
 
 plt.subplots_adjust( hspace = 0.3 )
 plt.savefig( saveFigAs, dpi = 300 )

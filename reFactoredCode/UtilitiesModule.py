@@ -76,8 +76,10 @@ def GetFileArray( plotFileDirectory, plotFileBaseName ):
 
     if not fileArray.shape[0] > 0:
 
-        msg = '\n>>>No files found in path {:s}\n'.format( plotFileDirectory )
-        msg += '>>>Double check the path.\n'
+        msg = '\n>>>No files found.\n'
+        msg += '>>>Double check the path: {:}\n'.format( plotFileDirectory )
+        msg += '>>>Double check the PlotFileBaseName: {:}\n' \
+               .format( plotFileBaseName )
         msg += '>>>Is it plt_ or just plt?\n'
 
         assert ( fileArray.shape[0] > 0 ), msg
