@@ -144,21 +144,26 @@ def GetData( plotFile, field, verbose = False ):
 
     if  ( field == 'PF_D' ):
 
-        data = coveringGrid['PF_D'].to_ndarray()
+        data = np.copy( coveringGrid['PF_D'].to_ndarray() )
         dataUnits = 'g/cm**3'
 
     elif( field == 'PF_V1' ):
 
-        data = coveringGrid['PF_V1'].to_ndarray()
+        data = np.copy( coveringGrid['PF_V1'].to_ndarray() )
         dataUnits = 'km/s'
 
     elif( field == 'AF_P' ):
 
-        data = coveringGrid['AF_P'].to_ndarray()
+        data = np.copy( coveringGrid['AF_P'].to_ndarray() )
         dataUnits = 'erg/cm**3'
 
-    xL = ds.domain_left_edge .to_ndarray()
-    xH = ds.domain_right_edge.to_ndarray()
+    elif( field == 'GF_h_1' ):
+
+        data = np.copy( coveringGrid['GF_h_1'].to_ndarray() )
+        dataUnits = ''
+
+    xL = np.copy( ds.domain_left_edge .to_ndarray() )
+    xH = np.copy( ds.domain_right_edge.to_ndarray() )
 
     dX1 = ( xH[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
     dX2 = ( xH[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
