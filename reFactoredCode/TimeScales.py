@@ -69,17 +69,17 @@ if __name__ == '__main__':
 
     Root = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/'
 
-    rel = 'GR'
+    rel = 'NR'
 
     if   rel == 'NR':
         Root += 'StandingAccretionShock_NonRelativistic/'
     elif rel == 'GR':
         Root += 'StandingAccretionShock_Relativistic/'
 
-    M    = np.array( [ 1.4 ], np.float64 )
+    M    = np.linspace( 1.4, 2.8, 2, dtype = np.float64 )
     Mdot = np.array( [ 0.3 ], np.float64 )
-    Rs   = np.linspace( 30, 180, 16, dtype = np.int64 )
-    RPNS = np.linspace( 3 , 42 , 14, dtype = np.int64 )
+    Rs   = np.linspace( 30, 180, 64, dtype = np.float64 )
+    RPNS = np.linspace( 3 , 42 , 56, dtype = np.float64 )
 
     TS = TimeScales()
 
@@ -94,9 +94,8 @@ if __name__ == '__main__':
                     rso = float( rs ) / float( rpns )
                     if rso >= 1.5:
                         ID \
-                          = '{:}1D_M{:.1f}_Mdot{:.1f}_Rs{:}_RPNS{:}'.format \
-                              ( rel, m, mdot, str( rs ).zfill(3), \
-                                str( rpns ).zfill(3) )
+                          = '{:}1D_M{:.1f}_Mdot{:.1f}_Rs{:.3e}_RPNS{:.3e}'.format \
+                              ( rel, m, mdot, rs, rpns )
                         DataDirectory = Root + '{:}.plt00000000/'.format( ID )
 
                         rInner = np.float64( rpns )
