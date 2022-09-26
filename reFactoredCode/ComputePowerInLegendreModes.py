@@ -122,16 +122,16 @@ def ComputePowerInLegendreModes \
         Psi    = data[0]
         Psi_AA = np.empty( nX[0], np.float64 )
 
-        for i in indX1:
-
-          Psi_AA[i] \
-            = ComputeAngleAverage \
-                ( Psi[i,indX2,indX3], X2[indX2], dX2[indX2], dX3[indX3] )
-
-          # Subtract off angle-average
-          A[i,indX2,indX3] \
-            -= ComputeAngleAverage \
-                 ( A[i,indX2,indX3], X2[indX2], dX2[indX2], dX3[indX3] )
+#        for i in indX1:
+#
+#          Psi_AA[i] \
+#            = ComputeAngleAverage \
+#                ( Psi[i,indX2,indX3], X2[indX2], dX2[indX2], dX3[indX3] )
+#
+#          # Subtract off angle-average
+#          A[i,indX2,indX3] \
+#            -= ComputeAngleAverage \
+#                 ( A[i,indX2,indX3], X2[indX2], dX2[indX2], dX3[indX3] )
 
         #Psi_AA[indX1] = 1.0
 
@@ -148,8 +148,8 @@ def ComputePowerInLegendreModes \
             # --- Integrate over radial dimension ---
 
             H[iSS,p] \
-              = 2.0 * np.pi \
-                  * simps( G[p,indX1]**2 * Psi_AA[indX1]**6 * X1[indX1]**2, \
+              = 4.0 * np.pi \
+                  * simps( G[p,indX1]**2 * Psi[indX1,0,0]**6 * X1[indX1]**2, \
                            x = X1[indX1] )
 
     # END for iSS in range( nSS )

@@ -10,7 +10,7 @@ class TimeScales:
     def __init__( self ):
         return
 
-    def ComputeTimeScales( self, DataDirectory, rInner, rOuter ):
+    def ComputeTimeScales( self, DataDirectory, rInner, rOuter, rel ):
 
         # Read in data
 
@@ -42,8 +42,10 @@ class TimeScales:
 
         ind = np.where( ( r > rInner ) & ( r < rOuter ) )[0]
 
-        V1 = np.copy( CoveringGrid['PF_V1'].to_ndarray()[ind,0,0] )
-        Cs = np.copy( CoveringGrid['AF_Cs'].to_ndarray()[ind,0,0] )
+        alpha = np.copy( CoveringGrid['GF_Alpha'].to_ndarray()[ind,0,0] )
+        Gm11  = np.copy( CoveringGrid['GF_Gm_11'].to_ndarray()[ind,0,0] )
+        V     = np.copy( CoveringGrid['PF_V1'   ].to_ndarray()[ind,0,0] )
+        Cs    = np.copy( CoveringGrid['AF_Cs'   ].to_ndarray()[ind,0,0] )
 
         # Integrate over shocked region to get advection/acoustic times
 
@@ -52,10 +54,26 @@ class TimeScales:
 
         nShocked = np.int64( ind.shape[0] )
 
+        c = 2.99792458e5
+
+        VSq = Gm11 * V  * V
+
+        if  ( rel == 'NR' ):
+            lambda0 = V
+            lambdap = V + Cs * np.sqrt( 1.0 / Gm11 )
+        elif( rel == 'GR' ):
+            lambda0 = alpha * V
+            lambdap = alpha / ( 1.0 - VSq * Cs**2 / c**4 ) \
+                        * ( V * ( 1.0 - Cs**2 / c**2 ) \
+                        + Cs * np.sqrt( ( 1.0 - VSq / c**2 ) \
+                        * ( 1.0 / Gm11 * ( 1.0 - VSq * Cs**2 / c**4 ) \
+                        - V * V * ( 1.0 - Cs**2 / c**2 ) ) ) )
+
         for i in range( ind.shape[0] ):
 
-            tauAd += dr / np.abs( V1[ind[i]] )
-            tauAc += dr / ( Cs[ind[i]] - np.abs( V1[ind[i]] ) )
+            # Account for integrating inwards in advective timescale
+            tauAd += -np.sqrt( Gm11[ind[i]] ) * dr / lambda0[ind[i]]
+            tauAc += +np.sqrt( Gm11[ind[i]] ) * dr / lambdap[ind[i]]
 
         # Convert to ms
 
@@ -94,8 +112,8 @@ if __name__ == '__main__':
                     rso = float( rs ) / float( rpns )
                     if rso >= 1.5:
                         ID \
-                          = '{:}1D_M{:.1f}_Mdot{:.1f}_Rs{:.3e}_RPNS{:.3e}'.format \
-                              ( rel, m, mdot, rs, rpns )
+                          = '{:}1D_M{:.1f}_Mdot{:.1f}_Rs{:.3e}_RPNS{:.3e}' \
+                            .format( rel, m, mdot, rs, rpns )
                         DataDirectory = Root + '{:}.plt00000000/'.format( ID )
 
                         rInner = np.float64( rpns )
@@ -103,7 +121,7 @@ if __name__ == '__main__':
 
                         tAd, tAc \
                           = TS.ComputeTimeScales \
-                              ( DataDirectory, rInner, rOuter )
+                              ( DataDirectory, rInner, rOuter, rel )
                         print( '{:}, {:.16e}, {:.16e}'.format( ID, tAd, tAc ) )
                         tad.append( tAd )
                         tac.append( tAc )

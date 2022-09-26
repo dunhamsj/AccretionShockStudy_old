@@ -162,6 +162,16 @@ def GetData( plotFile, field, verbose = False ):
         data = np.copy( coveringGrid['GF_h_1'].to_ndarray() )
         dataUnits = ''
 
+    elif( field == 'GF_Gm11' ):
+
+        data = np.copy( coveringGrid['GF_Gm11'].to_ndarray() )
+        dataUnits = ''
+
+    elif( field == 'GF_Alpha' ):
+
+        data = np.copy( coveringGrid['GF_Alph'].to_ndarray() )
+        dataUnits = ''
+
     xL = np.copy( ds.domain_left_edge .to_ndarray() )
     xH = np.copy( ds.domain_right_edge.to_ndarray() )
 
