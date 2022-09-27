@@ -172,6 +172,31 @@ def GetData( plotFile, field, verbose = False ):
         data = np.copy( coveringGrid['GF_Alph'].to_ndarray() )
         dataUnits = ''
 
+    elif( field == 'PolytropicConstant' ):
+
+        rho   = np.copy( coveringGrid['PF_D' ].to_ndarray() )
+        p     = np.copy( coveringGrid['AF_P' ].to_ndarray() )
+        Gamma = np.copy( coveringGrid['AF_Gm'].to_ndarray() )
+
+        data = p / rho**Gamma
+
+        dataUnits = '(erg/cm**3)/(g/cm**3)**(Gamma)'
+
+    else:
+
+        print( 'Invalid field: {:}'.format( field ) )
+        print( 'Valid Choices' )
+        print( '-------------' )
+        print( 'PF_D' )
+        print( 'PF_V1' )
+        print( 'AF_P' )
+        print( 'GF_h_1' )
+        print( 'GF_Gm11' )
+        print( 'GF_Alpha' )
+        print( 'PolytropicConstant' )
+
+        exit( 'Exiting...' )
+
     xL = np.copy( ds.domain_left_edge .to_ndarray() )
     xH = np.copy( ds.domain_right_edge.to_ndarray() )
 
@@ -197,3 +222,30 @@ def GetData( plotFile, field, verbose = False ):
 
     return time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX
 # END GetData
+
+def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
+             linthresh = 1.0e-2 ):
+
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import LogNorm, SymLogNorm
+
+    if vmin > +1.0e99: vmin = Data.min()
+    if vmax < -1.0e99: vmax = Data.max()
+
+    if UseLogScale:
+
+        if np.any( Data <= 0.0 ):
+
+            Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
+                               linthresh = linthresh, base = 10 )
+
+        else:
+
+            Norm = LogNorm   ( vmin = vmin, vmax = vmax )
+
+    else:
+
+        Norm = plt.Normalize ( vmin = vmin, vmax = vmax )
+
+    return Norm
+# END GetNorm

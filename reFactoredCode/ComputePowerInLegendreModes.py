@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from scipy.integrate import simps
+from scipy.integrate import trapezoid
 import numpy as np
 
 from UtilitiesModule import GetFileArray, Overwrite, ComputeAngleAverage
@@ -32,7 +32,7 @@ def ComputePowerInLegendreModes \
 
     nSS = plotFileArray.shape[0]
 
-    H = np.empty( (nSS,5), np.float64 )
+    H = np.zeros( (nSS,5), np.float64 )
 
     time = np.empty( nSS )
 
@@ -71,7 +71,7 @@ def ComputePowerInLegendreModes \
         P[4] = np.sqrt( 9.0 / 2.0 ) \
                  * 1.0 / 8.0 * ( 35.0 * x**4 - 30.0 * x**2 + 3.0 )
 
-        G = np.empty( (nLeg,nX[0]), np.float64 )
+        G = np.zeros( (nLeg,nX[0]), np.float64 )
 
         A = np.zeros( (nX[0],nX[1],nX[2]), np.float64 )
 
@@ -135,22 +135,27 @@ def ComputePowerInLegendreModes \
 
         #Psi_AA[indX1] = 1.0
 
-        for p in range( nLeg ):
+        for ell in range( nLeg ):
 
-            # --- Compute p-th expansion coefficient ---
+            # --- Compute ell-th expansion coefficient ---
 
             for i in indX1:
 
-                G[p,i] \
-                  = simps( A[i,indX2,indX3] * P[p,indX2] \
-                             * np.sin( X2[indX2] ), x = X2[indX2] )
+                # Assume data is 2D
+                for k in indX3:
 
-            # --- Integrate over radial dimension ---
+                    G[ell,i] \
+                      += trapezoid \
+                           ( A[i,indX2,k] * P[ell,indX2] \
+                               * np.sin( X2[indX2] ), \
+                             x = X2[indX2], dx = dX2[0] )
 
-            H[iSS,p] \
+            # Assume Psi is spherically symmetric
+            H[iSS,ell] \
               = 4.0 * np.pi \
-                  * simps( G[p,indX1]**2 * Psi[indX1,0,0]**6 * X1[indX1]**2, \
-                           x = X1[indX1] )
+                  * trapezoid \
+                      ( G[ell,indX1]**2 * Psi[indX1,0,0]**6 * X1[indX1]**2, \
+                        x = X1[indX1], dx = dX1[0] )
 
     # END for iSS in range( nSS )
 
