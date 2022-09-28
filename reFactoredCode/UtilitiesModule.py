@@ -102,8 +102,8 @@ def GetData( plotFile, field, verbose = False ):
 
     if( verbose ):
         print()
-        print( '  Calling ReadField...' )
-        print( '  --------------------' )
+        print( '  Calling GetData...' )
+        print( '  ------------------' )
         print( '{:>12} : {:}'.format( 'plotFile', plotFile ) )
         print( '{:>12} : {:}'.format( 'field', field ) )
 
@@ -184,18 +184,18 @@ def GetData( plotFile, field, verbose = False ):
 
     else:
 
-        print( 'Invalid field: {:}'.format( field ) )
-        print( 'Valid Choices' )
-        print( '-------------' )
-        print( 'PF_D' )
-        print( 'PF_V1' )
-        print( 'AF_P' )
-        print( 'GF_h_1' )
-        print( 'GF_Gm11' )
-        print( 'GF_Alpha' )
-        print( 'PolytropicConstant' )
+        print( '  Invalid field: {:}'.format( field ) )
+        print( '  Valid Choices' )
+        print( '  -------------' )
+        print( '    PF_D' )
+        print( '    PF_V1' )
+        print( '    AF_P' )
+        print( '    GF_h_1' )
+        print( '    GF_Gm11' )
+        print( '    GF_Alpha' )
+        print( '    PolytropicConstant' )
 
-        exit( 'Exiting...' )
+        exit( '\nExiting...' )
 
     xL = np.copy( ds.domain_left_edge .to_ndarray() )
     xH = np.copy( ds.domain_right_edge.to_ndarray() )

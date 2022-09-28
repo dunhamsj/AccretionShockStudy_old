@@ -34,8 +34,8 @@ def ReadFields( plotFile, field, verbose = False ):
 
     if( verbose ):
         print()
-        print( '  Calling ReadField...' )
-        print( '  --------------------' )
+        print( '  Calling ReadFields...' )
+        print( '  ---------------------' )
         print( '{:>12} : {:}'.format( 'plotFile', plotFile ) )
         print( '{:>12} : {:}'.format( 'field', field ) )
 
