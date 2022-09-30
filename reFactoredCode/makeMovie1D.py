@@ -10,7 +10,7 @@ from MakeDataFile import MakeDataFile, ReadHeader
 ID = 'GR1D_M2.8_Mdot0.3_Rs030_RPNS010'
 
 plotFileDirectory = '/lump/data/accretionShockStudy/'
-plotFileDirectory += ID + '_dr0.05km/'
+plotFileDirectory += ID + '_dr0.1km/'
 
 plotFileBaseName = ID + '.plt'
 

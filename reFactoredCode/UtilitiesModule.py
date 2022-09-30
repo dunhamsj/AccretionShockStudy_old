@@ -162,15 +162,22 @@ def GetData( plotFile, field, verbose = False ):
         data = np.copy( coveringGrid['GF_h_1'].to_ndarray() )
         dataUnits = ''
 
-    elif( field == 'GF_Gm11' ):
+    elif( field == 'GF_Gm_11' ):
 
-        data = np.copy( coveringGrid['GF_Gm11'].to_ndarray() )
+        data = np.copy( coveringGrid['GF_Gm_11'].to_ndarray() )
         dataUnits = ''
+
+    elif( field == 'GF_Gm_22' ):
+
+        data = np.copy( coveringGrid['GF_Gm_22'].to_ndarray() )
+        dataUnits = 'km^2'
 
     elif( field == 'GF_Alpha' ):
 
         data = np.copy( coveringGrid['GF_Alph'].to_ndarray() )
         dataUnits = ''
+
+    # --- Derived Fields ---
 
     elif( field == 'PolytropicConstant' ):
 
@@ -182,6 +189,43 @@ def GetData( plotFile, field, verbose = False ):
 
         dataUnits = '(erg/cm**3)/(g/cm**3)**(Gamma)'
 
+    elif( field == 'LateralMomentumFluxInRadialDirectionGR' ):
+
+        c = 2.99792458e10
+
+        rho    = np.copy( coveringGrid['PF_D'     ].to_ndarray() )
+        e      = np.copy( coveringGrid['PF_E'     ].to_ndarray() )
+        p      = np.copy( coveringGrid['AF_P'     ].to_ndarray() )
+        V1     = np.copy( coveringGrid['PF_V1'    ].to_ndarray() ) * 1.0e5
+        V2     = np.copy( coveringGrid['PF_V2'    ].to_ndarray() )
+        Gm11   = np.copy( coveringGrid['GF_Gm_11' ].to_ndarray() )
+        Gm22   = np.copy( coveringGrid['GF_Gm_22' ].to_ndarray() ) * (1.0e5)**2
+        alpha  = np.copy( coveringGrid['GF_Alpha' ].to_ndarray() )
+        SqrtGm = np.copy( coveringGrid['GF_SqrtGm'].to_ndarray() ) * (1.0e5)**2
+
+        h = c**2 + ( e + p ) / rho
+
+        W = 1.0 / np.sqrt( 1.0 - ( Gm11 * V1**2 + Gm22 * V2**2 ) / c**2 )
+
+        data = SqrtGm * rho * Gm22 * V2 * V1 # NR
+
+        data *= alpha * h/c**2 * W**2 # GR corrections
+
+        dataUnits = 'g*cm^2/s^2'
+
+    elif( field == 'LateralMomentumFluxInRadialDirectionNR' ):
+
+        rho    = np.copy( coveringGrid['PF_D'     ].to_ndarray() )
+        V1     = np.copy( coveringGrid['PF_V1'    ].to_ndarray() ) * 1.0e5
+        V2     = np.copy( coveringGrid['PF_V2'    ].to_ndarray() )
+        Gm11   = np.copy( coveringGrid['GF_Gm_11' ].to_ndarray() )
+        Gm22   = np.copy( coveringGrid['GF_Gm_22' ].to_ndarray() ) * (1.0e5)**2
+        SqrtGm = np.copy( coveringGrid['GF_SqrtGm'].to_ndarray() ) * (1.0e5)**2
+
+        data = SqrtGm * rho * Gm22 * V2 * V1
+
+        dataUnits = 'g*cm^2/s^2'
+
     else:
 
         print( '  Invalid field: {:}'.format( field ) )
@@ -191,9 +235,12 @@ def GetData( plotFile, field, verbose = False ):
         print( '    PF_V1' )
         print( '    AF_P' )
         print( '    GF_h_1' )
-        print( '    GF_Gm11' )
+        print( '    GF_Gm_11' )
+        print( '    GF_Gm_22' )
         print( '    GF_Alpha' )
         print( '    PolytropicConstant' )
+        print( '    LateralMomentumFluxInRadialDirectionGR' )
+        print( '    LateralMomentumFluxInRadialDirectionNR' )
 
         exit( '\nExiting...' )
 
