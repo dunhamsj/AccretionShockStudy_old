@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use( 'publication.sty' )
 
-from UtilitiesModule import GetFileArray, GetData, ComputeAngleAverage
+from UtilitiesModule import GetFileArray, GetData, ComputeAngleAverage, \
+                            Overwrite
 
 #### ========== User Input ==========
 
@@ -20,9 +21,7 @@ ID = '2D_M2.8_Mdot0.3_Rs{:d}'.format( Rs )
 
 field = 'LateralMomentumFluxInRadialDirection'
 
-useLogScale = False
-
-saveFigAs = 'fig.{:}_{:}.png'.format( field, ID )
+useLogScale = True
 
 verbose = False
 
@@ -40,46 +39,48 @@ time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
   = GetData( plotFile, field+'GR', verbose = True )
 
 ind = np.where( X1 < 0.95 * Rs )[0][-1]
-print( X1[ind] );exit()
 
-plotFileBaseNameGR  = ID_GR + '.plt'
-plotFileDirectoryGR = rootDirectory + ID_GR + '/'
-plotFileArrayGR     = GetFileArray( plotFileDirectoryGR, plotFileBaseNameGR )
-nSS_GR              = plotFileArrayGR.shape[0]
+OW = Overwrite( 'GR_LatFlux.dat' )
+if( OW ):
 
-plotFileBaseNameNR  = ID_NR + '.plt'
-plotFileDirectoryNR = rootDirectory + ID_NR + '/'
-plotFileArrayNR     = GetFileArray( plotFileDirectoryNR, plotFileBaseNameNR )
-nSS_NR              = plotFileArrayNR.shape[0]
+    plotFileBaseNameGR  = ID_GR + '.plt'
+    plotFileDirectoryGR = rootDirectory + ID_GR + '/'
+    plotFileArrayGR     = GetFileArray( plotFileDirectoryGR, plotFileBaseNameGR )
+    nSS_GR              = plotFileArrayGR.shape[0]
 
-AA_GR  = np.empty( nSS_GR, np.float64 )
-timeGR = np.empty( nSS_GR, np.float64 )
+    plotFileBaseNameNR  = ID_NR + '.plt'
+    plotFileDirectoryNR = rootDirectory + ID_NR + '/'
+    plotFileArrayNR     = GetFileArray( plotFileDirectoryNR, plotFileBaseNameNR )
+    nSS_NR              = plotFileArrayNR.shape[0]
 
-AA_NR  = np.empty( nSS_NR, np.float64 )
-timeNR = np.empty( nSS_NR, np.float64 )
+    AA_GR  = np.empty( nSS_GR, np.float64 )
+    timeGR = np.empty( nSS_GR, np.float64 )
 
-nSS = min( nSS_GR, nSS_NR )
-for iSS in range( nSS ):
+    AA_NR  = np.empty( nSS_NR, np.float64 )
+    timeNR = np.empty( nSS_NR, np.float64 )
 
-    print( '{:}/{:}'.format( iSS+1, nSS ) )
+    nSS = min( nSS_GR, nSS_NR )
+    for iSS in range( nSS ):
 
-    plotFileGR = plotFileDirectoryGR + plotFileArrayGR[iSS]
-    plotFileNR = plotFileDirectoryNR + plotFileArrayNR[iSS]
+        print( '{:}/{:}'.format( iSS+1, nSS ) )
 
-    timeGR[iSS], dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-      = GetData( plotFileGR, field+'GR', verbose = verbose )
-    AA_GR[iSS] = ComputeAngleAverage( dataGR[ind], X2, dX2, dX3 )
+        plotFileGR = plotFileDirectoryGR + plotFileArrayGR[iSS]
+        plotFileNR = plotFileDirectoryNR + plotFileArrayNR[iSS]
 
-    del dataGR
+        timeGR[iSS], dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
+          = GetData( plotFileGR, field+'GR', verbose = verbose )
+        AA_GR[iSS] = ComputeAngleAverage( dataGR[ind], X2, dX2, dX3 )
 
-    timeNR[iSS], dataNR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-      = GetData( plotFileNR, field+'NR', verbose = verbose )
-    AA_NR[iSS] = ComputeAngleAverage( dataNR[ind], X2, dX2, dX3 )
+        del dataGR
 
-    del dataNR
+        timeNR[iSS], dataNR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
+          = GetData( plotFileNR, field+'NR', verbose = verbose )
+        AA_NR[iSS] = ComputeAngleAverage( dataNR[ind], X2, dX2, dX3 )
 
-np.savetxt( 'GR_LatFlux.dat', np.vstack( ( timeGR, AA_GR ) ) )
-np.savetxt( 'NR_LatFlux.dat', np.vstack( ( timeNR, AA_NR ) ) )
+        del dataNR
+
+    np.savetxt( 'GR_LatFlux.dat', np.vstack( ( timeGR, AA_GR ) ) )
+    np.savetxt( 'NR_LatFlux.dat', np.vstack( ( timeNR, AA_NR ) ) )
 
 timeGR, dataGR = np.loadtxt( 'GR_LatFlux.dat' )
 timeNR, dataNR = np.loadtxt( 'NR_LatFlux.dat' )
@@ -88,9 +89,13 @@ timeNR, dataNR = np.loadtxt( 'NR_LatFlux.dat' )
 
 fig, ax  = plt.subplots( 1, 1 )#, figsize = (12,8) )
 
-ax.plot( timeGR, AA_GR, label = 'GR' )
-ax.plot( timeNR, AA_NR, label = 'NR' )
-ax.set_yscale( 'symlog', linthresh = 0.015 )
+ax.plot( timeGR, dataGR, label = 'GR' )
+ax.plot( timeNR, dataNR, label = 'NR' )
+if( useLogScale ):
+    ax.set_yscale( 'symlog', linthresh = 1.0e40 )
+    saveFigAs = '/home/kkadoogan/fig.{:}_{:}_SymLog.png'.format( field, ID )
+else:
+    saveFigAs = '/home/kkadoogan/fig.{:}_{:}_Linear.png'.format( field, ID )
 
 ax.legend()
 
