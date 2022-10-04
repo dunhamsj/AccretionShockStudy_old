@@ -18,7 +18,7 @@ field = 'PF_D'
 
 useLogScale = True
 
-saveFigAs = 'fig_{:}.png'.format( ID )
+saveFigAs = 'fig.{:}.png'.format( ID )
 
 verbose = True
 
