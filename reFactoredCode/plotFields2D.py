@@ -14,7 +14,7 @@ StandingAccretionShock_NonRelativistic/'
 
 ID = 'NR2D_M2.8_Mdot0.3_Rs120_nX768x256'
 
-field = 'PF_D'
+field = 'PF_E'
 
 useLogScale = True
 
@@ -56,7 +56,7 @@ ax.set_theta_direction( -1 )
 ax.set_theta_zero_location( 'W' )
 
 cbar = fig.colorbar( im )
-#cbar.set_label( field + ' ' + dataUnits )
+cbar.set_label( field + ' ' + dataUnits )
 
 plt.savefig( saveFigAs, dpi = 300 )
 #plt.show()

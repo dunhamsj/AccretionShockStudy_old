@@ -152,6 +152,11 @@ def GetData( plotFile, field, verbose = False ):
         data = np.copy( coveringGrid['PF_V1'].to_ndarray() )
         dataUnits = 'km/s'
 
+    if  ( field == 'PF_E' ):
+
+        data = np.copy( coveringGrid['PF_E'].to_ndarray() )
+        dataUnits = 'erg/cm**3'
+
     elif( field == 'AF_P' ):
 
         data = np.copy( coveringGrid['AF_P'].to_ndarray() )
@@ -233,6 +238,7 @@ def GetData( plotFile, field, verbose = False ):
         print( '  -------------' )
         print( '    PF_D' )
         print( '    PF_V1' )
+        print( '    PF_E' )
         print( '    AF_P' )
         print( '    GF_h_1' )
         print( '    GF_Gm_11' )
