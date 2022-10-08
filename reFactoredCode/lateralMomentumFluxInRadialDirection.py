@@ -69,6 +69,9 @@ if( OW ):
 
         timeGR[iSS], dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
           = GetData( plotFileGR, field+'GR', verbose = verbose )
+        t, alphaGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
+          = GetData( plotFileGR, 'GF_Alpha', verbose = verbose )
+        timeGR[iSS] *= alphaGR[ind,0,0]
         AA_GR[iSS] = ComputeAngleAverage( dataGR[ind], X2, dX2, dX3 )
 
         del dataGR
@@ -101,7 +104,7 @@ ax.legend()
 
 ax.grid()
 
-ax.set_xlabel( r'$\mathrm{Time}\,\left[\mathrm{ms}\right]$' )
+ax.set_xlabel( r'$\mathrm{Proper\ Time}\,\left[\mathrm{ms}\right]$' )
 
 plt.savefig( saveFigAs, dpi = 300 )
 #plt.show()

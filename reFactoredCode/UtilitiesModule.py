@@ -179,7 +179,7 @@ def GetData( plotFile, field, verbose = False ):
 
     elif( field == 'GF_Alpha' ):
 
-        data = np.copy( coveringGrid['GF_Alph'].to_ndarray() )
+        data = np.copy( coveringGrid['GF_Alpha'].to_ndarray() )
         dataUnits = ''
 
     # --- Derived Fields ---
