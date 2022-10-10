@@ -21,7 +21,7 @@ ID = '2D_M2.8_Mdot0.3_Rs{:d}'.format( Rs )
 
 field = 'LateralMomentumFluxInRadialDirection'
 
-useLogScale = True
+useLogScale = False
 
 verbose = False
 
