@@ -177,6 +177,11 @@ def GetData( plotFile, field, verbose = False ):
         data = np.copy( coveringGrid['GF_Gm_22'].to_ndarray() )
         dataUnits = 'km^2'
 
+    elif( field == 'GF_SqrtGm' ):
+
+        data = np.copy( coveringGrid['GF_SqrtGm'].to_ndarray() )
+        dataUnits = 'km^2'
+
     elif( field == 'GF_Alpha' ):
 
         data = np.copy( coveringGrid['GF_Alpha'].to_ndarray() )
@@ -231,6 +236,30 @@ def GetData( plotFile, field, verbose = False ):
 
         dataUnits = 'g*cm^2/s^2'
 
+    elif( field == 'NonRadialKineticEnergyDensityGR' ):
+
+        rho    = np.copy( coveringGrid['PF_D'    ].to_ndarray() )
+        Gamma  = np.copy( coveringGrid['AF_Gm'   ].to_ndarray() )
+        e      = np.copy( coveringGrid['PF_E'    ].to_ndarray() )
+        V2     = np.copy( coveringGrid['PF_V2'   ].to_ndarray() )
+        Gm22   = np.copy( coveringGrid['GF_Gm_22'].to_ndarray() ) * (1.0e5)**2
+
+        c = 2.99792458e10
+
+        data = ( 0.5 * rho * c**2 + Gamma * e ) * Gm22 * V2**2 / c**2
+
+        dataUnits = 'erg/cm^3'
+
+    elif( field == 'NonRadialKineticEnergyDensityNR' ):
+
+        rho    = np.copy( coveringGrid['PF_D'    ].to_ndarray() )
+        V2     = np.copy( coveringGrid['PF_V2'   ].to_ndarray() )
+        Gm22   = np.copy( coveringGrid['GF_Gm_22'].to_ndarray() ) * (1.0e5)**2
+
+        data = 0.5 * rho * Gm22 * V2**2
+
+        dataUnits = 'erg/cm^3'
+
     else:
 
         print( '  Invalid field: {:}'.format( field ) )
@@ -243,10 +272,13 @@ def GetData( plotFile, field, verbose = False ):
         print( '    GF_h_1' )
         print( '    GF_Gm_11' )
         print( '    GF_Gm_22' )
+        print( '    GF_SqrtGm' )
         print( '    GF_Alpha' )
         print( '    PolytropicConstant' )
         print( '    LateralMomentumFluxInRadialDirectionGR' )
         print( '    LateralMomentumFluxInRadialDirectionNR' )
+        print( '    NonRadialKineticEnergyDensityGR' )
+        print( '    NonRadialKineticEnergyDensityNR' )
 
         exit( '\nExiting...' )
 
