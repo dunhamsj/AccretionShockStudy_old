@@ -8,15 +8,17 @@ from UtilitiesModule import GetFileArray, GetData
 
 #### ========== User Input ==========
 
+#rootDirectory \
+#  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
+#StandingAccretionShock_Relativistic/'
 rootDirectory \
-  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
-StandingAccretionShock_Relativistic/'
+  = '/lump/data/accretionShockStudy/'
 
-ID = 'GR1D_M3.0_Mdot0.3_Rs060_Rpns020'
+ID = '1D_M2.8_Mdot0.3_Rs120'
 
-field = 'PF_D'
+field = 'AF_Cs'
 
-useLogScale = True
+useLogScale = False
 
 saveFigAs = 'fig.{:}.png'.format( ID )
 
@@ -28,17 +30,27 @@ verbose = True
 
 fig, ax  = plt.subplots( 1, 1, figsize = (12,8) )
 
-plotFileBaseName = ID + '.plt'
+plotFileBaseNameGR = 'GR' + ID + '.plt'
+plotFileBaseNameNR = 'NR' + ID + '.plt'
 
-plotFileDirectory = rootDirectory + ID + '/'
+plotFileDirectoryGR = rootDirectory + 'GR' + ID + '/'
+plotFileDirectoryNR = rootDirectory + 'NR' + ID + '/'
 
-plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
-plotFile      = plotFileDirectory + plotFileArray[-1]
+plotFileArrayGR = GetFileArray( plotFileDirectoryGR, plotFileBaseNameGR )
+plotFileArrayNR = GetFileArray( plotFileDirectoryNR, plotFileBaseNameNR )
 
-time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-  = GetData( plotFile, field, verbose = verbose )
+plotFileGR      = plotFileDirectoryGR + plotFileArrayGR[0]
+plotFileNR      = plotFileDirectoryNR + plotFileArrayNR[0]
 
-ax.plot( X1, data[:,0,0] )
+time, dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
+  = GetData( plotFileGR, field, verbose = verbose )
+time, dataNR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
+  = GetData( plotFileNR, field, verbose = verbose )
+
+ind = np.where( X1 < 115.0 )[0]
+print( X1[ind].max() )
+
+ax.plot( X1[ind], dataGR[ind,0,0]/ dataNR[ind,0,0] )
 
 ax.grid()
 
