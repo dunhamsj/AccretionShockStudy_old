@@ -21,7 +21,7 @@ ID = '2D_M2.8_Mdot0.3_Rs{:d}'.format( Rs )
 
 field = 'LateralMomentumFluxInRadialDirection'
 
-useLogScale = False
+useLogScale = True
 
 verbose = False
 
@@ -71,7 +71,7 @@ if( OW ):
           = GetData( plotFileGR, field+'GR', verbose = verbose )
         t, alphaGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
           = GetData( plotFileGR, 'GF_Alpha', verbose = verbose )
-        timeGR[iSS] *= alphaGR[ind,0,0]
+#        timeGR[iSS] *= alphaGR[ind,0,0]
         AA_GR[iSS] = ComputeAngleAverage( dataGR[ind], X2, dX2, dX3 )
 
         del dataGR
@@ -96,15 +96,15 @@ ax.plot( timeGR, dataGR, label = 'GR' )
 ax.plot( timeNR, dataNR, label = 'NR' )
 if( useLogScale ):
     ax.set_yscale( 'symlog', linthresh = 1.0e40 )
-    saveFigAs = '/home/kkadoogan/fig.{:}_{:}_SymLog.png'.format( field, ID )
+    saveFigAs = '/home/kkadoogan/fig.{:}_{:}_SymLog_VsCoordinateTime.png'.format( field, ID )
 else:
-    saveFigAs = '/home/kkadoogan/fig.{:}_{:}_Linear.png'.format( field, ID )
+    saveFigAs = '/home/kkadoogan/fig.{:}_{:}_Linear_VsCoordinateTime.png'.format( field, ID )
 
 ax.legend()
 
 ax.grid()
 
-ax.set_xlabel( r'$\mathrm{Proper\ Time}\,\left[\mathrm{ms}\right]$' )
+ax.set_xlabel( r'$\mathrm{Coordinate\ Time}\,\left[\mathrm{ms}\right]$' )
 
 plt.savefig( saveFigAs, dpi = 300 )
 #plt.show()

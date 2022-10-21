@@ -105,7 +105,6 @@ def MakeDataFile \
 
 if __name__ == "__main__":
 
-    print( 'a' )
     #rootDirectory = '/lump/data/accretionShockStudy/'
     rootDirectory = '/home/dunhamsj/Work/thornado_GW/SandBox/AMReX/Applications/StandingAccretionShock_Relativistic/'
     ID = 'GR1D_M2.8_Mdot0.3_Rs090.20_RPNS20.19'
@@ -115,7 +114,6 @@ if __name__ == "__main__":
 
 #    MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold )
 
-    print( 'b' )
     dataFileName = '{:}_ShockRadiusVsTime.dat'.format( ID )
     forceChoice = True
     OW = False
@@ -123,9 +121,7 @@ if __name__ == "__main__":
       ( plotFileDirectory, plotFileBaseName, dataFileName, \
         entropyThreshold, markEvery = 1, forceChoice = forceChoice, OW = OW )
 
-    print( 'c' )
     Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
-    print( 'd' )
 
     plt.plot( Time, RsAve, 'k-', label = 'RsAve' )
     plt.fill_between( Time, RsMin, RsMax )
