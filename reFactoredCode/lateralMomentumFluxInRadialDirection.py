@@ -15,13 +15,13 @@ rootDirectory \
 #  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
 #StandingAccretionShock_Relativistic/'
 
-Rs = 120
+Rs = 1.20e2
 
-ID = '2D_M2.8_Mdot0.3_Rs{:d}'.format( Rs )
+ID = '2D_M2.8_Mdot0.3_Rs120'
 
 field = 'LateralMomentumFluxInRadialDirection'
 
-useLogScale = True
+useLogScale = False
 
 verbose = False
 
@@ -40,7 +40,7 @@ time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
 
 ind = np.where( X1 < 0.95 * Rs )[0][-1]
 
-OW = Overwrite( 'GR_LatFlux.dat' )
+OW = Overwrite( 'LatFlux_{:}.dat'.format( ID_GR ) )
 if( OW ):
 
     plotFileBaseNameGR  = ID_GR + '.plt'
@@ -82,11 +82,13 @@ if( OW ):
 
         del dataNR
 
-    np.savetxt( 'GR_LatFlux.dat', np.vstack( ( timeGR, AA_GR ) ) )
-    np.savetxt( 'NR_LatFlux.dat', np.vstack( ( timeNR, AA_NR ) ) )
+    np.savetxt( 'LatFlux_{:}.dat'.format( ID_GR ), \
+                np.vstack( ( timeGR, AA_GR ) ) )
+    np.savetxt( 'LatFlux_{:}.dat'.format( ID_NR ), \
+                np.vstack( ( timeNR, AA_NR ) ) )
 
-timeGR, dataGR = np.loadtxt( 'GR_LatFlux.dat' )
-timeNR, dataNR = np.loadtxt( 'NR_LatFlux.dat' )
+timeGR, dataGR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_GR ) )
+timeNR, dataNR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_NR ) )
 
 ### Plotting
 
@@ -106,8 +108,8 @@ ax.grid()
 
 ax.set_xlabel( r'$\mathrm{Coordinate\ Time}\,\left[\mathrm{ms}\right]$' )
 
-plt.savefig( saveFigAs, dpi = 300 )
-#plt.show()
+#plt.savefig( saveFigAs, dpi = 300 )
+plt.show()
 plt.close()
 
 import os
