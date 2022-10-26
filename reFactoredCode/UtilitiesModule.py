@@ -265,6 +265,21 @@ def GetData( plotFile, field, verbose = False ):
 
         dataUnits = 'erg/cm^3'
 
+    elif( field == 'MachNumber' ):
+
+        V1   = np.copy( coveringGrid['PF_V1'   ].to_ndarray() )
+        Gm11 = np.copy( coveringGrid['GF_Gm_11'].to_ndarray() )
+        V2   = np.copy( coveringGrid['PF_V2'   ].to_ndarray() )
+        Gm22 = np.copy( coveringGrid['GF_Gm_22'].to_ndarray() )
+        V3   = np.copy( coveringGrid['PF_V3'   ].to_ndarray() )
+        Gm33 = np.copy( coveringGrid['GF_Gm_33'].to_ndarray() )
+        Cs   = np.copy( coveringGrid['AF_Cs'   ].to_ndarray() )
+
+        V = np.sqrt( Gm11 * V1**2 + Gm22 * V2**2 + Gm33 * V3**2 )
+
+        data = V / Cs
+        dataUnits = ''
+
     else:
 
         print( '  Invalid field: {:}'.format( field ) )
@@ -285,6 +300,7 @@ def GetData( plotFile, field, verbose = False ):
         print( '    LateralMomentumFluxInRadialDirectionNR' )
         print( '    NonRadialKineticEnergyDensityGR' )
         print( '    NonRadialKineticEnergyDensityNR' )
+        print( '    MachNumber' )
 
         exit( '\nExiting...' )
 

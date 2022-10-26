@@ -53,12 +53,12 @@ if __name__ == '__main__':
 
     axs[0].legend()
     axs[-1].set_xlabel( 'Time [ms]' )
-    axs[0].set_ylabel( r'$\left|\dot{\rho}/\rho\right|$' )
-    axs[1].set_ylabel( r'$\left|\dot{v}/v\right|$' )
-    axs[2].set_ylabel( r'$\left|\dot{p}/p\right|$' )
+    axs[0].set_ylabel( r'$\mathrm{max}\left(\left|\dot{\rho}/\rho\right|\right)$' )
+    axs[1].set_ylabel( r'$\mathrm{max}\left(\left|\dot{v}/v\right|\right)$' )
+    axs[2].set_ylabel( r'$\mathrm{max}\left(\left|\dot{p}/p\right|\right)$' )
 
 #    plt.show()
-    plt.savefig( '/home/kkadoogan/fig.Relaxation_{:}.png'.format( ID ), dpi = 300 )
+    plt.savefig( 'fig.Relaxation_{:}.png'.format( ID ), dpi = 300 )
 
     plt.close()
 

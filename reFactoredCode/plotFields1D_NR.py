@@ -14,9 +14,9 @@ StandingAccretionShock_Relativistic/'
 #rootDirectory \
 #  = '/lump/data/accretionShockStudy/'
 
-ID = '1D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1_K2.0e15'
+ID = '1D_M2.8_Mdot0.3_Rs120'
 
-field = 'MachNumber'
+field = 'AF_Cs'
 
 useLogScale = False
 
@@ -31,16 +31,26 @@ verbose = True
 fig, ax  = plt.subplots( 1, 1, figsize = (12,8) )
 
 plotFileBaseNameGR = 'GR' + ID + '.plt'
+plotFileBaseNameNR = 'NR' + ID + '.plt'
 
-plotFileDirectoryGR = rootDirectory
+plotFileDirectoryGR = rootDirectory + 'GR' + ID + '/'
+plotFileDirectoryNR = rootDirectory + 'NR' + ID + '/'
 
 plotFileArrayGR = GetFileArray( plotFileDirectoryGR, plotFileBaseNameGR )
+plotFileArrayNR = GetFileArray( plotFileDirectoryNR, plotFileBaseNameNR )
+
 plotFileGR      = plotFileDirectoryGR + plotFileArrayGR[0]
+plotFileNR      = plotFileDirectoryNR + plotFileArrayNR[0]
 
 time, dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
   = GetData( plotFileGR, field, verbose = verbose )
+time, dataNR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
+  = GetData( plotFileNR, field, verbose = verbose )
 
-ax.plot( X1, dataGR[:,0,0] )
+ind = np.where( X1 < 115.0 )[0]
+print( X1[ind].max() )
+
+ax.plot( X1[ind], dataGR[ind,0,0]/ dataNR[ind,0,0] )
 
 ax.grid()
 
