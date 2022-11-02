@@ -14,8 +14,8 @@ ID_NR = 'NR' + ID
 timeGR, dataGR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_GR ) )
 timeNR, dataNR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_NR ) )
 
-dataFileNameGR = 'dataFileNameGR.dat'
-dataFileNameNR = 'dataFileNameNR.dat'
+dataFileNameGR = '{:}_FFT.dat'.format( ID_GR )
+dataFileNameNR = '{:}_FFT.dat'.format( ID_NR )
 
 t0 = 3.0
 t1 = 7.5e1

@@ -105,14 +105,14 @@ def MakeDataFile \
 
 if __name__ == "__main__":
 
-    #rootDirectory = '/lump/data/accretionShockStudy/'
-    rootDirectory = '/home/dunhamsj/Work/thornado_GW/SandBox/AMReX/Applications/StandingAccretionShock_Relativistic/'
-    ID = 'GR1D_M2.8_Mdot0.3_Rs090.20_RPNS20.19'
-    plotFileDirectory = rootDirectory + ID + '/'
+    rootDirectory = '/lump/data/accretionShockStudy/'
+    #rootDirectory = '/home/dunhamsj/Work/thornado_GW/SandBox/AMReX/Applications/StandingAccretionShock_Relativistic/'
+    ID = 'GR1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
+    plotFileDirectory = rootDirectory + ID + '_nX0512/'
     plotFileBaseName = ID + '.plt'
     entropyThreshold = 1.0e15
 
-#    MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold )
+    MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold )
 
     dataFileName = '{:}_ShockRadiusVsTime.dat'.format( ID )
     forceChoice = True
@@ -124,10 +124,10 @@ if __name__ == "__main__":
     Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
 
     plt.plot( Time, RsAve, 'k-', label = 'RsAve' )
-    plt.fill_between( Time, RsMin, RsMax )
+    #plt.fill_between( Time, RsMin, RsMax )
     plt.legend()
-    plt.savefig( 'fig.{:}_ShockRadiusVsTime.png'.format( ID ), dpi = 300 )
-#    plt.show()
+#    plt.savefig( 'fig.{:}_ShockRadiusVsTime.png'.format( ID ), dpi = 300 )
+    plt.show()
     plt.close()
     import os
     os.system( 'rm -rf __pycache__ ' )

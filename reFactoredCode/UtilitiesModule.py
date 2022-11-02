@@ -54,7 +54,8 @@ def Overwrite( FileOrDirName, ForceChoice = False, OW = False ):
 # END Overwrite
 
 
-def GetFileArray( plotFileDirectory, plotFileBaseName ):
+def GetFileArray( plotFileDirectory, plotFileBaseName, \
+                  SSi = -1, SSf = -1, nSS = -1 ):
 
     from os import listdir
 
@@ -84,7 +85,21 @@ def GetFileArray( plotFileDirectory, plotFileBaseName ):
 
         assert ( fileArray.shape[0] > 0 ), msg
 
-    return fileArray
+    if SSi < 0: SSi = 0
+    if SSf < 0: SSf = fileArray.shape[0] - 1
+    if nSS < 0: nSS = fileArray.shape[0]
+
+    plotFileArray = []
+    for i in range( nSS ):
+        iSS = SSi + np.int64( ( SSf - SSi ) / ( nSS - 1 ) * i )
+        plotFile = str( fileArray[iSS] )
+        if plotFile[-1] == '/' :
+            plotFileArray.append( plotFile[0:-1] )
+        else:
+            plotFileArray.append( plotFile )
+    plotFileArray = np.array( plotFileArray )
+
+    return plotFileArray
 # END GetFileArray
 
 def GetData( plotFile, field, verbose = False ):

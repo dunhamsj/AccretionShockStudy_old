@@ -42,21 +42,12 @@ def MakeDataFile \
             print( '\n    plotFileDirectory: {:}' \
                    .format( plotFileDirectory ) )
 
-        plotFileNameArray = GetFileArray( plotFileDirectory, plotFileBaseName )
+        plotFileArray \
+          = GetFileArray \
+              ( plotFileDirectory, plotFileBaseName, \
+                SSi = SSi, SSf = SSf, nSS = nSS )
 
-        if SSi < 0: SSi = 0
-        if SSf < 0: SSf = plotFileNameArray.shape[0] - 1
-        if nSS < 0: nSS = plotFileNameArray.shape[0]
-
-        plotFileArray = []
-        for i in range( nSS ):
-            iSS = SSi + np.int64( ( SSf - SSi ) / ( nSS - 1 ) * i )
-            plotFile = str( plotFileNameArray[iSS] )
-            if plotFile[-1] == '/' :
-                plotFileArray.append( plotFile[0:-1] )
-            else:
-                plotFileArray.append( plotFile )
-        plotFileArray = np.array( plotFileArray )
+        nSS = plotFileArray.shape[0]
 
         timeHeaderBase = '# Time [ms]: '
         X1Base         = '# X1_C [km]: '
@@ -85,7 +76,7 @@ def MakeDataFile \
 
                 if verbose:
                     print( 'Generating data file: {:} ({:}/{:})'.format \
-                             ( dataFile, i+1, N ) )
+                             ( dataFile, i-iLo+1, N ) )
 
                 time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
                   = GetData( plotFile, field )
@@ -148,14 +139,14 @@ def MakeDataFile \
 
                 # end with open( DataFileName, 'w' ) as FileOut
 
-            # end for i in range( nSS )
+            # end for i in range( iLo, iHi )
 
         # end of loop( iLo, iHi )
 
         # Adapted from:
         # https://www.benmather.info/post/2018-11-24-multiprocessing-in-python/
 
-        nProc = 8#cpu_count()
+        nProc = min( 4, cpu_count() )
 
         print( 'Generating {:} with {:} processes...\n'.format \
              ( dataFileDirectory, nProc ) )

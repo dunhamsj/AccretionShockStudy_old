@@ -7,10 +7,10 @@ from matplotlib import animation
 from UtilitiesModule import GetNorm, GetFileArray
 from MakeDataFile import MakeDataFile, ReadHeader
 
-ID = 'GR1D_M2.8_Mdot0.3_Rs030_RPNS010'
+ID = 'GR1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
 
 plotFileDirectory = '/lump/data/accretionShockStudy/'
-plotFileDirectory += ID + '_dr0.1km/'
+plotFileDirectory += ID + '_nX0512/'
 
 plotFileBaseName = ID + '.plt'
 
@@ -20,7 +20,7 @@ useLogScale = True
 
 SSi = -1 # -1 -> SSi = 0
 SSf = -1 # -1 -> plotFileArray.shape[0] - 1
-nSS = -1 # -1 -> plotFileArray.shape[0]
+nSS = 100 # -1 -> plotFileArray.shape[0]
 
 maxLevel = -1
 
@@ -50,7 +50,10 @@ MakeDataFile( field, plotFileDirectory, dataFileDirectory, \
               forceChoice = False, OW = True )
 
 # Ignore last file (t=0 without perturbation)
-plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )[:-1]
+plotFileArray \
+  = GetFileArray \
+      ( plotFileDirectory, plotFileBaseName, \
+        SSi = SSi, SSf = SSf, nSS = nSS )#[:-1]
 
 if SSi < 0: SSi = 0
 if SSf < 0: SSf = plotFileArray.shape[0] - 1
