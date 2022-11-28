@@ -24,8 +24,8 @@ def MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold ):
     ax.axhline( entropyThreshold, label = 'Shock radius cut-off' )
 
     plt.legend()
-    plt.savefig( 'entropyThresholdCheck.png', dpi = 300 )
-#    plt.show()
+#    plt.savefig( 'entropyThresholdCheck.png', dpi = 300 )
+    plt.show()
     plt.close()
 
     return
@@ -82,16 +82,25 @@ def MakeDataFile \
 
                     if( Data[i,iX1,iX2,iX3] > entropyThreshold ):
 
-                        Volume[i] \
-                          += 4.0 * np.pi \
-                               * 1.0 / 3.0 * ( ( X1[iX1] + dX1[iX1] )**3 \
-                                                   - X1[iX1]**3 )
-#                               * ( np.cos( X2[iX2] ) \
-#                                     - np.cos( X2[iX2] + dX2[iX2] ) )
+                        if( nX[1] > 1 ):
+
+                            Volume[i] \
+                              += 2.0 * np.pi \
+                                   * 1.0 / 3.0 * ( ( X1[iX1] + dX1[iX1] )**3 \
+                                                       - X1[iX1]**3 ) \
+                                   * ( np.cos( X2[iX2] ) \
+                                         - np.cos( X2[iX2] + dX2[iX2] ) )
+
+                        else:
+
+                            Volume[i] \
+                              += 4.0 * np.pi \
+                                   * 1.0 / 3.0 * ( ( X1[iX1] + dX1[iX1] )**3 \
+                                                       - X1[iX1]**3 )
 
         Rs = ( Volume[i] / ( 4.0 / 3.0 * np.pi ) )**( 1.0 / 3.0 )
-#        if RsMin[i] >= Rs: RsMin[i] = Rs
-#        if RsMax[i] <= Rs: RsMax[i] = Rs
+        if RsMin[i] >= Rs: RsMin[i] = Rs
+        if RsMax[i] <= Rs: RsMax[i] = Rs
 
     # 4/3 * pi * Rs^3 = Volume
     # ==> Rs = ( Volume / ( 4/3 * pi ) )^( 1 / 3 )
@@ -107,15 +116,15 @@ if __name__ == "__main__":
 
     rootDirectory = '/lump/data/accretionShockStudy/'
     #rootDirectory = '/home/dunhamsj/Work/thornado_GW/SandBox/AMReX/Applications/StandingAccretionShock_Relativistic/'
-    ID = 'GR1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
-    plotFileDirectory = rootDirectory + ID + '_nX0512/'
+    ID = 'GR2D_M2.8_Mdot0.3_Rs180'
+    plotFileDirectory = rootDirectory + ID + '/'
     plotFileBaseName = ID + '.plt'
     entropyThreshold = 1.0e15
 
-    MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold )
+#    MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold )
 
     dataFileName = '{:}_ShockRadiusVsTime.dat'.format( ID )
-    forceChoice = True
+    forceChoice = False
     OW = False
     MakeDataFile \
       ( plotFileDirectory, plotFileBaseName, dataFileName, \
@@ -123,7 +132,9 @@ if __name__ == "__main__":
 
     Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
 
-    plt.plot( Time, RsAve, 'k-', label = 'RsAve' )
+    plt.plot( Time, ( RsAve - RsAve[0] ) / RsAve[0], 'k-', label = 'RsAve' )
+#    plt.plot( Time, RsMin, 'r-', label = 'RsMin' )
+#    plt.plot( Time, RsMax, 'b-', label = 'RsMax' )
     #plt.fill_between( Time, RsMin, RsMax )
     plt.legend()
 #    plt.savefig( 'fig.{:}_ShockRadiusVsTime.png'.format( ID ), dpi = 300 )

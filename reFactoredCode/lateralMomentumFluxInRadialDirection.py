@@ -15,20 +15,20 @@ rootDirectory \
 #  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
 #StandingAccretionShock_Relativistic/'
 
-Rs = 1.20e2
+Rs = 1.80e2
 
-ID = '2D_M2.8_Mdot0.3_Rs120'
+ID = '2D_M2.8_Mdot0.3_Rs180'
 
 field = 'LateralMomentumFluxInRadialDirection'
 
-useLogScale = False
+useLogScale = True
 
 verbose = False
 
 #### ====== End of User Input =======
 
 ID_GR = 'GR' + ID
-ID_NR = 'NR' + ID
+ID_NR = 'GR' + ID
 
 # Get mesh
 plotFileBaseName = ID_GR + '.plt'

@@ -9,7 +9,7 @@ from UtilitiesModule import GetNorm, GetFileArray, ComputeAngleAverage
 from MakeDataFile import MakeDataFile, ReadHeader
 
 def MakeMovie2D( ID, field, SSi = -1, SSf = -1, nSS = -1, \
-                 movieName = 'OneField.mp4' ):
+                 movieName = 'mov.OneField.mp4' ):
 
     """
     Generate a movie from data files created in MakeDataFile.py.
@@ -21,7 +21,7 @@ def MakeMovie2D( ID, field, SSi = -1, SSf = -1, nSS = -1, \
     plotFileDirectory = rootDirectory + '{:}/'.format( ID )
     dataFileDirectory = '.{:}_{:}_MovieData2D/'.format( ID, field )
 
-    cmap = 'viridis' # Color scheme for movie
+    cmap = 'RdBu' # Color scheme for movie
 
     useLogScale = True # Use log scale for field?
 
@@ -42,7 +42,7 @@ def MakeMovie2D( ID, field, SSi = -1, SSf = -1, nSS = -1, \
                   forceChoice = False, OW = True )
 
     # Get mesh
-    plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )[:-1]
+    plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
     dataFile = dataFileDirectory + '{:}'.format( plotFileArray[0] ) + '.dat'
     dataShape, dataUnits, Time, X1_C, X2_C, X3_C, dX1, dX2, dX3 \
       = ReadHeader( dataFile )
@@ -50,22 +50,23 @@ def MakeMovie2D( ID, field, SSi = -1, SSf = -1, nSS = -1, \
     nR = dX1.shape[0]
     nT = dX2.shape[0]
 
+    if( nSS < 0 ): nSS = plotFileArray.shape[0]
+
     fig      = plt.figure( figsize = (16,9) )
     ax       = fig.add_subplot( 111, polar = True )
     theta, r = np.meshgrid( X2_C, X1_C )
-
-    if( nSS < 0 ): nSS = plotFileArray.shape[0]
 
     uK = np.empty( (nSS,nR), np.float64 )
 
     nodalData = np.empty( (nSS,nR,nT), np.float64 )
     time      = np.empty( (nSS)      , np.float64 )
 
+    vmin = +np.inf
+    vmax = -np.inf
+
     for j in range( nSS ):
 
-        iSS = SSi + np.int64( ( SSf - SSi ) / ( nSS - 1 ) * j )
-
-        dataFile = dataFileDirectory + plotFileArray[iSS] + '.dat'
+        dataFile = dataFileDirectory + plotFileArray[j] + '.dat'
 
         dataShape, dataUnits, time[j], X1_C, X2_C, X3_C, dX1, dX2, dX3 \
           = ReadHeader( dataFile )
@@ -77,16 +78,29 @@ def MakeMovie2D( ID, field, SSi = -1, SSf = -1, nSS = -1, \
 
         uK[j] = ComputeAngleAverage( data, X2_C, dX2, dX3 )
 
+        vmin = min( vmin, data.min() )
+        vmax = max( vmax, data.max() )
+
     # END for j in range( nSS )
 
     def f(t):
         return nodalData[t]
 
-    Norm = GetNorm( useLogScale, f(0) )
+    va = abs( min( vmin, -vmax ) )
+    vb = abs( max( vmax, -vmin ) )
+
+    print( vmin, vmax )
+    vmax = +max( va, vb )
+    vmin = -max( va, vb )
+    print( vmin, vmax )
+
+    Norm = GetNorm( useLogScale, f(0), vmin = vmin, vmax = vmax, \
+                    linthresh = 1.0e40 )
 
     # Taken from:
     # https://brushingupscience.com/2016/06/21/
     # matplotlib-animations-the-easy-way/
+    ax.grid( False )
     im = ax.pcolormesh( theta, r, f(0), \
                         cmap = cmap, \
                         norm = Norm, \
@@ -96,7 +110,7 @@ def MakeMovie2D( ID, field, SSi = -1, SSf = -1, nSS = -1, \
 
     # Limits on coordinate axes
 
-    rmax = 100.0
+    rmax = 360.0
     ax.set_thetamin( 0.0 )
     ax.set_thetamax( 180.0 )
     ax.set_rmax( rmax )
@@ -133,8 +147,9 @@ def MakeMovie2D( ID, field, SSi = -1, SSf = -1, nSS = -1, \
     import os
     os.system( 'rm -rf __pycache__ ' )
 
-field = 'NonRadialKineticEnergyDensityGR'
-ID = 'GR2D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1'
+field = 'LateralMomentumFluxInRadialDirectionGR'
+#field = 'PF_D'
+ID = 'GR2D_M2.8_Mdot0.3_Rs180'
 
 movieName \
   = 'mov.{:}_{:}.mp4'.format( ID, field )
