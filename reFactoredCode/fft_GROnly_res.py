@@ -7,7 +7,7 @@ plt.style.use( 'publication.sty' )
 
 ID = 'GR2D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1'
 
-timeA, dataA = np.loadtxt( 'LatFlux_{:}.dat'.format( ID ) )
+timeA, dataA = np.loadtxt( 'LatFlux_{:}_highRes.dat'.format( ID ) )
 
 indmax = timeA.shape[0]
 
@@ -16,17 +16,13 @@ indA = np.linspace( 0, indmax-1, indmax, dtype = np.int64 )
 fig, ax = plt.subplots( 1, 1 )
 ax.set_title( r'\texttt{{{:}}}'.format( ID ) )
 
-t = np.linspace( 5.0, 95.0, 5 )
+nE = np.array( [ 1, 2, 4, 8 ], dtype = np.int64 )
+alpha = np.linspace( 0.2, 1.0, nE.shape[0] )
 
-colors = plt.cm.inferno( np.linspace( 0.25, 0.75, t.shape[0] ) )
-alpha = np.linspace( 0.2, 1.0, t.shape[0] )
+for i in range( nE.shape[0] ):
 
-for i in range( t.shape[0] ):
-
-    ind = np.where( timeA < t[i] )[0]
-
-    time = np.copy( timeA[ind] )
-    data = np.copy( dataA[ind] )
+    time = np.copy( timeA[::nE[i]] )
+    data = np.copy( dataA[::nE[i]] )
 
     # Compute and plot FFT
 
@@ -47,11 +43,10 @@ for i in range( t.shape[0] ):
     y = y[::-1]
 
     ax.plot( x, np.abs( y / y.max() ), \
-            #             color = colors[i], \
              'k-', \
              alpha = alpha[i], \
-             label = r'$T_{{\mathrm{{SASI}}}}$: {:.2f} ms' \
-                     .format( x[y.argmax()] ) )
+             label = r'nE: {:}, $T_{{\mathrm{{SASI}}}}$: {:.2f} ms' \
+                     .format( nE[i], x[y.argmax()] ) )
 
 ax.legend()
 ax.set_xlabel( 'Time [ms]' )
@@ -59,6 +54,6 @@ ax.set_ylabel( 'Normalized FFT Amplitude' )
 
 ax.grid()
 
-#plt.savefig( 'fig.{:}_FFT_Normed.png'.format( ID ), dpi = 300 )
-plt.show()
+plt.savefig( 'fig.{:}_FFT_Normed_skipEvery.png'.format( ID ), dpi = 300 )
+#plt.show()
 plt.close()

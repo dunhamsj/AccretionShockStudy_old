@@ -8,17 +8,17 @@ from UtilitiesModule import GetFileArray, GetData
 
 #### ========== User Input ==========
 
-rootDirectory \
-  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
-StandingAccretionShock_Relativistic/'
 #rootDirectory \
-#  = '/lump/data/accretionShockStudy/'
+#  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
+#StandingAccretionShock_Relativistic/'
+rootDirectory \
+  = '/lump/data/accretionShockStudy/'
 
-ID = '1D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1_K2.0e15'
+ID = '1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
 
-field = 'MachNumber'
+field = 'PF_E'
 
-useLogScale = False
+useLogScale = True
 
 saveFigAs = 'fig.{:}.png'.format( ID )
 
@@ -32,7 +32,7 @@ fig, ax  = plt.subplots( 1, 1, figsize = (12,8) )
 
 plotFileBaseNameGR = 'GR' + ID + '.plt'
 
-plotFileDirectoryGR = rootDirectory
+plotFileDirectoryGR = rootDirectory + 'GR' + ID + '_nX0512/'
 
 plotFileArrayGR = GetFileArray( plotFileDirectoryGR, plotFileBaseNameGR )
 plotFileGR      = plotFileDirectoryGR + plotFileArrayGR[0]

@@ -126,7 +126,17 @@ def PlotRelaxationVsTime \
              markersize = 2.0, markevery = 1, label = label )
 
     ax.set_xlabel( 'Time [ms]' )
-    ax.set_ylabel( 'max( |d{:s}/dt / {:s}| )'.format( field, field ) )
+
+    if field == 'PF_D':
+        ylabel = r'max($\dot{\rho}/\rho$)'
+    elif field == 'PF_V1':
+        ylabel = r'max($\dot{v}/v$)'
+    elif field == 'AF_P':
+        ylabel = r'max($\dot{p}/p$)'
+    else:
+        ylabel = ''
+
+    ax.set_ylabel( ylabel )
 
     if UseLogScale: ax.set_yscale( 'log' )
 
@@ -136,18 +146,19 @@ if __name__ == '__main__':
 
 #    nX = 128
 #    nX = 256
-    nX = 384
+#    nX = 384
+    nX = 512
 
     UseLogScale = True
 
-    ID = 'GR1D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1'
+    ID = 'GR1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 
 #    Root = '/home/dunhamsj/AccretionShockData/'
     Root = '/lump/data/accretionShockStudy/'
 
-    plotFileDirectory = Root + ID + '_nX{:}/'.format( str( nX ).zfill(4) )
+    plotFileDirectory = Root + ID + '/'
 
     D = 'PF_D'
     Time_D, Data_D = getData( plotFileDirectory, ID, D, nX, False, True )
@@ -178,9 +189,9 @@ if __name__ == '__main__':
     for i in range( axs.shape[0] ):
         axs[i].grid()
 
-    plt.show()
+#    plt.show()
 
-#    plt.savefig( SaveFileAs, dpi = 300 )
+    plt.savefig( SaveFileAs, dpi = 300 )
 
     plt.close()
 

@@ -182,6 +182,14 @@ def GetData( plotFile, field, verbose = False ):
         data = np.copy( coveringGrid['AF_Cs'].to_ndarray() )
         dataUnits = 'km/s'
 
+    elif( field == 'AF_E' ):
+
+        e = np.copy( coveringGrid['PF_E'].to_ndarray() )
+        rho = np.copy( coveringGrid['PF_D'].to_ndarray() )
+
+        data = e / rho
+        dataUnits = 'cm**2/s**2'
+
     elif( field == 'GF_h_1' ):
 
         data = np.copy( coveringGrid['GF_h_1'].to_ndarray() )

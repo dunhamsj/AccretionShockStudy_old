@@ -15,9 +15,9 @@ rootDirectory \
 #  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
 #StandingAccretionShock_Relativistic/'
 
-Rs = 1.80e2
+Rs = 6.00e1
 
-ID = '2D_M2.8_Mdot0.3_Rs180'
+ID = '2D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1'
 
 field = 'LateralMomentumFluxInRadialDirection'
 
