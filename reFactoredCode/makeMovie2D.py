@@ -21,10 +21,11 @@ Usage:
 #### ========== User Input ==========
 
 # ID to be used for naming purposes
-ID = 'GR2D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
+ID = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
 
 # Directory containing AMReX plotfiles
-plotfileDirectory = '/lump/data/accretionShockStudy/'
+plotfileDirectory \
+  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/'
 
 # plotfile base name (e.g., Advection2D.plt######## -> Advection2D.plt )
 plotfileBaseName = ID + '.plt'
@@ -33,7 +34,7 @@ plotfileBaseName = ID + '.plt'
 Field = 'PF_D'
 
 # Plot data in log10-scale?
-UseLogScale = True
+UseLogScale = Truu
 
 # Unit system of the data
 UsePhysicalUnits = True
@@ -42,10 +43,10 @@ UsePhysicalUnits = True
 CoordinateSystem = 'spherical'
 
 # Only use every <plotEvery> plotfile
-plotEvery = 10
+plotEvery = 1
 
 # Colormap
-cmap = 'viridis'
+cmap = 'jet'
 
 # First and last snapshots and number of snapshots to include in movie
 SSi = -1 # -1 -> SSi = 0
@@ -63,8 +64,6 @@ vmax = 2.0
 
 MovieRunTime = 10.0 # seconds
 
-zAxisVertical = False
-
 #### ====== End of User Input =======
 
 if CoordinateSystem == 'spherical':
@@ -76,14 +75,23 @@ DataDirectory = '.{:s}'.format( ID )
 MovieName     = 'mov.{:s}_{:s}.mp4'.format( ID, Field )
 
 # Append "/" if not present
-if( not plotfileDirectory[-1] == '/' ): plotfileDirectory += '/'
-if( not DataDirectory    [-1] == '/' ): DataDirectory     += '/'
+if not plotfileDirectory[-1] == '/': plotfileDirectory += '/'
+if not DataDirectory    [-1] == '/': DataDirectory     += '/'
 
-TimeUnit = ''
-if UsePhysicalUnits: TimeUnit = 'ms'
+TimeUnits = ''
+X1Units   = ''
+X2Units   = ''
+if UsePhysicalUnits:
+    TimeUnits = 'ms'
+    if   CoordinateSystem == 'cartesian':
+        X1Units = 'km'
+        X2Units = 'km'
+    elif CoordinateSystem == 'spherical':
+        X1Units = 'km'
+        X2Units = 'rad'
 
 plotfileArray \
-  = MakeDataFile( Field, plotfileDirectory+ID+'/', DataDirectory, \
+  = MakeDataFile( Field, plotfileDirectory, DataDirectory, \
                   plotfileBaseName, CoordinateSystem, \
                   SSi = SSi, SSf = SSf, nSS = nSS, \
                   UsePhysicalUnits = UsePhysicalUnits, \
@@ -114,13 +122,6 @@ def f(t):
 
 Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(0)
 
-nX = np.shape(X1_C)
-
-x1L = X1_C[0 ,0 ] - 0.5 * dX1[0 ,0 ]
-x1H = X1_C[-1,-1] + 0.5 * dX1[-1,-1]
-x2L = X2_C[0 ,0 ] - 0.5 * dX2[0 ,0 ]
-x2H = X2_C[-1,-1] + 0.5 * dX2[-1,-1]
-
 if nSS < 0: nSS = plotfileArray.shape[0]
 
 if not UseCustomLimits:
@@ -133,7 +134,12 @@ if not UseCustomLimits:
         vmin = min( vmin, MinVal )
         vmax = max( vmax, MaxVal )
 
-Norm = GetNorm( UseLogScale, Data, vmin = vmin, vmax = vmax )
+nX = np.shape(X1_C)
+
+x1L = X1_C[0 ,0 ] - 0.5 * dX1[0 ,0 ]
+x1H = X1_C[-1,-1] + 0.5 * dX1[-1,-1]
+x2L = X2_C[0 ,0 ] - 0.5 * dX2[0 ,0 ]
+x2H = X2_C[-1,-1] + 0.5 * dX2[-1,-1]
 
 fig = plt.figure()
 ax  = fig.add_subplot( 111, polar = polar )
@@ -141,9 +147,9 @@ ax.set_title( r'$\texttt{{{:}}}$'.format( ID ) )
 
 time_text = ax.text( 0.6, 0.9, '', transform = ax.transAxes )
 
-if CoordinateSystem == 'spherical':
+X1c, X2c = MapCenterToCorners( X1_C, X2_C, dX1, dX2 )
 
-    X1c, X2c = MapCenterToCorners( X1_C, X2_C, dX1, dX2 )
+if CoordinateSystem == 'spherical':
 
     X1c = np.copy( X1c[:,0] )
     X2c = np.copy( X2c[0,:] )
@@ -160,36 +166,58 @@ if CoordinateSystem == 'spherical':
     ax.set_theta_zero_location( 'N' ) # z-axis vertical
     ax.set_theta_direction( -1 )
 
+elif CoordinateSystem == 'cartesian':
+
+    ax.set_xlabel \
+      ( r'$x^{{1}}\ \left[\mathrm{{{:}}}\right]$'.format( X1Units ), \
+        fontsize = 15 )
+    ax.set_ylabel \
+      ( r'$x^{{2}}\ \left[\mathrm{{{:}}}\right]$'.format( X2Units ), \
+        fontsize = 15 )
+
+Norm = GetNorm( UseLogScale, Data, vmin = vmin, vmax = vmax )
+
 im = ax.pcolormesh( X1c, X2c, Data, \
                     cmap = cmap, \
                     norm = Norm, \
                     shading = 'flat' )
 
-time_text.set_text( 'Time = {:.3e} {:}'.format( Time, TimeUnit ) )
+time_text = ax.text( 0.4, 0.9, '', transform = ax.transAxes )
 
 cbar = fig.colorbar( im )
 cbar.set_label( Field + ' ' + DataUnits )
 
+def InitializeFrame():
+
+    Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(0)
+    im.set_array( Data.flatten() )
+    time_text.set_text('')
+    ret = ( im, time_text )
+    return ret
+
 def UpdateFrame(t):
 
-    print('{:}/{:}'.format( t, nSS ) )
+    print( '    {:}/{:}'.format( t, nSS ) )
     Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(t)
 
-#    # pcolormesh wants the corners of the elements
-#    X1c, X2c = MapCenterToCorners( X1_C, X2_C, dX1, dX2 )
-#
-#    X1c = np.copy( X1c[:,0] )
-#    X2c = np.copy( X2c[0,:] )
-#
-#    theta, r = np.meshgrid( X2c, X1c )
-#
-#    im = ax.pcolormesh( theta, r, Data, \
-#                        cmap = cmap, \
-#                        norm = Norm, \
-#                        shading = 'flat' )
+    # pcolormesh wants the corners of the elements
+    X1c, X2c = MapCenterToCorners( X1_C, X2_C, dX1, dX2 )
+
+    if CoordinateSystem == 'spherical':
+
+        X1c = np.copy( X1c[:,0] )
+        X2c = np.copy( X2c[0,:] )
+
+        X1c, X2c = np.meshgrid( X2c, X1c )
+
+    im = ax.pcolormesh( X1c, X2c, Data, \
+                        cmap = cmap, \
+                        norm = Norm, \
+                        shading = 'flat' )
 
     im.set_array( Data.flatten() )
-    time_text.set_text( 'Time = {:.3e} {:}'.format( Time, TimeUnit ) )
+    time_text.set_text( r'$t={:.3e}\ \left[\mathrm{{{:}}}\right]$' \
+                        .format( Time, TimeUnits ) )
 
     ret = ( im, time_text )
 
@@ -198,12 +226,15 @@ def UpdateFrame(t):
 # Call the animator
 anim \
   = animation.FuncAnimation \
-  ( fig, UpdateFrame, \
+      ( fig, UpdateFrame, init_func = InitializeFrame, \
         frames = nSS, blit = True)
 
 fps = max( 1, nSS // MovieRunTime )
 
-anim.save( MovieName, fps = fps )
+print( '\n  Making Movie' )
+print( '  ------------' )
+
+anim.save( MovieName, fps = fps, dpi = 300 )
 
 import os
 os.system( 'rm -rf __pycache__ ' )

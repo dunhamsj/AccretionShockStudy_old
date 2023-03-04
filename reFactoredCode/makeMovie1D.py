@@ -3,157 +3,199 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
+plt.style.use( 'publication.sty' )
 
-from UtilitiesModule import GetNorm, GetFileArray
 from MakeDataFile import MakeDataFile, ReadHeader
 
-ID = 'GR1D_M2.0_Mdot0.3_Rs150.nX0640'
+"""
 
-plotFileDirectory = '/lump/data/accretionShockStudy/'
-plotFileDirectory += ID + '/'
+Creates a directory with structure as laid out
+in MakeDataFile.py and makes a movie from it
 
-plotFileBaseName = ID + '.plt'
+Usage:
+  $ python3 makeMovie1D.py
 
-field = 'PolytropicConstant'
+"""
 
-useLogScale = True
+#### ========== User Input ==========
 
+# ID to be used for naming purposes
+ID = 'NR1D_M1.4_Rpns040_Rs180_Mdot0.3'
+
+# Directory containing AMReX plotfiles
+plotfileDirectory \
+  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}'.format( ID )
+
+# plotfile base name (e.g., Advection1D.plt######## -> Advection1D.plt )
+plotfileBaseName = ID + '.plt'
+
+# Field to plot
+Field = 'PF_D'
+
+# Plot data in log10-scale?
+UseLogScale_Y = True
+UseLogScale_X = False
+
+# Unit system of the data
+UsePhysicalUnits = True
+
+# Coordinate system (currently supports 'cartesian' and 'spherical' )
+CoordinateSystem = 'spherical'
+
+# Only use every <plotEvery> plotfile
+plotEvery = 1
+
+# First and last snapshots and number of snapshots to include in movie
 SSi = -1 # -1 -> SSi = 0
-SSf = -1 # -1 -> plotFileArray.shape[0] - 1
-nSS = 100 # -1 -> plotFileArray.shape[0]
+SSf = -1 # -1 -> plotfileArray.shape[0] - 1
+nSS = -1 # -1 -> plotfileArray.shape[0]
 
-maxLevel = -1
+# Max level of refinement to include
+MaxLevel = -1
 
-showIC = True
+# Include initial conditions in movie?
+ShowIC = False
 
-plotMesh = False
+PlotMesh = False
 
-verbose = True
+Verbose = True
 
-movieRunTime = 10.0 # seconds
+UseCustomLimits = False
+vmin = 0.0
+vmax = 2.0
 
-useCustomLimits = False
+MovieRunTime = 10.0 # seconds
 
 #### ====== End of User Input =======
 
-dataFileDirectory = '.{:s}_{:s}_MovieData1D'.format( ID, field )
-movieName         = 'mov.{:s}_{:s}.mp4'.format( ID, field )
+DataDirectory = '.{:s}'.format( ID )
+MovieName     = 'mov.{:s}_{:s}.mp4'.format( ID, Field )
 
 # Append "/" if not present
-if( not plotFileDirectory[-1] == '/' ): plotFileDirectory += '/'
-if( not dataFileDirectory[-1] == '/' ): dataFileDirectory += '/'
+if not plotfileDirectory[-1] == '/': plotfileDirectory += '/'
+if not DataDirectory    [-1] == '/': DataDirectory     += '/'
 
-MakeDataFile( field, plotFileDirectory, dataFileDirectory, \
-              plotFileBaseName, \
-              SSi = SSi, SSf = SSf, nSS = nSS, \
-              maxLevel = maxLevel, verbose = verbose, \
-              forceChoice = False, OW = True )
+TimeUnits = ''
+X1Units   = ''
+if UsePhysicalUnits:
+    TimeUnits = 'ms'
+    X1Units   = 'km'
 
-# Ignore last file (t=0 without perturbation)
-plotFileArray \
-  = GetFileArray \
-      ( plotFileDirectory, plotFileBaseName, \
-        SSi = SSi, SSf = SSf, nSS = nSS )#[:-1]
-
-if SSi < 0: SSi = 0
-if SSf < 0: SSf = plotFileArray.shape[0] - 1
-if nSS < 0: nSS = plotFileArray.shape[0]
-
-fig = plt.figure()
-ax  = fig.add_subplot( 111 )
-
-if useCustomLimits: ax.set_ylim( ymin, ymax )
-ymin = +np.inf
-ymax = -np.inf
-for j in range( nSS ):
-    iSS = SSi + np.int64( ( SSf - SSi ) / ( nSS - 1 ) * j )
-    dataFile = dataFileDirectory + plotFileArray[iSS] + '.dat'
-    data = np.loadtxt( dataFile )
-    ymin = min( ymin, data.min() )
-    ymax = max( ymax, data.max() )
-if not useCustomLimits: ax.set_ylim( ymin, ymax )
+plotfileArray \
+  = MakeDataFile( Field, plotfileDirectory, DataDirectory, \
+                  plotfileBaseName, CoordinateSystem, \
+                  SSi = SSi, SSf = SSf, nSS = nSS, \
+                  UsePhysicalUnits = UsePhysicalUnits, \
+                  MaxLevel = MaxLevel, Verbose = Verbose )
+plotfileArray = np.copy( plotfileArray[:-1] ) # ignore 99999999 file
+plotfileArray = np.copy( plotfileArray[::plotEvery] )
 
 def f(t):
 
-    iSS = SSi + np.int64( ( SSf - SSi + 1 ) / nSS ) * t
+    FileDirectory = DataDirectory + plotfileArray[t] + '/'
 
-    dataFile = dataFileDirectory + plotFileArray[iSS] + '.dat'
+    TimeFile = FileDirectory + '{:}.dat'.format( 'Time' )
+    X1File   = FileDirectory + '{:}.dat'.format( 'X1' )
+    dX1File  = FileDirectory + '{:}.dat'.format( 'dX1' )
+    DataFile = FileDirectory + '{:}.dat'.format( Field )
 
-    dataShape, dataUnits, Time, X1_C, X2_C, X3_C, dX1, dX2, dX3 \
-      = ReadHeader( dataFile )
+    DataShape, DataUnits, MinVal, MaxVal = ReadHeader( DataFile )
 
-    data = np.loadtxt( dataFile ).reshape( np.int64( dataShape ) )
+    Time = np.loadtxt( TimeFile )
+    X1_C = np.loadtxt( X1File   )
+    dX1  = np.loadtxt( dX1File  )
+    Data = np.loadtxt( DataFile )
 
-    return data, dataUnits, X1_C, dX1, Time
+    return Data, DataUnits, X1_C, dX1, Time
 
-data0, dataUnits, X1_C0, dX10, Time0 = f(0)
+Data0, DataUnits, X1_C0, dX10, Time = f(0)
 
-xL = np.array( [ X1_C0[0 ]-0.5*dX10[0 ] ], np.float64 )
-xU = np.array( [ X1_C0[-1]+0.5*dX10[-1] ], np.float64 )
+if nSS < 0: nSS = plotfileArray.shape[0]
 
-Norm = GetNorm( useLogScale, data0, vmin = ymin, vmax = ymax )
+if not UseCustomLimits:
+    vmin = +np.inf
+    vmax = -np.inf
+    for j in range( nSS ):
+        DataFile \
+          = DataDirectory + plotfileArray[j] + '/{:}.dat'.format( Field )
+        DataShape, DataUnits, MinVal, MaxVal = ReadHeader( DataFile )
+        vmin = min( vmin, MinVal )
+        vmax = max( vmax, MaxVal )
 
-TimeUnits   = 'ms'
-LengthUnits = 'km'
+nX = np.shape(X1_C0)
 
-ax.set_xlim( xL[0], xU[0] )
+xL = X1_C0[0 ] - 0.5 * dX10[0 ]
+xH = X1_C0[-1] + 0.5 * dX10[-1]
 
-ax.set_xlabel( 'Isotropic Radius [km]' )
-ax.set_ylabel( field + ' ' + dataUnits )
+fig = plt.figure()
+ax  = fig.add_subplot( 111 )
+ax.set_title( r'$\texttt{{{:}}}$'.format( ID ), fontsize = 15 )
 
-time_text = plt.text( 0.5, 0.7, '', transform = ax.transAxes )
+time_text = ax.text( 0.1, 0.9, '', transform = ax.transAxes, fontsize = 13 )
 
-if( useLogScale ): ax.set_yscale( 'log' )
+ax.set_xlabel \
+  ( r'$x^{{1}}\ \left[\mathrm{{{:}}}\right]$'.format( X1Units ), fontsize = 15 )
+ax.set_ylabel( Field  + ' ' + DataUnits   )
 
-ms = 5
-line, = ax.plot( [],[], 'k.', markersize = ms, label = 'u(t)' )
-if showIC: IC, = ax.plot( [],[], 'r.', markersize = ms, label = 'u(0)' )
-if plotMesh: mesh, = ax.plot( [],[], 'b.', label = 'mesh' )
+ax.set_xlim( xL, xH )
+ax.set_ylim( vmin, vmax )
+
+if UseLogScale_Y: ax.set_yscale( 'log' )
+if UseLogScale_X:
+    xL = max( xL, xL + 0.25 * dX10[0] )
+    ax.set_xlim( xL, xH )
+    ax.set_xscale( 'log' )
+
+if PlotMesh: mesh, = ax.plot( [],[], 'b.', label = 'mesh boundaries'    )
+if ShowIC: IC,     = ax.plot( [],[], 'r.', label = r'$u\left(0\right)$' )
+line,              = ax.plot( [],[], 'k.', label = r'$u\left(t\right)$' )
 
 def InitializeFrame():
 
     line.set_data([],[])
     time_text.set_text('')
-    if showIC: IC.set_data([],[])
-    if plotMesh: mesh.set_data([],[])
+    if ShowIC:   IC  .set_data([],[])
+    if PlotMesh: mesh.set_data([],[])
 
-    if showIC and plotMesh: ret = ( line, time_text, IC, mesh )
-    elif showIC:            ret = ( line, time_text, IC )
-    elif plotMesh:          ret = ( line, time_text, mesh )
+    if ShowIC and PlotMesh: ret = ( line, time_text, IC, mesh )
+    elif ShowIC:            ret = ( line, time_text, IC )
+    elif PlotMesh:          ret = ( line, time_text, mesh )
     else:                   ret = ( line, time_text )
 
     return ret
 
 def UpdateFrame( t ):
 
-    data, dataUnits, X1_C, dX1, Time = f(t)
+    print('    {:}/{:}'.format( t, nSS ) )
+    Data, DataUnits, X1_C, dX1, Time = f(t)
 
-    line.set_data( X1_C, data.flatten() )
-    time_text.set_text( 'Time = {:.3e} {:}'.format( Time, TimeUnits ) )
-    if showIC: IC.set_data( X1_C0, data0.flatten() )
-    if plotMesh: mesh.set_data( X1_C - 0.5 * dX1, 0.5 * ( ymin + ymax ) )
+    time_text.set_text( r'$t={:.3e}\ \left[\mathrm{{{:}}}\right]$' \
+                        .format( Time, TimeUnits ) )
 
-    if showIC and plotMesh: ret = ( line, time_text, IC, mesh )
-    elif showIC:            ret = ( line, time_text, IC )
-    elif plotMesh:          ret = ( line, time_text, mesh )
+    line             .set_data( X1_C , Data .flatten() )
+    if ShowIC:   IC  .set_data( X1_C0, Data0.flatten() )
+    if PlotMesh: mesh.set_data( X1_C - 0.5 * dX1, 0.5 * ( vmin + vmax ) )
+
+    if ShowIC and PlotMesh: ret = ( line, time_text, IC, mesh )
+    elif ShowIC:            ret = ( line, time_text, IC )
+    elif PlotMesh:          ret = ( line, time_text, mesh )
     else:                   ret = ( line, time_text )
 
     return ret
 
-ax.legend()
+ax.set_ylim( vmin, vmax )
+ax.legend( prop = {'size':12} )
 
 anim = animation.FuncAnimation( fig, UpdateFrame, \
                                 init_func = InitializeFrame, \
                                 frames = nSS, \
                                 blit = True )
 
-fps = max( 1, nSS / movieRunTime )
+fps = max( 1, nSS / MovieRunTime )
 
-print( 'Saving movie {:}...'.format( movieName ) )
-
-anim.save( movieName, fps = fps, dpi = 300 )
-
-print( 'Done!' )
+print( '\n  Making movie' )
+print( '  ------------' )
+anim.save( MovieName, fps = fps, dpi = 300 )
 
 import os
 os.system( 'rm -rf __pycache__ ' )

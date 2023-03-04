@@ -17,13 +17,13 @@ def Overwrite( FileOrDirName, ForceChoice = False, OW = False ):
         if ( isdir( FileOrDirName ) and FileOrDirName[-1] != '/' ):
             FileOrDirName += '/'
 
-        YN = input( '{:} exists. Overwrite? (y/N): '.format( FileOrDirName ) )
+        YN = input( '  {:} exists. Overwrite? (y/N): '.format( FileOrDirName ) )
 
         if YN == 'Y' or YN == 'y' :
-            print( 'Overwriting' )
+            print( '  Overwriting' )
             OW = True
         else:
-            print( 'Not overwriting' )
+            print( '  Not overwriting' )
             OW = False
 
     return OW
@@ -332,14 +332,6 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 
         if   CoordinateSystem == 'cartesian'  : DataUnits = ''
         elif CoordinateSystem == 'cylindrical': DataUnits = 'km**2'
-        elif CoordinateSystem == 'spherical'  : DataUnits = 'km**2'
-
-    elif Field == 'GF_SqrtGm':
-
-        Data = np.copy( CoveringGrid[Field].to_ndarray() )
-
-        if   CoordinateSystem == 'cartesian'  : DataUnits = ''
-        elif CoordinateSystem == 'cylindrical': DataUnits = 'km'
         elif CoordinateSystem == 'spherical'  : DataUnits = 'km**2'
 
     elif Field == 'GF_K_11':
@@ -656,15 +648,10 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         print( '  CF_E' )
         print( '  CF_Ne' )
         print( '  AF_P' )
-        print( '  AF_Ye' )
-        print( '  AF_T' )
-        print( '  AF_S' )
         print( '  AF_Cs' )
         print( '  GF_Gm_11' )
         print( '  GF_Gm_22' )
         print( '  GF_Gm_33' )
-        print( '  GF_SqrtGm' )
-        print( '  GF_K_11' )
         print( '  GF_Psi' )
         print( '  GF_Alpha' )
         print( '  GF_Beta1' )
