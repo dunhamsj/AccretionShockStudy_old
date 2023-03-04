@@ -3,7 +3,7 @@
 from scipy.integrate import trapezoid
 import numpy as np
 
-from UtilitiesModule import GetFileArray, Overwrite
+from UtilitiesModule import GetFileArray, Overwrite, ComputeAngleAverage
 from PowerSpectrumUtilitiesModule import ReadFields
 
 def ComputePowerInLegendreModes \
@@ -28,13 +28,12 @@ def ComputePowerInLegendreModes \
 
     if( not OW ): return
 
-    plotFileArray \
-      = GetFileArray( plotFileDirectory, plotFileBaseName, \
-                      SSf = -1, nSS = -1 )
+    plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
 
     nSS = plotFileArray.shape[0]
 
     H = np.zeros( (nSS,5), np.float64 )
+    Data_AA = np.zeros( (nSS), np.float64 )
 
     time = np.empty( nSS )
 
@@ -42,17 +41,20 @@ def ComputePowerInLegendreModes \
 
     Rs *= 1.0e5
 
+    if( verbose ):
+        print( '  Generating Data...' )
+        print( '  ------------------' )
+
     for iSS in range( nSS ):
+
+        if( verbose ):
+            if( ( iSS + 1 ) % 10 == 0 ):
+              print( '  File {:}/{:}'.format( iSS + 1, nSS ) )
 
         plotFile = plotFileDirectory + plotFileArray[iSS]
 
         time[iSS], data, X1, X2, X3, dX1, dX2, dX3, nX \
           = ReadFields( plotFile, field )
-
-        if( verbose ):
-            if( ( iSS + 1 ) % 10 == 0 ):
-                print( '  File {:}/{:}, t: {:} ms' \
-                       .format( iSS + 1, nSS, time[iSS] ) )
 
         X1  *= 1.0e5
         dX1 *= 1.0e5
@@ -78,21 +80,21 @@ def ComputePowerInLegendreModes \
 
         A = np.zeros( (nX[0],nX[1],nX[2]), np.float64 )
 
+        indX1 = np.where( ( X1 > fL * Rs ) & ( X1 < fU * Rs ) )[0]
+        indX2 = np.linspace( 0, nX[1]-1, nX[1], dtype = np.int64 )
+        indX3 = np.linspace( 0, nX[2]  , nX[2], dtype = np.int64 )
+
         if( field == 'DivV2' ):
 
             # --- Sheck et al., (2008), A&A, 477, 931 ---
 
             PF_V2 = data[1]
 
-            indX1 = np.where( ( X1 > fL * Rs ) & ( X1 < fU * Rs ) )[0]
-            indX2 = np.linspace( 0, nX[1]-1, nX[1], dtype = np.int64 )
-            indX3 = np.linspace( 0, nX[2]  , nX[2], dtype = np.int64 )
-
+            # Apply reflecting boundary conditions in theta
             for i in indX1:
                 for j in indX2:
                     for k in indX3:
 
-                        # Reflecting boundary conditions in theta
                         if( j == 0 ):
                             X2m = X2[j]
                             X2p = X2[j+1]
@@ -114,12 +116,22 @@ def ComputePowerInLegendreModes \
                               * (   np.sin( X2p ) * V2p \
                                   - np.sin( X2m ) * V2m )
 
+        elif( field == 'LateralMomentumFluxInRadialDirectionGR' ):
+
+            A = np.copy( data[1] )
+
+        elif( field == 'LateralMomentumFluxInRadialDirectionNR' ):
+
+            A = np.copy( data[1] )
+
         else:
 
             print( 'Invalid choice of field: {:}'.format( Field ) )
             print( 'Valid choices' )
             print( '-------------' )
             print( '  DivV2' )
+            print( 'LateralMomentumFluxInRadialDirectionGR' )
+            print( 'LateralMomentumFluxInRadialDirectionNR' )
             exit( 'Exiting...' )
 
         Psi    = data[0]
@@ -160,21 +172,35 @@ def ComputePowerInLegendreModes \
                       ( G[ell,indX1]**2 * Psi[indX1,0,0]**6 * X1[indX1]**2, \
                         x = X1[indX1], dx = dX1[0] )
 
+        AA = ComputeAngleAverage \
+               ( A[indX1], X2[indX2], dX2[indX2], dX3[indX3], \
+                 nX = [ indX1.shape[0], indX2.shape[0], indX3.shape[0] ] )
+        for i in indX1:
+            Data_AA[iSS] \
+              += 4.0 * np.pi \
+                  * trapezoid \
+                      ( AA * Psi[indX1,0,0]**6 * X1[indX1]**2, \
+                        x = X1[indX1], dx = dX1[0] )
+
     # END for iSS in range( nSS )
 
+    H += 1.0
     Data = np.vstack( (time,H[:,0],H[:,1],H[:,2],H[:,3],H[:,4]) )
     np.savetxt( dataFileName, Data )
+    dataFileName2 = dataFileName + '2.dat'
+    Data2 = np.vstack( (time,Data_AA) )
+    np.savetxt( dataFileName2, Data2 )
 
     return
 #END ComputePowerInLegendreModes
 
 if __name__ == '__main__':
 
-    ID = 'NR2D_M2.8_Mdot0.3_Rs120_nX768x064'
+    ID = 'GR2D_M2.8_Mdot0.3_Rs120'
     plotFileDirectory \
-      = '/lump/data/accretionShockStudy/angularResolution/{:}/'.format( ID )
+      = '/lump/data/accretionShockStudy/{:}/'.format( ID )
     plotFileBaseName = '{:}.plt_'.format( ID )
-    dataFileName = '.{:}_LegendrePowerSpectrum.dat'.format( ID )
+    dataFileName = '.LegendrePowerSpectrum_{:}'.format( ID )
     ComputePowerInLegendreModes \
       ( plotFileDirectory, plotFileBaseName, dataFileName, \
         'DivV2', 0.8, 0.9, 120.0, verbose = True )

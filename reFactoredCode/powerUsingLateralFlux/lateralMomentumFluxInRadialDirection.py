@@ -3,7 +3,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use( 'publication.sty' )
-from scipy.integrate import trapezoid
 
 from UtilitiesModule import GetFileArray, GetData, ComputeAngleAverage, \
                             Overwrite
@@ -12,13 +11,11 @@ from UtilitiesModule import GetFileArray, GetData, ComputeAngleAverage, \
 
 rootDirectory \
   = '/lump/data/accretionShockStudy/'
-#rootDirectory \
-#  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
-#StandingAccretionShock_Relativistic/'
 
-Rs = '180'
+suffix = '_RPNS2.00e1'
+Rs = '6.00e1'
 
-ID = '2D_M2.8_Mdot0.3_Rs{:}'.format( Rs )
+ID = '2D_M2.8_Mdot0.3_Rs{:}{:}'.format( Rs, suffix )
 
 Rs = np.float64( Rs )
 
@@ -41,7 +38,7 @@ plotFile      = plotFileDirectory + plotFileArray[0]
 time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
   = GetData( plotFile, field+'GR', verbose = True )
 
-ind = np.where( ( X1 < 0.9 * Rs ) & ( X1 > 0.8 * Rs ) )[0]
+ind = np.where( X1 < 0.95 * Rs )[0][-1]
 
 OW = Overwrite( 'LatFlux_{:}.dat'.format( ID_GR ) )
 if( OW ):
@@ -56,14 +53,13 @@ if( OW ):
     plotFileArrayNR     = GetFileArray( plotFileDirectoryNR, plotFileBaseNameNR )
     nSS_NR              = plotFileArrayNR.shape[0]
 
+    AA_GR  = np.empty( nSS_GR, np.float64 )
+    timeGR = np.empty( nSS_GR, np.float64 )
+
+    AA_NR  = np.empty( nSS_NR, np.float64 )
+    timeNR = np.empty( nSS_NR, np.float64 )
+
     nSS = min( nSS_GR, nSS_NR )
-
-    AA_GR  = np.empty( nSS, np.float64 )
-    timeGR = np.empty( nSS, np.float64 )
-
-    AA_NR  = np.empty( nSS, np.float64 )
-    timeNR = np.empty( nSS, np.float64 )
-
     for iSS in range( nSS ):
 
         print( '{:}/{:}'.format( iSS+1, nSS ) )
@@ -73,31 +69,17 @@ if( OW ):
 
         timeGR[iSS], dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
           = GetData( plotFileGR, field+'GR', verbose = verbose )
-        AA = ComputeAngleAverage \
-               ( dataGR[ind], X2, dX2, dX3, \
-                 nX = [ dataGR[ind].shape[0], \
-                        dataGR[ind].shape[1], \
-                        dataGR[ind].shape[2] ] )
-        AA_GR[iSS] \
-          = 4.0 * np.pi \
-              * trapezoid \
-                  ( AA * X1[ind]**2, \
-                    x = X1[ind], dx = dX1[0] )
+        t, alphaGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
+          = GetData( plotFileGR, 'GF_Alpha', verbose = verbose )
+#        timeGR[iSS] *= alphaGR[ind,0,0]
+
+        AA_GR[iSS] = ComputeAngleAverage( dataGR[ind], X2, dX2, dX3 )
 
         del dataGR
 
         timeNR[iSS], dataNR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-          = GetData( plotFileNR, field+'GR', verbose = verbose )
-        AA = ComputeAngleAverage \
-               ( dataNR[ind], X2, dX2, dX3, \
-                 nX = [ dataNR[ind].shape[0], \
-                        dataNR[ind].shape[1], \
-                        dataNR[ind].shape[2] ] )
-        AA_NR[iSS] \
-          = 4.0 * np.pi \
-              * trapezoid \
-                  ( AA * X1[ind]**2, \
-                    x = X1[ind], dx = dX1[0] )
+          = GetData( plotFileNR, field+'NR', verbose = verbose )
+        AA_NR[iSS] = ComputeAngleAverage( dataNR[ind], X2, dX2, dX3 )
 
         del dataNR
 

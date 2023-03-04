@@ -16,15 +16,15 @@ rootDirectory \
 #  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
 #StandingAccretionShock_Relativistic/'
 
-Rs = '180'
+Rs = '120'
 
 ID = '2D_M2.8_Mdot0.3_Rs{:}'.format( Rs )
 
 Rs = np.float64( Rs )
 
-field = 'LateralMomentumFluxInRadialDirection'
+field = 'DivV2'
 
-useLogScale = True
+useLogScale = False
 
 verbose = False
 
@@ -39,11 +39,11 @@ plotFileDirectory = rootDirectory + ID_GR + '/'
 plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
 plotFile      = plotFileDirectory + plotFileArray[0]
 time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-  = GetData( plotFile, field+'GR', verbose = True )
+  = GetData( plotFile, field, verbose = True )
 
 ind = np.where( ( X1 < 0.9 * Rs ) & ( X1 > 0.8 * Rs ) )[0]
 
-OW = Overwrite( 'LatFlux_{:}.dat'.format( ID_GR ) )
+OW = Overwrite( 'DivV2_{:}.dat'.format( ID_GR ) )
 if( OW ):
 
     plotFileBaseNameGR  = ID_GR + '.plt'
@@ -56,14 +56,13 @@ if( OW ):
     plotFileArrayNR     = GetFileArray( plotFileDirectoryNR, plotFileBaseNameNR )
     nSS_NR              = plotFileArrayNR.shape[0]
 
+    AA_GR  = np.empty( nSS_GR, np.float64 )
+    timeGR = np.empty( nSS_GR, np.float64 )
+
+    AA_NR  = np.empty( nSS_NR, np.float64 )
+    timeNR = np.empty( nSS_NR, np.float64 )
+
     nSS = min( nSS_GR, nSS_NR )
-
-    AA_GR  = np.empty( nSS, np.float64 )
-    timeGR = np.empty( nSS, np.float64 )
-
-    AA_NR  = np.empty( nSS, np.float64 )
-    timeNR = np.empty( nSS, np.float64 )
-
     for iSS in range( nSS ):
 
         print( '{:}/{:}'.format( iSS+1, nSS ) )
@@ -72,7 +71,7 @@ if( OW ):
         plotFileNR = plotFileDirectoryNR + plotFileArrayNR[iSS]
 
         timeGR[iSS], dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-          = GetData( plotFileGR, field+'GR', verbose = verbose )
+          = GetData( plotFileGR, field, verbose = verbose )
         AA = ComputeAngleAverage \
                ( dataGR[ind], X2, dX2, dX3, \
                  nX = [ dataGR[ind].shape[0], \
@@ -87,7 +86,7 @@ if( OW ):
         del dataGR
 
         timeNR[iSS], dataNR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-          = GetData( plotFileNR, field+'GR', verbose = verbose )
+          = GetData( plotFileNR, field, verbose = verbose )
         AA = ComputeAngleAverage \
                ( dataNR[ind], X2, dX2, dX3, \
                  nX = [ dataNR[ind].shape[0], \
@@ -101,13 +100,13 @@ if( OW ):
 
         del dataNR
 
-    np.savetxt( 'LatFlux_{:}.dat'.format( ID_GR ), \
+    np.savetxt( 'DivV2_{:}.dat'.format( ID_GR ), \
                 np.vstack( ( timeGR, AA_GR ) ) )
-    np.savetxt( 'LatFlux_{:}.dat'.format( ID_NR ), \
+    np.savetxt( 'DivV2_{:}.dat'.format( ID_NR ), \
                 np.vstack( ( timeNR, AA_NR ) ) )
 
-timeGR, dataGR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_GR ) )
-timeNR, dataNR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_NR ) )
+timeGR, dataGR = np.loadtxt( 'DivV2_{:}.dat'.format( ID_GR ) )
+timeNR, dataNR = np.loadtxt( 'DivV2_{:}.dat'.format( ID_NR ) )
 
 ### Plotting
 

@@ -72,21 +72,57 @@ def ReadFields( plotFile, field, verbose = False ):
 
     time = np.float64( ds.current_time )
 
+    data = np.empty( (2,nX[0],nX[1],nX[2]), np.float64 )
+
+    data[0] = np.copy( coveringGrid['GF_Psi'].to_ndarray() )
+
     if( field == 'DivV2' ):
 
-        data = np.empty( (2,nX[0],nX[1],nX[2]), np.float64 )
+        data[1] = np.copy( coveringGrid['PF_V2'].to_ndarray() )
 
-        data[0] = coveringGrid['GF_Psi'].to_ndarray()
-        data[1] = coveringGrid['PF_V2' ].to_ndarray()
+    elif( field == 'LateralMomentumFluxInRadialDirectionGR' ):
+
+        c = 2.99792458e10
+
+        rho    = np.copy( coveringGrid['PF_D'     ].to_ndarray() )
+        e      = np.copy( coveringGrid['PF_E'     ].to_ndarray() )
+        p      = np.copy( coveringGrid['AF_P'     ].to_ndarray() )
+        V1     = np.copy( coveringGrid['PF_V1'    ].to_ndarray() ) * 1.0e5
+        V2     = np.copy( coveringGrid['PF_V2'    ].to_ndarray() )
+        Gm11   = np.copy( coveringGrid['GF_Gm_11' ].to_ndarray() )
+        Gm22   = np.copy( coveringGrid['GF_Gm_22' ].to_ndarray() ) * (1.0e5)**2
+        alpha  = np.copy( coveringGrid['GF_Alpha' ].to_ndarray() )
+        SqrtGm = np.copy( coveringGrid['GF_SqrtGm'].to_ndarray() ) * (1.0e5)**2
+
+        h = c**2 + ( e + p ) / rho
+
+        W = 1.0 / np.sqrt( 1.0 - ( Gm11 * V1**2 + Gm22 * V2**2 ) / c**2 )
+
+        d = SqrtGm * rho * Gm22 * V2 * V1 # NR
+
+        data[1] = d * alpha * h/c**2 * W**2 # GR corrections
+
+    elif( field == 'LateralMomentumFluxInRadialDirectionNR' ):
+
+        rho    = np.copy( coveringGrid['PF_D'     ].to_ndarray() )
+        V1     = np.copy( coveringGrid['PF_V1'    ].to_ndarray() ) * 1.0e5
+        V2     = np.copy( coveringGrid['PF_V2'    ].to_ndarray() )
+        Gm11   = np.copy( coveringGrid['GF_Gm_11' ].to_ndarray() )
+        Gm22   = np.copy( coveringGrid['GF_Gm_22' ].to_ndarray() ) * (1.0e5)**2
+        SqrtGm = np.copy( coveringGrid['GF_SqrtGm'].to_ndarray() ) * (1.0e5)**2
+
+        data[1] = SqrtGm * rho * Gm22 * V2 * V1
 
     else:
 
         print( 'PowerSpectrumUtilitiesModule' )
         print( '----------------------------' )
-        print( 'Invalid choice of field: {:}'.format( field ) )
+        print( 'Invalid choice of field: {:}\n'.format( field ) )
         print( 'Valid choices' )
         print( '-------------' )
         print( '  DivV2' )
+        print( '  LateralMomentumFluxInRadialDirectionGR' )
+        print( '  LateralMomentumFluxInRadialDirectionNR' )
         exit( 'Exiting...' )
 
     xL = ds.domain_left_edge .to_ndarray()

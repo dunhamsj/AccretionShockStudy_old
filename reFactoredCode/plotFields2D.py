@@ -11,10 +11,12 @@ from UtilitiesModule import GetFileArray, GetData, GetNorm
 rootDirectory \
   = '/home/dunhamsj/Work/thornado_GW/SandBox/AMReX/Applications/\
 StandingAccretionShock_NonRelativistic/'
+rootDirectory \
+  = '/lump/data/accretionShockStudy/'
 
-ID = 'NR2D_M2.8_Mdot0.3_Rs120_nX768x256'
+ID = 'NR2D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1'
 
-field = 'PF_E'
+field = 'AF_P'
 
 useLogScale = True
 
@@ -29,8 +31,7 @@ plotFileBaseName = ID + '.plt'
 plotFileDirectory = rootDirectory + ID + '/'
 
 plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
-plotFile      = plotFileDirectory + plotFileArray[-1]
-
+plotFile      = plotFileDirectory + plotFileArray[0]
 time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
   = GetData( plotFile, field, verbose = verbose )
 data = np.copy( data[:,:,0] )
@@ -58,8 +59,8 @@ ax.set_theta_zero_location( 'W' )
 cbar = fig.colorbar( im )
 cbar.set_label( field + ' ' + dataUnits )
 
-plt.savefig( saveFigAs, dpi = 300 )
-#plt.show()
+#plt.savefig( saveFigAs, dpi = 300 )
+plt.show()
 plt.close()
 
 import os

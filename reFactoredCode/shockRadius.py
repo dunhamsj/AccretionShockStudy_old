@@ -13,7 +13,7 @@ def MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold ):
 
     plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
 
-    plotFile = plotFileDirectory + plotFileArray[-2]
+    plotFile = plotFileDirectory + plotFileArray[0]
     time, data, dmy1, r, dmy3, dmy4, dmy5, dmy6, dmy7, dmy8 \
       = GetData( plotFile, 'PolytropicConstant' )
 
@@ -114,34 +114,51 @@ def MakeDataFile \
 
 if __name__ == "__main__":
 
+    #rootDirectory = '/lump/data/accretionShockStudy/'
     rootDirectory = '/lump/data/accretionShockStudy/'
-    #rootDirectory = '/home/dunhamsj/Work/thornado_GW/SandBox/AMReX/Applications/StandingAccretionShock_Relativistic/'
-    ID = 'GR1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
-    plotFileDirectory = rootDirectory + ID + '/'
-    plotFileBaseName = ID + '.plt'
-    entropyThreshold = 1.0e15
 
-    MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold )
+    rel  = [ 'GR' ]
+    M    = [ '2.8' ]
+    Mdot = [ '0.3' ]
+    Rs   = [ '7.50e1' ]
+    nX   = [ '0128', '0256', '0512', '1024' ]
 
-    dataFileName = '{:}_ShockRadiusVsTime.dat'.format( ID )
-    forceChoice = False
-    OW = False
-    MakeDataFile \
-      ( plotFileDirectory, plotFileBaseName, dataFileName, \
-        entropyThreshold, markEvery = 1, forceChoice = forceChoice, OW = OW )
+    fig, ax = plt.subplots( 1, 1 )
 
-    Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
+    IDD = 'GR1D_M2.8_Mdot0.3_Rs7.50e1_RPNS2.00e1'
+    ax.set_title( IDD )
 
-    plt.title( ID )
-    plt.xlabel( 'Time [ms]' )
-    plt.ylabel( r'$\left(R_{s}\left(t\right)-R_{s}\left(0\right)\right)/R_{s}\left(0\right)$', labelpad = -0.1 )
-    plt.plot( Time, ( RsAve - RsAve[0] ) / RsAve[0], 'k-', label = 'RsAve' )
-#    plt.plot( Time, RsMin, 'r-', label = 'RsMin' )
-#    plt.plot( Time, RsMax, 'b-', label = 'RsMax' )
-    #plt.fill_between( Time, RsMin, RsMax )
-    plt.legend()
-    plt.savefig( 'fig.{:}_ShockRadiusVsTime.png'.format( ID ), dpi = 300 )
-#    plt.show()
+    for nx in nX:
+
+        ID = IDD + '.nX{:}'.format( nx )
+        plotFileDirectory = rootDirectory + ID + '/'
+        plotFileBaseName = ID + '.plt'
+        entropyThreshold = 1.0e15
+
+        #MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold )
+
+        dataFileName = '{:}_ShockRadiusVsTime.dat'.format( ID )
+        forceChoice = False
+        OW = False
+        MakeDataFile \
+          ( plotFileDirectory, plotFileBaseName, dataFileName, \
+            entropyThreshold, markEvery = 1, forceChoice = forceChoice, OW = OW )
+
+        Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
+
+        dr = ( 1.00e2 - 2.00e1 ) / np.float64( nx )
+
+        lab = 'dr = {:.2f} km'.format( dr )
+        ax.plot( Time, ( RsAve - RsAve[0] ) / RsAve[0], label = lab )
+
+    ax.set_xlabel( 'Time [ms]' )
+    ax.set_ylabel( r'$\left(R_{s}\left(t\right)-R_{s}\left(0\right)\right)/R_{s}\left(0\right)$', labelpad = -0.1 )
+    ax.grid()
+    ax.legend()
+
+    #plt.savefig( 'fig.{:}_ShockRadiusVsTime.png'.format( ID ), dpi = 300 )
+    plt.show()
     plt.close()
+
     import os
     os.system( 'rm -rf __pycache__ ' )

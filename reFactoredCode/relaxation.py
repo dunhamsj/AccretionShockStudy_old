@@ -7,7 +7,7 @@ from multiprocessing import Process, cpu_count, Manager
 
 from UtilitiesModule import Overwrite, GetFileArray, GetData
 
-def getData( plotFileDirectory, ID, field, nX, forceChoice, OW ):
+def getData( plotfileDirectory, ID, field, nX, forceChoice, OW ):
 
     dataFileName = '.{:}_Relaxation_{:}_nX{:}.dat' \
                    .format( ID, field, str( nX ).zfill(4) )
@@ -16,15 +16,24 @@ def getData( plotFileDirectory, ID, field, nX, forceChoice, OW ):
 
     if OW:
 
-        plotFileBaseName = ID + '.plt'
+        plotfileBaseName = ID + '.plt'
 
-        plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
+        plotfileArray = GetFileArray( plotfileDirectory, plotfileBaseName )
+        plotfileArray = np.copy( plotfileArray[:-1] )
 
-        nSS = plotFileArray.shape[0]
+        nSS = plotfileArray.shape[0]
 
         ind = np.linspace( 0, nSS-1, nSS, dtype = np.int64 )
 
-        def loop( iLo, iHi, nodalData, Time, iProc, \
+        print()
+        print( '  Generating derivative data' )
+        print( '  --------------------------' )
+
+        Data     = np.zeros( (nSS,nX), np.float64 )
+        Gradient = np.zeros( (nSS-1) , np.float64 )
+        Time     = np.zeros( (nSS)   , np.float64 )
+
+        def loop( iLo, iHi, nodalData, time, iProc, \
                   return_data, return_time ):
 
             for i in range( iLo, iHi ):
@@ -33,86 +42,79 @@ def getData( plotFileDirectory, ID, field, nX, forceChoice, OW ):
                 j = i - iLo
 
                 if j % 10 == 0:
-                    print( 'File {:d}/{:d}'.format( j, N ) )
+                    print( '    File {:d}/{:d}'.format( j+1, N ) )
 
-                plotFile = plotFileDirectory + plotFileArray[i]
-
-                Time[j], data, dataUnits, r, theta, phi, \
-                dr, dtheta, dphi, nX \
-                  = GetData( plotFile, field )
+                data, dataUnits, time[j] \
+                  = GetData( plotfileDirectory, plotfileBaseName, field, \
+                             'spherical', True, argv = ['a',plotfileArray[i]], \
+                             ReturnTime = True, ReturnMesh = False, \
+                             Verbose = False )
 
                 nodalData[j] = np.copy( data[:,0,0] )
 
-#            return_data[iProc] = nodalData
-#            return_time[iProc] = Time
+            return_data[iProc] = nodalData
+            return_time[iProc] = time
 
-#        # Adapted from:
-#        # https://www.benmather.info/post/
-#        # 2018-11-24-multiprocessing-in-python/
-#
-#        nProcs = min( 8, cpu_count() )
-#
-#        processes = []
-#
-#        manager     = Manager()
-#        return_data = manager.dict()
-#        return_time = manager.dict()
-#
-#        for iProc in range( nProcs ):
-#
-#            iLo \
-#              = np.int64( np.float64( iProc     ) / np.float64( nProcs ) * nSS )
-#            iHi \
-#              = np.int64( np.float64( iProc + 1 ) / np.float64( nProcs ) * nSS )
-#
-#            nd = np.empty( (iHi-iLo,nX), np.float64 )
-#            t  = np.empty( (iHi-iLo)   , np.float64 )
-#
-#            p = Process \
-#                  ( target = loop, \
-#                    args = (iLo,iHi,nd,t,iProc,return_data,return_time) )
-#            p.start()
-#            processes.append( p )
-#
-#        # MPI BARRIER
-#        [ p.join() for p in processes ]
-#
-#        nodalData = np.zeros( (nSS,nX), np.float64 )
-#        DiffData  = np.zeros( (nSS-1)      , np.float64 )
-#        Time      = np.zeros( (nSS)        , np.float64 )
-#
-#        for iProc in range( nProcs ):
-#
-#            iLo \
-#              = np.int64( np.float64( iProc     ) / np.float64( nProcs ) * nSS )
-#            iHi \
-#              = np.int64( np.float64( iProc + 1 ) / np.float64( nProcs ) * nSS )
-#
-#            nodalData[iLo:iHi] = return_data[iProc]
-#            Time     [iLo:iHi] = return_time[iProc]
+        # Adapted from:
+        # https://www.benmather.info/post/
+        # 2018-11-24-multiprocessing-in-python/
 
-        nodalData = np.zeros( (nSS,nX), np.float64 )
-        DiffData  = np.zeros( (nSS-1)      , np.float64 )
-        Time      = np.zeros( (nSS)        , np.float64 )
+        nProcs = max( 10, cpu_count() // 2 )
 
-        loop( 0, nSS-1, nodalData, Time, 0, 0, 0 )
-        Den = np.empty( (nX), np.float64 )
+        manager     = Manager()
+        return_data = manager.dict()
+        return_time = manager.dict()
 
-        for i in range( DiffData.shape[0] ):
+        if nProcs > 1:
 
-            Num = np.abs( nodalData[i+1] - nodalData[i] )
-            for j in range( Num.shape[0] ):
+            processes = []
 
-                Den[j] \
-                  = max( 1.0e-17, \
-                         0.5 * np.abs( nodalData[i+1,j] + nodalData[i,j] ) )
+            for iProc in range( nProcs ):
 
-            DiffData[i] = ( Num / Den ).max()
+                iLo \
+                  = np.int64( np.float64( iProc     ) \
+                      / np.float64( nProcs ) * nSS )
+                iHi \
+                  = np.int64( np.float64( iProc + 1 ) \
+                      / np.float64( nProcs ) * nSS )
 
-        np.savetxt( dataFileName, np.vstack( (Time[:-1],DiffData) ) )
+                d = np.empty( (iHi-iLo,nX), np.float64 )
+                t = np.empty( (iHi-iLo)   , np.float64 )
 
-        del plotFileBaseName, plotFileArray, \
-            nodalData, DiffData, Time, Den
+                p = Process \
+                      ( target = loop, \
+                        args = (iLo,iHi,d,t,iProc,return_data,return_time) )
+                p.start()
+                processes.append( p )
+
+            # MPI BARRIER
+            [ p.join() for p in processes ]
+
+            for iProc in range( nProcs ):
+
+                iLo \
+                  = np.int64( np.float64( iProc     ) / np.float64( nProcs ) * nSS )
+                iHi \
+                  = np.int64( np.float64( iProc + 1 ) / np.float64( nProcs ) * nSS )
+
+                Data[iLo:iHi] = return_data[iProc]
+                Time[iLo:iHi] = return_time[iProc]
+
+        else:
+
+            loop( 0, nSS-1, Data, Time, 0, return_data, return_time )
+
+        for i in range( Gradient.shape[0] ):
+
+            Num = ( Data[i] - Data[i-1] ) / ( 0.5 * ( Data[i] + Data[i-1] ) )
+            Den = Time[i+1] - Time[i-1]
+
+            Gradient[i-1] = ( Num / Den ).max()
+
+        np.savetxt( dataFileName, np.vstack( (Time[:-1],Gradient) ) )
+
+        del plotfileBaseName, plotfileArray, \
+            Data, Gradient, Time
 
     Time, Data = np.loadtxt( dataFileName )
 
@@ -144,54 +146,36 @@ def PlotRelaxationVsTime \
 
 if __name__ == '__main__':
 
-#    nX = 128
-#    nX = 256
-#    nX = 384
-    nX = 512
+    nX = 460
 
     UseLogScale = True
 
-    ID = 'GR1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
+    ID = 'NR1D_M1.4_Rpns040_Rs180_Mdot0.3'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 
-#    Root = '/home/dunhamsj/AccretionShockData/'
-    Root = '/lump/data/accretionShockStudy/'
+    Root = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/'
 
-    plotFileDirectory = Root + ID + '/'
+    plotfileDirectory = Root + ID + '/'
 
     D = 'PF_D'
-    Time_D, Data_D = getData( plotFileDirectory, ID, D, nX, False, True )
+    Time, Data = getData( plotfileDirectory, ID, D, nX, False, True )
 
-    V = 'PF_V1'
-    Time_V, Data_V = getData( plotFileDirectory, ID, V, nX, False, True )
+    ind = np.where( Time >= 0.0 )[0]
 
-    P = 'AF_P'
-    Time_P, Data_P = getData( plotFileDirectory, ID, P, nX, False, True )
+    Time = np.copy( Time[ind] )
 
-    ind = np.where( Time_D >= 0.0 )[0]
-
-    Time_D = np.copy( Time_D[ind] )
-    Time_V = np.copy( Time_V[ind] )
-    Time_P = np.copy( Time_P[ind] )
-    Data_D = np.copy( Data_D[ind] )
-    Data_V = np.copy( Data_V[ind] )
-    Data_P = np.copy( Data_P[ind] )
-
-    fig, axs = plt.subplots( 3, 1 )
+    fig, ax = plt.subplots( 1, 1 )
 
     fig.suptitle( ID )
 
-    PlotRelaxationVsTime( axs[0], Time_D, Data_D, D, ID, UseLogScale )
-    PlotRelaxationVsTime( axs[1], Time_V, Data_V, V, ID, UseLogScale )
-    PlotRelaxationVsTime( axs[2], Time_P, Data_P, P, ID, UseLogScale )
+    PlotRelaxationVsTime( ax, Time, Data, D, ID, UseLogScale )
 
-    for i in range( axs.shape[0] ):
-        axs[i].grid()
+    ax.grid()
 
-#    plt.show()
+    plt.show()
 
-    plt.savefig( SaveFileAs, dpi = 300 )
+#    plt.savefig( SaveFileAs, dpi = 300 )
 
     plt.close()
 

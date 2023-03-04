@@ -7,10 +7,10 @@ from matplotlib import animation
 from UtilitiesModule import GetNorm, GetFileArray
 from MakeDataFile import MakeDataFile, ReadHeader
 
-ID = 'GR1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
+ID = 'GR1D_M2.0_Mdot0.3_Rs150.nX0640'
 
 plotFileDirectory = '/lump/data/accretionShockStudy/'
-plotFileDirectory += ID + '_nX0512/'
+plotFileDirectory += ID + '/'
 
 plotFileBaseName = ID + '.plt'
 

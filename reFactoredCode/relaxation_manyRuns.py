@@ -11,11 +11,11 @@ def PlotRelaxationVsTime \
 
 if __name__ == '__main__':
 
-    nX = [ 128, 256, 512, 640, 1024 ]
+    nX = [ 128, 256, 512, 1024 ]
 
     UseLogScale = True
 
-    ID = 'GR1D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1'
+    ID = 'GR1D_M2.8_Mdot0.3_Rs7.50e1_RPNS2.00e1'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 

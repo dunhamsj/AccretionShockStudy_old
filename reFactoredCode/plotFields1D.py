@@ -14,11 +14,11 @@ from UtilitiesModule import GetFileArray, GetData
 rootDirectory \
   = '/lump/data/accretionShockStudy/'
 
-ID = '1D_M2.8_Mdot0.3_Rs9.00e1_RPNS2.00e1'
+ID = '1D_M1.4_Mdot0.3_Rs180'
 
-field = 'PF_E'
+field = 'MachNumber'
 
-useLogScale = True
+useLogScale = False
 
 saveFigAs = 'fig.{:}.png'.format( ID )
 
@@ -30,17 +30,16 @@ verbose = True
 
 fig, ax  = plt.subplots( 1, 1, figsize = (12,8) )
 
-plotFileBaseNameGR = 'GR' + ID + '.plt'
-
-plotFileDirectoryGR = rootDirectory + 'GR' + ID + '_nX0512/'
-
-plotFileArrayGR = GetFileArray( plotFileDirectoryGR, plotFileBaseNameGR )
-plotFileGR      = plotFileDirectoryGR + plotFileArrayGR[0]
-
-time, dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-  = GetData( plotFileGR, field, verbose = verbose )
-
-ax.plot( X1, dataGR[:,0,0] )
+for m in [ '1.4', '2.0', '2.8' ]:
+    for rs in [ '120', '150', '180' ]:
+        ID = 'GR1D_M{:}_Mdot0.3_Rs{:}'.format( m, rs )
+        plotFileBaseNameGR = ID + '.plt'
+        plotFileDirectoryGR = rootDirectory + ID + '/'
+        plotFileArrayGR = GetFileArray( plotFileDirectoryGR, plotFileBaseNameGR )
+        plotFileGR      = plotFileDirectoryGR + plotFileArrayGR[0]
+        time, dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
+          = GetData( plotFileGR, field, verbose = verbose )
+        ax.plot( X1, dataGR[:,0,0] )
 
 ax.grid()
 
