@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
     UseLogScale = True
 
-    ID = 'NR1D_M1.4_Rpns040_Rs180_Mdot0.3'
+    ID = 'GR1D_M1.4_Rpns040_Rs180_Mdot0.3'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 
@@ -173,9 +173,9 @@ if __name__ == '__main__':
 
     ax.grid()
 
-    plt.show()
+#    plt.show()
 
-#    plt.savefig( SaveFileAs, dpi = 300 )
+    plt.savefig( SaveFileAs, dpi = 300 )
 
     plt.close()
 
