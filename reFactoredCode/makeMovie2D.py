@@ -25,16 +25,16 @@ ID = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
 
 # Directory containing AMReX plotfiles
 plotfileDirectory \
-  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/'
+  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format( ID )
 
 # plotfile base name (e.g., Advection2D.plt######## -> Advection2D.plt )
 plotfileBaseName = ID + '.plt'
 
 # Field to plot
-Field = 'PF_D'
+Field = 'PolytropicConstant'
 
 # Plot data in log10-scale?
-UseLogScale = Truu
+UseLogScale = True
 
 # Unit system of the data
 UsePhysicalUnits = True
@@ -43,10 +43,10 @@ UsePhysicalUnits = True
 CoordinateSystem = 'spherical'
 
 # Only use every <plotEvery> plotfile
-plotEvery = 1
+plotEvery = 10
 
 # Colormap
-cmap = 'jet'
+cmap = 'viridis'
 
 # First and last snapshots and number of snapshots to include in movie
 SSi = -1 # -1 -> SSi = 0
@@ -59,8 +59,8 @@ MaxLevel = -1 # -1 -> use all levels
 Verbose = True
 
 UseCustomLimits = False
-vmin = 0.0
-vmax = 2.0
+vmin = -1.0e0
+vmax = +1.0e0
 
 MovieRunTime = 10.0 # seconds
 
@@ -175,6 +175,12 @@ elif CoordinateSystem == 'cartesian':
       ( r'$x^{{2}}\ \left[\mathrm{{{:}}}\right]$'.format( X2Units ), \
         fontsize = 15 )
 
+#vmn = vmin
+#vmx = vmax
+#
+#vmin = min( vmn, -vmx )
+#vmax = max( vmx, -vmn )
+
 Norm = GetNorm( UseLogScale, Data, vmin = vmin, vmax = vmax )
 
 im = ax.pcolormesh( X1c, X2c, Data, \
@@ -185,7 +191,7 @@ im = ax.pcolormesh( X1c, X2c, Data, \
 time_text = ax.text( 0.4, 0.9, '', transform = ax.transAxes )
 
 cbar = fig.colorbar( im )
-cbar.set_label( Field + ' ' + DataUnits )
+cbar.set_label( Field + ' ' + r'$\mathrm{{{:}}}$'.format( DataUnits[1:-1] ) )
 
 def InitializeFrame():
 
@@ -200,20 +206,20 @@ def UpdateFrame(t):
     print( '    {:}/{:}'.format( t, nSS ) )
     Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(t)
 
-    # pcolormesh wants the corners of the elements
-    X1c, X2c = MapCenterToCorners( X1_C, X2_C, dX1, dX2 )
-
-    if CoordinateSystem == 'spherical':
-
-        X1c = np.copy( X1c[:,0] )
-        X2c = np.copy( X2c[0,:] )
-
-        X1c, X2c = np.meshgrid( X2c, X1c )
-
-    im = ax.pcolormesh( X1c, X2c, Data, \
-                        cmap = cmap, \
-                        norm = Norm, \
-                        shading = 'flat' )
+#    # pcolormesh wants the corners of the elements
+#    X1c, X2c = MapCenterToCorners( X1_C, X2_C, dX1, dX2 )
+#
+#    if CoordinateSystem == 'spherical':
+#
+#        X1c = np.copy( X1c[:,0] )
+#        X2c = np.copy( X2c[0,:] )
+#
+#        X1c, X2c = np.meshgrid( X2c, X1c )
+#
+#    im = ax.pcolormesh( X1c, X2c, Data, \
+#                        cmap = cmap, \
+#                        norm = Norm, \
+#                        shading = 'flat' )
 
     im.set_array( Data.flatten() )
     time_text.set_text( r'$t={:.3e}\ \left[\mathrm{{{:}}}\right]$' \

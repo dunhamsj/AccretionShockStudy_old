@@ -29,8 +29,8 @@ def ComputePowerInLegendreModes \
     if( not OW ): return
 
     plotFileArray \
-      = GetFileArray( plotFileDirectory, plotFileBaseName, \
-                      SSf = -1, nSS = -1 )
+      = GetFileArray( plotFileDirectory, plotFileBaseName )
+    plotFileArray = np.copy( plotFileArray[:-1] )
 
     nSS = plotFileArray.shape[0]
 
@@ -51,7 +51,7 @@ def ComputePowerInLegendreModes \
 
         if( verbose ):
             if( ( iSS + 1 ) % 10 == 0 ):
-                print( '  File {:}/{:}, t: {:} ms' \
+                print( '  File {:}/{:}, t: {:.6f} ms' \
                        .format( iSS + 1, nSS, time[iSS] ) )
 
         X1  *= 1.0e5
@@ -114,12 +114,21 @@ def ComputePowerInLegendreModes \
                               * (   np.sin( X2p ) * V2p \
                                   - np.sin( X2m ) * V2m )
 
+        elif( field == 'PolytropicConstant' ):
+
+            indX1 = np.where( ( X1 > fL * Rs ) & ( X1 < fU * Rs ) )[0]
+            indX2 = np.linspace( 0, nX[1]-1, nX[1], dtype = np.int64 )
+            indX3 = np.linspace( 0, nX[2]  , nX[2], dtype = np.int64 )
+
+            A = data[1]
+
         else:
 
-            print( 'Invalid choice of field: {:}'.format( Field ) )
+            print( 'Invalid choice of field: {:}'.format( field ) )
             print( 'Valid choices' )
             print( '-------------' )
             print( '  DivV2' )
+            print( '  PolytropicConstant' )
             exit( 'Exiting...' )
 
         Psi    = data[0]

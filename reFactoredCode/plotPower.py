@@ -8,10 +8,10 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR', 'GR' ], str )
+R    = np.array( [ 'NR', 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '150' ], str )
+Rs   = np.array( [ '180' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -65,7 +65,7 @@ for r in range( R.shape[0] ):
                      ( R[r], M[m], Rs[rs], Mdot[mdot] )
 
                 plotFileDirectory \
-                  = '/lump/data/accretionShockStudy/newRuns/{:}/'.format \
+                  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format \
                     ( ID[r,m,mdot,rs] )
 
                 if not isdir( plotFileDirectory ):
@@ -153,8 +153,12 @@ for m in range( M.shape[0] ):
 
         tau = T_SASI[0,m,mdot,rs]
 
-        ax.plot( t_NR[:-1]/tau , P1_NR[:-1], 'r-', label = 'NR' )
-        ax.plot( t_GR[:-1]/tau , P1_GR[:-1], 'k-', label = 'GR' )
+        ind = np.where( ( t_NR < 150000.0 ) & ( t_NR >= 0.0 ) )[0]
+
+        ax.plot( t_NR[ind]/tau, P1_NR[ind], 'r-', label = 'NR' )
+#        ax.plot( t_GR[ind]/tau, P1_GR[ind], 'k-', label = 'GR' )
+        #ax.plot( t_NR[:-1]/tau , P1_NR[:-1], 'r-', label = 'NR' )
+        #ax.plot( t_GR[:-1]/tau , P1_GR[:-1], 'k-', label = 'GR' )
 #        ax.plot( tF_NR, np.exp( F_NR ) )
 #        ax.plot( tF_GR, np.exp( F_GR ) )
 
@@ -182,8 +186,8 @@ fig.supxlabel( r'$t/T_{\mathrm{SASI,GR}}$' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode_NRvsGR.png', dpi = 300 )
-plt.show()
+plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+#plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )

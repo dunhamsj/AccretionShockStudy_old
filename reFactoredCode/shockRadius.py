@@ -9,16 +9,17 @@ from UtilitiesModule import Overwrite, GetData, GetFileArray
 
 yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 
-def MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold ):
+def MakeLineOutPlot( plotfileDirectory, plotfileBaseName, entropyThreshold ):
 
-    plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
+    plotfileArray = GetFileArray( plotfileDirectory, plotfileBaseName )
 
-    plotFile = plotFileDirectory + plotFileArray[0]
-    time, data, dmy1, r, dmy3, dmy4, dmy5, dmy6, dmy7, dmy8 \
-      = GetData( plotFile, 'PolytropicConstant' )
+    data, DataUnit, r, X2_C, X3_C, dX1, dX2, dX3, xL, xH, nX, time \
+      = GetData( plotfileDirectory, plotfileBaseName, 'PolytropicConstant', \
+                 'spherical', True, \
+                 ReturnTime = True, ReturnMesh = True, Verbose = True )
 
     fig, ax = plt.subplots()
-    ax.semilogy( r, data[:,0,0], 'k-' )
+    ax.semilogy( r[:,0,0], data[:,0,0], 'k-' )
     ax.text( 0.5, 0.7, 'Time = {:.3e}'.format( time ), \
              transform = ax.transAxes )
     ax.axhline( entropyThreshold, label = 'Shock radius cut-off' )
@@ -32,7 +33,7 @@ def MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold ):
 
 
 def MakeDataFile \
-      ( plotFileDirectory, plotFileBaseName, dataFileName, \
+      ( plotfileDirectory, plotfileBaseName, dataFileName, \
         entropyThreshold, markEvery = 1, forceChoice = False, OW = True ):
 
     OW = Overwrite( dataFileName, ForceChoice = forceChoice, OW = OW )
@@ -42,16 +43,16 @@ def MakeDataFile \
     print( '\n  Creating {:}'.format( dataFileName ) )
     print(   '  --------' )
 
-    plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
+    plotfileArray = GetFileArray( plotfileDirectory, plotfileBaseName )
 
-    plotFileArray = plotFileArray[0::markEvery]
+    plotfileArray = plotfileArray[0::markEvery]
 
-    # Just to get number of elements
-    plotFile = plotFileDirectory + plotFileArray[0]
-    dmy0, dmy1, dmy2, dmy3, dmy4, dmy5, dmy6, dmy7, dmy8, nX \
-      = GetData( plotFile, 'PolytropicConstant' )
+    data, DataUnit, r, X2_C, X3_C, dX1, dX2, dX3, xL, xH, nX, time \
+      = GetData( plotfileDirectory, plotfileBaseName, 'PolytropicConstant', \
+                 'spherical', True, \
+                 ReturnTime = True, ReturnMesh = True, Verbose = False )
 
-    nSS = plotFileArray.shape[0]
+    nSS = plotfileArray.shape[0]
 
     Data = np.empty( (nSS,nX[0],nX[1],nX[2]), np.float64 )
 
@@ -65,10 +66,18 @@ def MakeDataFile \
 
         print( '    {:}/{:}'.format( i,nSS) )
 
-        plotFile = plotFileDirectory + plotFileArray[i]
+        plotfile = plotfileDirectory + plotfileArray[i]
 
-        Time[i], Data[i], dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-          = GetData( plotFile, 'PolytropicConstant' )
+        Data[i], dataUnits, X1, X2, X3, dX1, dX2, dX3, xL, xH, nX, Time[i] \
+          = GetData( plotfileDirectory, plotfileBaseName, \
+                     'PolytropicConstant', \
+                     'spherical', True, argv = ['a',plotfile[-8:]], \
+                     ReturnTime = True, ReturnMesh = True, Verbose = False )
+
+        X1 = np.copy( X1[:,0,0] )
+        X2 = np.copy( X2[0,:,0] )
+        dX1 = np.copy( dX1[:,0,0] )
+        dX2 = np.copy( dX2[0,:,0] )
 
         ind = np.where( Data[i] < entropyThreshold )[0]
         RsMin[i] = X1[ind.min()]
@@ -115,38 +124,40 @@ def MakeDataFile \
 if __name__ == "__main__":
 
     #rootDirectory = '/lump/data/accretionShockStudy/'
-    rootDirectory = '/lump/data/accretionShockStudy/'
+    rootDirectory = '/lump/data/accretionShockStudy/newRuns/'
 
-    rel  = [ 'GR' ]
-    M    = [ '2.8' ]
+    rel  = [ 'NR' ]
+    M    = [ '1.4' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '7.50e1' ]
-    nX   = [ '0128', '0256', '0512', '1024' ]
+    Rs   = [ '150' ]
+    nX   = [ '640' ]
 
     fig, ax = plt.subplots( 1, 1 )
 
-    IDD = 'GR1D_M2.8_Mdot0.3_Rs7.50e1_RPNS2.00e1'
-    ax.set_title( IDD )
+    ID = 'NR2D_M1.4_Rpns040_Rs150_Mdot0.3'
+    ax.set_title( ID )
 
     for nx in nX:
 
-        ID = IDD + '.nX{:}'.format( nx )
-        plotFileDirectory = rootDirectory + ID + '/'
-        plotFileBaseName = ID + '.plt'
+#        ID = IDD + '.nX{:}'.format( nx )
+        plotfileDirectory = rootDirectory + ID + '/'
+        plotfileBaseName = ID + '.plt'
         entropyThreshold = 1.0e15
 
-        #MakeLineOutPlot( plotFileDirectory, plotFileBaseName, entropyThreshold )
+#        MakeLineOutPlot \
+#          ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
         dataFileName = '{:}_ShockRadiusVsTime.dat'.format( ID )
         forceChoice = False
         OW = False
         MakeDataFile \
-          ( plotFileDirectory, plotFileBaseName, dataFileName, \
-            entropyThreshold, markEvery = 1, forceChoice = forceChoice, OW = OW )
+          ( plotfileDirectory, plotfileBaseName, dataFileName, \
+            entropyThreshold, markEvery = 10, forceChoice = forceChoice, \
+            OW = OW )
 
         Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
 
-        dr = ( 1.00e2 - 2.00e1 ) / np.float64( nx )
+        dr = ( 3.60e2 - 4.00e1 ) / np.float64( nx )
 
         lab = 'dr = {:.2f} km'.format( dr )
         ax.plot( Time, ( RsAve - RsAve[0] ) / RsAve[0], label = lab )

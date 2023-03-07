@@ -14,10 +14,10 @@ Rs   = np.array( [ '6.00e1', '7.50e1', '9.00e1' ], str )
 R    = np.array( [ 'NR' ], str )
 Rs   = np.array( [ '7.50e1'], str )
 
-R    = np.array( [ 'NR', 'GR' ], str )
+R    = np.array( [ 'NR', 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '150' ], str )
+Rs   = np.array( [ '180' ], str )
 
 for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
@@ -31,7 +31,7 @@ for r in range( R.shape[0] ):
                      ( R[r], M[m], Rs[rs], Mdot[mdot] )
 
                 plotFileDirectory \
-                  = '/lump/data/accretionShockStudy/newRuns/{:}/'.format( ID )
+                  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format( ID )
 
                 if not isdir( plotFileDirectory ):
                     print( '{:} does not exist. Skipping.' \

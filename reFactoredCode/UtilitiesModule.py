@@ -158,14 +158,15 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
     # https://yt-project.org/doc/faq/index.html#how-can-i-change-yt-s-log-level
     yt.funcs.mylog.setLevel(40) # Suppress yt warnings
 
+    print( DataDirectory )
     FileArray = GetFileArray( DataDirectory, PlotFileBaseName, \
                               SSi = SSi, SSf = SSf, nSS = nSS )
+    FileArray = np.copy( FileArray[:-1] )
 
     File = ChoosePlotFile( FileArray, PlotFileBaseName, argv = argv, \
                            Verbose = Verbose )
 
     ds = yt.load( '{:}'.format( DataDirectory + File ) )
-
     if MaxLevel == -1: MaxLevel = ds.index.max_level
     Time = ds.current_time.to_ndarray()
     nX   = ds.domain_dimensions
@@ -363,6 +364,46 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         DataUnits = ''
 
     # --- Derived Fields ---
+
+    elif Field == 'DivV2':
+
+        Data = np.empty( nX, np.float64 )
+
+        # --- Sheck et al., (2008), A&A, 477, 931 ---
+
+        PF_V2 = np.copy( CoveringGrid['PF_V2'].to_ndarray() )
+
+        indX1 = np.linspace( 0, nX[0]-1, nX[0], dtype = np.int64 )
+        indX2 = np.linspace( 0, nX[1]-1, nX[1], dtype = np.int64 )
+        indX3 = np.linspace( 0, nX[2]  , nX[2], dtype = np.int64 )
+
+        for i in indX1:
+            for j in indX2:
+                for k in indX3:
+
+                    # Reflecting boundary conditions in theta
+                    if  ( j == 0 ):
+                        X2m = X2[i,j  ,k]
+                        X2p = X2[i,j+1,k]
+                        V2m = -PF_V2[i,j  ,k]
+                        V2p = +PF_V2[i,j+1,k]
+                    elif( j == nX[1]-1 ):
+                        X2m = X2[i,j-1,k]
+                        X2p = X2[i,j  ,k]
+                        V2m = +PF_V2[i,j-1,k]
+                        V2p = -PF_V2[i,j  ,k]
+                    else:
+                        X2m = X2[i,j-1,k]
+                        X2p = X2[i,j+1,k]
+                        V2m = PF_V2[i,j-1,k]
+                        V2p = PF_V2[i,j+1,k]
+
+                    Data[i,j,k] \
+                      = 1.0 / ( 2.0 * dX2[i,j,k] * np.sin( X2[i,j,k] ) ) \
+                          * (   np.sin( X2p ) * V2p \
+                              - np.sin( X2m ) * V2m )
+
+        DataUnits = '1/s^2'
 
     elif Field == 'alphaE':
 
@@ -656,6 +697,7 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         print( '  GF_Alpha' )
         print( '  GF_Beta1' )
         print( '  DF_TCI' )
+        print( '  DivV2' )
         print( '  alphaE' )
         print( '  pr4' )
         print( '  RelativisticBernoulliConstant' )

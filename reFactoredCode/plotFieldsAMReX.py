@@ -24,28 +24,27 @@ Alernate usage, plot specific file in PlotfileDirectory:
 #### ========== User Input ==========
 
 # Specify name of problem
-ProblemName = 'AdiabaticCollapse_XCFC'
+ProblemName = 'NR1D_M1.4_Rpns040_Rs180_Mdot0.3'
 
 # Specify title of figure
 FigTitle = ProblemName
 
 # Specify directory containing amrex Plotfiles
-#PlotfileDirectory = 'thornado/SandBox/AMReX/'
 PlotfileDirectory \
-  = '/home/kkadoogan/Work/Codes/\
-thornado/SandBox/AMReX/Applications/AdiabaticCollapse_XCFC/'
-#thornado/SandBox/AMReX/Euler_Relativistic_IDEAL_MR/'
+  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/' \
+    .format( ProblemName )
+  #= '/lump/data/accretionShockStudy/newRuns/{:}/' \
 
 # Specify plot file base name
 PlotfileBaseName = ProblemName + '.plt'
 
 # Specify field to plot
-Field = 'PF_D'
+Field = 'AF_P'
 
 # Specify to plot in log-scale
-UseLogScale_X  = True
+UseLogScale_X  = False
 UseLogScale_Y  = True
-UseLogScale_2D = False
+UseLogScale_2D = True
 
 # Specify whether or not to use physical units
 UsePhysicalUnits = True
@@ -94,11 +93,19 @@ if UsePhysicalUnits:
         X1Units = 'km'
         X2Units = 'rad'
 
+Data0, DataUnit, X1_C, X2_C, X3_C, dX1, dX2, dX3, xL, xH, nX, Time \
+  = GetData( PlotfileDirectory, PlotfileBaseName, Field, \
+             CoordinateSystem, UsePhysicalUnits, argv = ['a','0'], \
+             MaxLevel = MaxLevel, \
+             ReturnTime = True, ReturnMesh = True, Verbose = True )
+
 Data, DataUnit, X1_C, X2_C, X3_C, dX1, dX2, dX3, xL, xH, nX, Time \
   = GetData( PlotfileDirectory, PlotfileBaseName, Field, \
              CoordinateSystem, UsePhysicalUnits, argv = argv, \
              MaxLevel = MaxLevel, \
              ReturnTime = True, ReturnMesh = True, Verbose = True )
+
+Data = ( Data0 - Data ) / Data
 
 nDims = 1
 if nX[1] > 1: nDims += 1

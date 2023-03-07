@@ -72,12 +72,21 @@ def ReadFields( plotFile, field, verbose = False ):
 
     time = np.float64( ds.current_time )
 
+    data = np.empty( (2,nX[0],nX[1],nX[2]), np.float64 )
+
+    data[0] = np.copy( coveringGrid['GF_Psi'].to_ndarray() )
+
     if( field == 'DivV2' ):
 
-        data = np.empty( (2,nX[0],nX[1],nX[2]), np.float64 )
+        data[1] = np.copy( coveringGrid['PF_V2'].to_ndarray() )
 
-        data[0] = coveringGrid['GF_Psi'].to_ndarray()
-        data[1] = coveringGrid['PF_V2' ].to_ndarray()
+    elif( field == 'PolytropicConstant' ):
+
+        p     = np.copy( coveringGrid['AF_P' ].to_ndarray() )
+        rho   = np.copy( coveringGrid['PF_D' ].to_ndarray() )
+        Gamma = np.copy( coveringGrid['AF_Gm'].to_ndarray() )
+
+        data[1] = np.log( p / rho**Gamma )
 
     else:
 
@@ -87,10 +96,11 @@ def ReadFields( plotFile, field, verbose = False ):
         print( 'Valid choices' )
         print( '-------------' )
         print( '  DivV2' )
+        print( '  PolytropicConstant' )
         exit( 'Exiting...' )
 
-    xL = ds.domain_left_edge .to_ndarray()
-    xH = ds.domain_right_edge.to_ndarray()
+    xL = np.copy( ds.domain_left_edge .to_ndarray() )
+    xH = np.copy( ds.domain_right_edge.to_ndarray() )
 
     dX1 = ( xH[0] - xL[0] ) / np.float64( nX[0] ) * np.ones( nX[0], np.float64 )
     dX2 = ( xH[1] - xL[1] ) / np.float64( nX[1] ) * np.ones( nX[1], np.float64 )
@@ -109,7 +119,7 @@ def ReadFields( plotFile, field, verbose = False ):
         X2 [0] = np.pi / 2.0
 
     # yt has memory leakage issues
-    del ds
+    del ds, coveringGrid
     collect()
 
     return time, data, X1, X2, X3, dX1, dX2, dX3, nX
