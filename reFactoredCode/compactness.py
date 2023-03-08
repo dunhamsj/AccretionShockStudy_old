@@ -115,8 +115,8 @@ for r in range( R.shape[0] ):
 #                 label = r'$m={:.2f}$'.format( popt[0] ) )
 
 ax.legend( loc = (0.1,0.1) )
-ax.set_xlabel( r'$\xi:=M/M_{\odot}/\left(R/10\,\mathrm{km}\right)$' )
+ax.set_xlabel( r'$\xi:=M/M_{\odot}/\left(R_{\mathrm{PNS}}/10\,\mathrm{km}\right)$' )
 ax.set_ylabel( r'$\omega_{\mathrm{GR}}-\omega_{\mathrm{NR}}\ \left[\mathrm{ms}^{-1}\right]$' )
 
-#plt.show()
-plt.savefig( '/home/kkadoogan/fig.Compactness_AllRuns.png', dpi = 300 )
+plt.show()
+#plt.savefig( '/home/kkadoogan/fig.Compactness_AllRuns.png', dpi = 300 )

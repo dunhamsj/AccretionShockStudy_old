@@ -11,7 +11,7 @@ from computeTimeScales import ComputeTimeScales
 R    = np.array( [ 'NR', 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '180' ], str )
+Rs   = np.array( [ '150', '180' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -186,8 +186,8 @@ fig.supxlabel( r'$t/T_{\mathrm{SASI,GR}}$' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-#plt.show()
+#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )

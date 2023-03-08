@@ -4,6 +4,7 @@ import yt
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+plt.style.use( 'publication.sty' )
 
 from UtilitiesModule import Overwrite, GetData, GetFileArray
 
@@ -15,14 +16,14 @@ def MakeLineOutPlot( plotfileDirectory, plotfileBaseName, entropyThreshold ):
 
     data, DataUnit, r, X2_C, X3_C, dX1, dX2, dX3, xL, xH, nX, time \
       = GetData( plotfileDirectory, plotfileBaseName, 'PolytropicConstant', \
-                 'spherical', True, \
+                 'spherical', True, argv = ['a','0'], \
                  ReturnTime = True, ReturnMesh = True, Verbose = True )
 
-    fig, ax = plt.subplots()
-    ax.semilogy( r[:,0,0], data[:,0,0], 'k-' )
-    ax.text( 0.5, 0.7, 'Time = {:.3e}'.format( time ), \
-             transform = ax.transAxes )
-    ax.axhline( entropyThreshold, label = 'Shock radius cut-off' )
+    fig2, ax2 = plt.subplots()
+    ax2.semilogy( r[:,0,0], data[:,0,0], 'k-' )
+    ax2.text( 0.5, 0.7, 'Time = {:.3e}'.format( time ), \
+              transform = ax2.transAxes )
+    ax2.axhline( entropyThreshold, label = 'Shock radius cut-off' )
 
     plt.legend()
 #    plt.savefig( 'entropyThresholdCheck.png', dpi = 300 )
@@ -40,6 +41,7 @@ def MakeDataFile \
 
     if not OW: return
 
+    print( '\n plotfileDirectory: ', plotfileDirectory )
     print( '\n  Creating {:}'.format( dataFileName ) )
     print(   '  --------' )
 
@@ -124,30 +126,38 @@ def MakeDataFile \
 if __name__ == "__main__":
 
     #rootDirectory = '/lump/data/accretionShockStudy/'
-    rootDirectory = '/lump/data/accretionShockStudy/newRuns/'
+    rootDirectory = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/'
 
     rel  = [ 'NR' ]
     M    = [ '1.4' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '150' ]
-    nX   = [ '640' ]
+    Rs   = [ '120' ]
+    nX   = [ '280' ]
+    xL   = [ 4.00e1 ]
+    xH   = [ 1.80e2 ]
 
     fig, ax = plt.subplots( 1, 1 )
 
-    ID = 'NR2D_M1.4_Rpns040_Rs150_Mdot0.3'
+    ID = 'NR1D_M1.4_Rpns040'
     ax.set_title( ID )
 
-    for nx in nX:
+    # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
+    color = ['#377eb8', '#ff7f00', '#4daf4a', \
+             '#f781bf', '#a65628', '#984ea3', \
+             '#999999', '#e41a1c', '#dede00']
 
-#        ID = IDD + '.nX{:}'.format( nx )
-        plotfileDirectory = rootDirectory + ID + '/'
-        plotfileBaseName = ID + '.plt'
+    for i in range( len( Rs ) ):
+
+        IDD = ID + '_Rs{:}_Mdot0.3'.format( Rs[i] )
+
+        plotfileDirectory = rootDirectory + IDD + '/'
+        plotfileBaseName = IDD + '.plt'
         entropyThreshold = 1.0e15
 
-#        MakeLineOutPlot \
-#          ( plotfileDirectory, plotfileBaseName, entropyThreshold )
+        #MakeLineOutPlot \
+        #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
-        dataFileName = '{:}_ShockRadiusVsTime.dat'.format( ID )
+        dataFileName = '{:}_ShockRadiusVsTime.dat'.format( IDD )
         forceChoice = False
         OW = False
         MakeDataFile \
@@ -157,13 +167,25 @@ if __name__ == "__main__":
 
         Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
 
-        dr = ( 3.60e2 - 4.00e1 ) / np.float64( nx )
+        dr = ( xH[i] - xL[0] ) / np.float64( nX[i] )
+
+        ind = np.where( RsMax > 0.9 * xH[i] )[0]
+        if not len( ind ) == 0:
+            ind = np.copy( ind[0] )
+        else:
+            ind = -1
 
         lab = 'dr = {:.2f} km'.format( dr )
-        ax.plot( Time, ( RsAve - RsAve[0] ) / RsAve[0], label = lab )
+        ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
+                 c = color[i], ls = '-' , label = 'ave' )
+        #ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
+        #         c = color[i], ls = '--', label = 'min' )
+        #ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
+        #         c = color[i], ls = ':' , label = 'max' )
 
     ax.set_xlabel( 'Time [ms]' )
-    ax.set_ylabel( r'$\left(R_{s}\left(t\right)-R_{s}\left(0\right)\right)/R_{s}\left(0\right)$', labelpad = -0.1 )
+    ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \
+                   labelpad = +10.0 )
     ax.grid()
     ax.legend()
 

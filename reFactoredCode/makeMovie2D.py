@@ -21,7 +21,7 @@ Usage:
 #### ========== User Input ==========
 
 # ID to be used for naming purposes
-ID = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
+ID = 'NR2D_M1.4_Rpns040_Rs150_Mdot0.3'
 
 # Directory containing AMReX plotfiles
 plotfileDirectory \
