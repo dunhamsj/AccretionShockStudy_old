@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
     fig, ax = plt.subplots( 1, 1 )
 
-    ID = 'NR1D_M1.4_Rpns040'
+    ID = 'NR2D_M1.4_Rpns040'
     ax.set_title( ID )
 
     # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
@@ -174,14 +174,15 @@ if __name__ == "__main__":
             ind = np.copy( ind[0] )
         else:
             ind = -1
+        print( ind, Time[ind] )
 
         lab = 'dr = {:.2f} km'.format( dr )
         ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
                  c = color[i], ls = '-' , label = 'ave' )
-        #ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
-        #         c = color[i], ls = '--', label = 'min' )
-        #ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
-        #         c = color[i], ls = ':' , label = 'max' )
+        ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
+                 c = color[i], ls = '--', label = 'min' )
+        ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
+                 c = color[i], ls = ':' , label = 'max' )
 
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \

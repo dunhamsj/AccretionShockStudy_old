@@ -8,6 +8,8 @@ from os.path import isfile
 
 # Compute compactness
 
+usePeriods = True
+
 R0 = 10.0 # km
 
 M  = np.array( [ 1.4, 2.0, 2.8  ], np.float64 )
@@ -65,8 +67,16 @@ for r in range( R.shape[0] ):
             else:
                 model = model[0:4] + model[-6:]
 
-            G_NR = data_NR[3]
-            G_GR = data_GR[3]
+            if usePeriods:
+
+                G_NR = 2.0 * np.pi / data_NR[4]
+                G_GR = 2.0 * np.pi / data_GR[4]
+
+            else:
+
+              G_NR = data_NR[3]
+              G_GR = data_GR[3]
+
             y[m,rs] = G_GR - G_NR
 
 fig, ax = plt.subplots( 1, 1 )
@@ -80,7 +90,7 @@ alpha = np.linspace( 0.2, 1.0, M.shape[0] )
 s = [ '*', '.' ]
 for r in range( R.shape[0] ):
 
-#    if r == 0: continue
+    if r == 0: continue
 
     for rs in range( Rs.shape[0]-1, -1, -1 ):
 
@@ -114,9 +124,20 @@ for r in range( R.shape[0] ):
 #        ax.plot( xi[:,r], popt[0] * xi[:,r] + popt[1], color = color[rs%3], \
 #                 label = r'$m={:.2f}$'.format( popt[0] ) )
 
-ax.legend( loc = (0.1,0.1) )
+if usePeriods:
+    loc = (0.1,0.3)
+    ax.set_ylabel( r'$T_{\mathrm{GR}}-T_{\mathrm{NR}}\ \left[\mathrm{ms}\right]$' )
+else:
+    loc = (0.1,0.1)
+    ax.set_ylabel( r'$\omega_{\mathrm{GR}}-\omega_{\mathrm{NR}}\ \left[\mathrm{ms}^{-1}\right]$' )
+
+ax.legend( loc = loc )
+
 ax.set_xlabel( r'$\xi:=M/M_{\odot}/\left(R_{\mathrm{PNS}}/10\,\mathrm{km}\right)$' )
-ax.set_ylabel( r'$\omega_{\mathrm{GR}}-\omega_{\mathrm{NR}}\ \left[\mathrm{ms}^{-1}\right]$' )
 
 plt.show()
-#plt.savefig( '/home/kkadoogan/fig.Compactness_AllRuns.png', dpi = 300 )
+
+#if usePeriods:
+#    plt.savefig( '/home/kkadoogan/fig.Compactness_AllRuns_Period.png', dpi = 300 )
+#else:
+#    plt.savefig( '/home/kkadoogan/fig.Compactness_AllRuns_GrowthRate.png', dpi = 300 )

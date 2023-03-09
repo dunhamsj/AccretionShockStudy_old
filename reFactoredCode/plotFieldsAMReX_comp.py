@@ -32,7 +32,7 @@ FigTitle = ProblemName[0][0:17]
 
 # Specify directory containing amrex Plotfiles
 PlotfileDirectory \
-  = [ '/lump/data/accretionShockStudy/newRuns/{:}/' \
+  = [ '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/' \
       .format( ProblemName[0] ), \
       '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/' \
       .format( ProblemName[1] ) ]
@@ -41,11 +41,11 @@ PlotfileDirectory \
 PlotfileBaseName = [ ProblemName[0] + '.plt', ProblemName[1] + '.plt' ]
 
 # Specify field to plot
-Field = 'AF_P'
+Field = 'PF_V1'
 
 # Specify to plot in log-scale
 UseLogScale_X  = False
-UseLogScale_Y  = True
+UseLogScale_Y  = False
 UseLogScale_2D = True
 
 # Specify whether or not to use physical units
@@ -129,7 +129,7 @@ if nDims == 1:
     ax.set_xlabel \
       ( r'$x^{{1}}\ \left[\mathrm{{{:}}}\right]$'.format( X1Units ), \
         fontsize = 15 )
-    ax.set_ylabel( Field + ' ' + DataUnit0 )
+    ax.set_ylabel( Field + ' ' + r'$\mathrm{{{:}}}$'.format( DataUnit0 ) )
     ax.grid()
 
 elif nDims == 2:

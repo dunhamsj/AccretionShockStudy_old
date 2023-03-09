@@ -11,7 +11,7 @@ from computeTimeScales import ComputeTimeScales
 R    = np.array( [ 'NR', 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '150', '180' ], str )
+Rs   = np.array( [ '180' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -153,7 +153,7 @@ for m in range( M.shape[0] ):
 
         tau = T_SASI[0,m,mdot,rs]
 
-        ind = np.where( ( t_NR < 150000.0 ) & ( t_NR >= 0.0 ) )[0]
+        ind = np.where( ( t_NR < 210.0 ) & ( t_NR >= 0.0 ) )[0]
 
         ax.plot( t_NR[ind]/tau, P1_NR[ind], 'r-', label = 'NR' )
 #        ax.plot( t_GR[ind]/tau, P1_GR[ind], 'k-', label = 'GR' )
