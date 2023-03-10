@@ -3,214 +3,294 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
-from matplotlib.colors import LogNorm, SymLogNorm
+plt.style.use( 'publication.sty' )
 
-from UtilitiesModule import GetNorm, GetFileArray, GetFileArray_data, \
-        ComputeAngleAverage
+from UtilitiesModule import GetNorm, MapCenterToCorners
 from MakeDataFile import MakeDataFile, ReadHeader
 
-def MakeMovie2D( ID0, ID1, field0, field1, SSi = -1, SSf = -1, nSS = -1, \
-                 movieName = 'mov.TwoFields.mp4' ):
+"""
 
-    """
-    Generate a movie from data files created in MakeDataFile.py.
-    """
+Creates a directory with structure as laid out
+in MakeDataFile.py and makes a movie from it
 
-    ############# User input #############
+Usage:
+  $ python3 makeMovie2D.py
 
-    rootDirectory0 = '/lump/data/accretionShockStudy/'
-    rootDirectory1 = '/lump/data/accretionShockStudy/'
-    plotFileDirectory0 = rootDirectory0 + '{:}/'.format( ID0 )
-    plotFileDirectory1 = rootDirectory1 + '{:}/'.format( ID1 )
-    dataFileDirectory0 = '.{:}_{:}_MovieData2D/'.format( ID0, field0 )
-    dataFileDirectory1 = '.{:}_{:}_MovieData2D/'.format( ID1, field1 )
+"""
 
-    cmap0 = 'viridis' # Color scheme for movie
-    cmap1 = 'viridis' # Color scheme for movie
+#### ========== User Input ==========
 
-    useLogScale0 = True # Use log scale for field?
-    useLogScale1 = True # Use log scale for field?
+nPanels = 2
 
-    MovieRunTime = 10.0 # seconds
+ID                = np.empty( nPanels, object )
+plotfileDirectory = np.empty( nPanels, object )
+plotfileBaseName  = np.empty( nPanels, object )
+field             = np.empty( nPanels, object )
+cmap              = np.empty( nPanels, object )
+useCustomLimits   = np.empty( nPanels, bool )
+vmin              = np.empty( nPanels, np.float64 )
+vmax              = np.empty( nPanels, np.float64 )
+dataDirectory     = np.empty( nPanels, object )
+plotfileArray     = np.empty( nPanels, object )
+dataUnits         = np.empty( nPanels, object )
+time              = np.empty( nPanels, object )
+X1_C              = np.empty( nPanels, object )
+X2_C              = np.empty( nPanels, object )
+dX1               = np.empty( nPanels, object )
+dX2               = np.empty( nPanels, object )
+data              = np.empty( nPanels, object )
+x1L               = np.empty( nPanels, np.float64 )
+x1H               = np.empty( nPanels, np.float64 )
+x2L               = np.empty( nPanels, np.float64 )
+x2H               = np.empty( nPanels, np.float64 )
+X1c               = np.empty( nPanels, object )
+X2c               = np.empty( nPanels, object )
+norm              = np.empty( nPanels, object )
+im                = np.empty( nPanels, object )
+cbar              = np.empty( nPanels, object )
 
-    zAxisVertical = True # Orient z-axis
+# ID to be used for naming purposes
+ID[0] = 'NR2D_M1.4_Rpns040_Rs150_Mdot0.3'
+ID[1] = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
 
-    ############# End of user input #############
+title = 'NR2D_M1.4_Rpns040_Mdot0.3'
 
-    plotFileBaseName0 = ID0 + '.plt'
-    plotFileBaseName1 = ID1 + '.plt'
+# Directory containing AMReX plotfiles
+plotfileDirectory[0] = '/lump/data/accretionShockStudy/\
+newRuns/newProductionRuns/{:}/'.format( ID[0] )
+plotfileDirectory[1] = '/lump/data/accretionShockStudy/\
+newRuns/newProductionRuns/{:}/'.format( ID[1] )
 
-    ID0 = '{:}_{:}'.format( ID0, field0 )
-    ID1 = '{:}_{:}'.format( ID1, field1 )
+# plotfile base name (e.g., Advection2D.plt######## -> Advection2D.plt )
+for i in range( nPanels ):
+    plotfileBaseName[i] = ID[i] + '.plt'
 
-    MakeDataFile( field0, plotFileDirectory0, dataFileDirectory0, \
-                  plotFileBaseName0, \
-                  SSi = SSi, SSf = SSf, nSS = nSS, \
-                  verbose = True, \
-                  forceChoice = False, OW = True )
-    MakeDataFile( field1, plotFileDirectory1, dataFileDirectory1, \
-                  plotFileBaseName1, \
-                  SSi = SSi, SSf = SSf, nSS = nSS, \
-                  verbose = True, \
-                  forceChoice = False, OW = True )
+# Field to plot
+field[0] = 'PolytropicConstant'
+field[1] = 'PolytropicConstant'
 
-    # Get mesh
-    #plotFileArray0 = GetFileArray_data( dataFileDirectory0 )
-    plotFileArray0 = GetFileArray( plotFileDirectory0, plotFileBaseName0 )
-    dataFile0 = dataFileDirectory0 + '{:}'.format( plotFileArray0[0] ) + '.dat'
-    dataShape0, dataUnits0, Time0, X1_C0, X2_C0, X3_C0, dX10, dX20, dX30 \
-      = ReadHeader( dataFile0 )
+# Plot data in log10-scale?
+useLogScale = True
 
-    #plotFileArray1 = GetFileArray_data( dataFileDirectory1 )
-    plotFileArray1 = GetFileArray( plotFileDirectory1, plotFileBaseName1 )
-    dataFile1 = dataFileDirectory1 + '{:}'.format( plotFileArray1[0] ) + '.dat'
-    dataShape1, dataUnits1, Time1, X1_C1, X2_C1, X3_C1, dX11, dX21, dX31 \
-      = ReadHeader( dataFile1 )
+# Only use every <plotEvery> plotfile
+plotEvery = 10
 
-    nR0 = dX10.shape[0]
-    nT0 = dX20.shape[0]
-    nR1 = dX11.shape[0]
-    nT1 = dX21.shape[0]
+# Colormap
+cmap[0] = 'RdBu'
+cmap[1] = 'RdBu'
 
-    if( nSS < 0 ): nSS = min( plotFileArray0.shape[0], plotFileArray1.shape[0] )
+# First and last snapshots and number of snapshots to include in movie
+SSi = -1 # -1 -> SSi = 0
+SSf = -1 # -1 -> plotfileArray.shape[0] - 1
+nSS = -1 # -1 -> plotfileArray.shape[0]
 
-    fig      = plt.figure( figsize = (16,9) )
-    ax       = fig.add_subplot( 111, polar = True )
-    theta0, r0 = np.meshgrid( X2_C0, X1_C0 )
-    theta1, r1 = np.meshgrid( 2.0 * np.pi - X2_C1, X1_C1 )
+Verbose = True
 
-    uK0 = np.empty( (nSS,nR0), np.float64 )
-    uK1 = np.empty( (nSS,nR1), np.float64 )
+for i in range( nPanels ):
+    useCustomLimits[i] = True
+    vmin[i] = -1.0e-6
+    vmax[i] = +1.0e-6
 
-    nodalData0 = np.empty( (nSS,nR0,nT0), np.float64 )
-    time0      = np.empty( (nSS)        , np.float64 )
-    nodalData1 = np.empty( (nSS,nR1,nT1), np.float64 )
-    time1      = np.empty( (nSS)        , np.float64 )
+MovieRunTime = 10.0 # seconds
 
-    vmin0 = +np.inf
-    vmax0 = -np.inf
-    vmin1 = +np.inf
-    vmax1 = -np.inf
+#### ====== End of User Input =======
 
-    for j in range( nSS ):
+polar = True
 
-        dataFile0 = dataFileDirectory0 + plotFileArray0[j] + '.dat'
-        dataFile1 = dataFileDirectory1 + plotFileArray1[j] + '.dat'
+for i in range( nPanels ):
+    dataDirectory[i] = '.{:}/'.format( ID[i] )
 
-        dataShape0, dataUnits0, time0[j], \
-        X1_C0, X2_C0, X3_C0, dX10, dX20, dX30 \
-          = ReadHeader( dataFile0 )
-        dataShape1, dataUnits1, time1[j], \
-        X1_C1, X2_C1, X3_C1, dX11, dX21, dX31 \
-          = ReadHeader( dataFile1 )
+MovieName = 'mov.{:}_{:}_{:}_{:}.mp4' \
+            .format( ID[0], field[0], ID[1], field[1] )
 
-        data0 \
-          = np.loadtxt( dataFile0, dtype = np.float64 ).reshape( dataShape0 )
-        data1 \
-          = np.loadtxt( dataFile1, dtype = np.float64 ).reshape( dataShape1 )
+TimeUnits = 'ms'
+X1Units   = 'km'
+X2Units   = 'rad'
 
-        nodalData0[j] = data0
-        nodalData1[j] = data1
+nSSS = 100000
+for i in range( nPanels ):
+    plotfileArray[i] \
+      = MakeDataFile( field[i], plotfileDirectory[i], dataDirectory[i], \
+                      plotfileBaseName[i], 'spherical', \
+                      SSi = SSi, SSf = SSf, nSS = nSS, \
+                      UsePhysicalUnits = True, \
+                      MaxLevel = -1, Verbose = Verbose )
+    plotfileArray[i] = np.copy( plotfileArray[i][:-1] )
+    plotfileArray[i] = np.copy( plotfileArray[i][::plotEvery] )
 
-        nX0 = [ dX10.shape[0], dX20.shape[0], dX30.shape[0] ]
-        nX1 = [ dX11.shape[0], dX21.shape[0], dX31.shape[0] ]
-        uK0[j] = ComputeAngleAverage( data0, X2_C0, dX20, dX30, nX = nX0 )
-        uK1[j] = ComputeAngleAverage( data1, X2_C1, dX21, dX31, nX = nX1 )
+    nSSS = min( nSSS, plotfileArray[i].shape[0] )
 
-        vmin0 = min( vmin0, data0.min() )
-        vmax0 = max( vmax0, data0.max() )
-        vmin1 = min( vmin1, data1.min() )
-        vmax1 = max( vmax1, data1.max() )
+if nSS < 0:
+    nSS = nSSS
 
-    # END for j in range( nSS )
+# Ensure all arrays have same number of plotfiles
+for i in range( nPanels ):
+    plotfileArray[i] = np.copy( plotfileArray[i][0:nSS] )
 
-    def f0(t):
-        return nodalData0[t]
-    def f1(t):
-        return nodalData1[t]
+def f(t):
 
-    vmin = min( vmin0, vmin1 )
-    vmax = max( vmax0, vmax1 )
+    for i in range( nPanels ):
 
-    #va = abs( min( vmin, -vmax ) )
-    #vb = abs( max( vmax, -vmin ) )
+        fileDirectory = dataDirectory[i] + plotfileArray[i][t] + '/'
 
-    #print( vmin, vmax )
-    #vmax = +max( va, vb )
-    #vmin = -max( va, vb )
-    #print( vmin, vmax )
+        TimeFile = fileDirectory + '{:}.dat'.format( 'Time' )
+        X1File   = fileDirectory + '{:}.dat'.format( 'X1' )
+        X2File   = fileDirectory + '{:}.dat'.format( 'X2' )
+        dX1File  = fileDirectory + '{:}.dat'.format( 'dX1' )
+        dX2File  = fileDirectory + '{:}.dat'.format( 'dX2' )
+        DataFile = fileDirectory + '{:}.dat'.format( field[i] )
 
-    Norm0 = GetNorm( useLogScale0, f0(0), vmin = vmin0, vmax = vmax0, \
-                    linthresh = 1.0e1 )
-    Norm1 = GetNorm( useLogScale1, f1(0), vmin = vmin1, vmax = vmax1, \
-                    linthresh = 1.0e1 )
+        DataShape, dataUnits[i], MinVal, MaxVal = ReadHeader( DataFile )
 
-    # Taken from:
-    # https://brushingupscience.com/2016/06/21/
-    # matplotlib-animations-the-easy-way/
-    ax.grid( False )
-    cb0axes = fig.add_axes( [ 0.81,  0.1, 0.03, 0.8 ] )
-    cb1axes = fig.add_axes( [ 0.185, 0.1, 0.03, 0.8 ] )
+        time[i] = np.loadtxt( TimeFile )
+        X1_C[i] = np.loadtxt( X1File   ).reshape( np.int64( DataShape ) )
+        X2_C[i] = np.loadtxt( X2File   ).reshape( np.int64( DataShape ) )
+        dX1 [i] = np.loadtxt( dX1File  ).reshape( np.int64( DataShape ) )
+        dX2 [i] = np.loadtxt( dX2File  ).reshape( np.int64( DataShape ) )
+        data[i] = np.loadtxt( DataFile )
 
-    im0 = ax.pcolormesh( theta0, r0, f0(0), \
-                         cmap = cmap0, \
-                         norm = Norm0, \
-                         shading = 'nearest' )
-    cbar0 = fig.colorbar( im0, cax = cb0axes )
+    return np.copy( data ), dataUnits, X1_C, X2_C, dX1, dX2, np.copy( time )
 
-    im1 = ax.pcolormesh( theta1, r1, f1(0), \
-                         cmap = cmap1, \
-                         norm = Norm1, \
-                         shading = 'nearest' )
-    cbar1 = fig.colorbar( im1, cax = cb1axes )
+Data0, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(0)
+Data1, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(0)
 
-    # Limits on coordinate axes
+for i in range( nPanels ):
 
-    rmax = 100.0
-    ax.set_thetamin( 0.0 )
-    ax.set_thetamax( 360.0 )
-    ax.set_rmax( rmax )
-    ax.set_theta_direction( -1 )
+    x1L[i] = X1_C[i][0 ,0 ] - 0.5 * dX1[i][0 ,0 ]
+    x1H[i] = X1_C[i][-1,-1] + 0.5 * dX1[i][-1,-1]
+    x2L[i] = X2_C[i][0 ,0 ] - 0.5 * dX2[i][0 ,0 ]
+    x2H[i] = X2_C[i][-1,-1] + 0.5 * dX2[i][-1,-1]
 
-    if( zAxisVertical ):
-        ax.set_theta_zero_location( 'N' ) # z-axis vertical
-        time_text0 = ax.text( +0.25 * np.pi / 2.0, rmax * ( 1.0 + 0.1 ), '' )
-        time_text1 = ax.text( -0.25 * np.pi / 2.0, rmax * ( 1.0 + 0.1 ), '' )
+    if not useCustomLimits[i]:
+        vmin[i] = +np.inf
+        vmax[i] = -np.inf
+        for j in range( nSS ):
+            DataFile \
+              = dataDirectory[i] + plotfileArray[i][j] \
+                  + '/{:}.dat'.format( field[i] )
+            DataShape, DataUnits, MinVal, MaxVal = ReadHeader( DataFile )
+            vmin[i] = min( vmin[i], MinVal )
+            vmax[i] = max( vmax[i], MaxVal )
+
+fig = plt.figure()
+ax  = fig.add_subplot( 111, polar = polar )
+fig.suptitle( r'$\texttt{{{:}}}$'.format( title ) )
+
+for i in range( nPanels ):
+
+    X1c[i], X2c[i] = MapCenterToCorners( X1_C[i], X2_C[i], dX1[i], dX2[i] )
+
+    if i == 1:
+
+        X1c[i] = np.copy( X1c[i][:,0] )
+        X2c[i] = 2.0 * np.pi - np.copy( X2c[i][0,:] )
+
     else:
-        ax.set_theta_zero_location( 'W' ) # z-axis horizontal
-        time_text0 = ax.text( 0.9 * np.pi / 2.0, rmax * ( 1.0 + 0.3 ), '' )
-        time_text1 = ax.text( 0.3 * np.pi / 2.0, rmax * ( 1.0 + 0.3 ), '' )
 
-    import matplotlib.ticker as ticker
-    import matplotlib as mpl
+        X1c[i] = np.copy( X1c[i][:,0] )
+        X2c[i] = np.copy( X2c[i][0,:] )
 
-    def UpdateFrame(t):
-        im0.set_array( f0(t).flatten() )
-        im1.set_array( f1(t).flatten() )
-        time_text0.set_text( 'time = {:d} ms'.format( np.int64( time0[t] ) ) )
-        time_text1.set_text( 'time = {:d} ms'.format( np.int64( time1[t] ) ) )
-        return im0, im1, time_text0, time_text1
+    X1c[i], X2c[i] = np.meshgrid( X2c[i], X1c[i] )
 
-    # Call the animator
+ax.grid( False )
 
-    print( 'Making movie...' )
+ax.set_thetamin( 0.0 )
+ax.set_thetamax( 360.0 )
+ax.set_rmin( 0.0 )
+rmax  = 0.0
+for i in range( nPanels ):
+    rmax = max( x1H[i], rmax )
+ax.set_rmax( rmax )
 
-    fps = max( np.int64( nSS / MovieRunTime ), 1 )
+ax.set_theta_zero_location( 'N' ) # z-axis vertical
+ax.set_theta_direction( -1 )
 
-    anim \
-      = animation.FuncAnimation \
-          ( fig, UpdateFrame, frames = nSS, blit = True )
+if field[0] == field[1] and not useCustomLimits[0]:
 
-    anim.save( movieName, fps = fps )
-    plt.close()
+    vmn = np.min( vmin )
+    vmx = np.max( vmax )
 
-    import os
-    os.system( 'rm -rf __pycache__ ' )
+    mn = vmn
+    mx = vmx
 
-#field = 'LateralMomentumFluxInRadialDirectionGR'
-field = 'PolytropicConstant'
-ID1 = 'NR2D_M2.8_Mdot0.3_Rs6.00e1_RPNS2.00e1'
-ID2 = 'NR2D_M2.8_Mdot0.5_Rs6.00e1_RPNS2.00e1'
+    if( ( vmx >= 0.0 ) & ( vmn < 0.0 ) ):
 
-movieName = 'mov.TwoFields.mp4'
-MakeMovie2D( ID1, ID2, field, field, movieName = movieName )
+        mn = min( vmn, -vmx )
+        mx = max( vmx, -vmn )
+
+    for i in range( nPanels ):
+        vmin[i] = mn
+        vmax[i] = mx
+
+time_text = ax.set_title( '' )
+
+for i in range( nPanels ):
+    d = ( Data1[i] - Data0[i] ) / Data0[i] + 1.0e-17
+    d[0] -= 2.0e-17
+
+    norm[i] = GetNorm( useLogScale, d, vmin = vmin[i], vmax = vmax[i] )
+
+    im[i] = ax.pcolormesh( X1c[i], X2c[i], d, \
+                           cmap = cmap[i], \
+                           norm = norm[i], \
+                           shading = 'flat' )
+
+    if i == 0:
+        location = 'right'
+        labelpad = 0
+    else:
+        location = 'left'
+        labelpad = 0
+
+    cbar[i] = fig.colorbar( im[i], location = location )
+    cbar[i].set_label( r'$dK/K$' + ' {:}'.format( ID[i][-13:-8] ) )
+      #cbar[i].set_label \
+      #  ( field[i] + ' ' + r'$\mathrm{{{:}}}$' \
+      #                    .format( dataUnits[i][1:-1] ), labelpad = labelpad )
+
+def InitializeFrame():
+
+    ret = []
+    Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(0)
+    for i in range( nPanels ):
+        Data[i] = ( Data[i] - Data0[i] ) / Data0[i] + 1.0e-17
+        im[i].set_array( Data[i].flatten() )
+        ret.append( im[i] )
+
+    time_text.set_text('')
+    ret.append( time_text )
+
+    return ret
+
+def UpdateFrame(t):
+
+    print( '    {:}/{:}'.format( t, nSS ) )
+
+    ret = []
+    Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(t)
+    for i in range( nPanels ):
+        Data[i] = ( Data[i] - Data0[i] ) / Data0[i] + 1.0e-17
+        im[i].set_array( Data[i].flatten() )
+        ret.append( im[i] )
+
+    time_text.set_text( r'$t={:.3e}\ \left[\mathrm{{{:}}}\right]$' \
+                        .format( Time[i], TimeUnits ) )
+    ret.append( time_text )
+
+    return ret
+
+# Call the animator
+anim \
+  = animation.FuncAnimation \
+      ( fig, UpdateFrame, init_func = InitializeFrame, \
+        frames = nSS, blit = True)
+
+fps = max( 1, nSS // MovieRunTime )
+
+print( '\n  Making Movie' )
+print( '  ------------' )
+
+anim.save( MovieName, fps = fps, dpi = 300 )
+
+import os
+os.system( 'rm -rf __pycache__ ' )

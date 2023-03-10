@@ -31,7 +31,7 @@ plotfileDirectory \
 plotfileBaseName = ID + '.plt'
 
 # Field to plot
-Field = 'PolytropicConstant'
+Field = 'DivV2'
 
 # Plot data in log10-scale?
 UseLogScale = True
@@ -43,10 +43,10 @@ UsePhysicalUnits = True
 CoordinateSystem = 'spherical'
 
 # Only use every <plotEvery> plotfile
-plotEvery = 10
+plotEvery = 1
 
 # Colormap
-cmap = 'viridis'
+cmap = 'RdBu'
 
 # First and last snapshots and number of snapshots to include in movie
 SSi = -1 # -1 -> SSi = 0
@@ -175,11 +175,11 @@ elif CoordinateSystem == 'cartesian':
       ( r'$x^{{2}}\ \left[\mathrm{{{:}}}\right]$'.format( X2Units ), \
         fontsize = 15 )
 
-#vmn = vmin
-#vmx = vmax
-#
-#vmin = min( vmn, -vmx )
-#vmax = max( vmx, -vmn )
+vmn = vmin
+vmx = vmax
+
+vmin = min( vmn, -vmx )
+vmax = max( vmx, -vmn )
 
 Norm = GetNorm( UseLogScale, Data, vmin = vmin, vmax = vmax )
 
