@@ -122,17 +122,18 @@ axs[1].set_ylabel( \
 r'$\left(y\left(t\right)-y\left(0\right)+\widehat{F}_{y_{\textrm{off-grid}}}\right)/y\left(0\right)$', fontsize = 12 )
 fig.subplots_adjust( hspace = 0.0 )
 
-plt.show()
-#plt.savefig( '/home/kkadoogan/fig.IntegralOfAlphaEvsTime.png', dpi = 300 )
+#plt.show()
+plt.savefig( '/home/kkadoogan/fig.IntegralOfAlphaEvsTime.png', dpi = 300 )
 
 plt.close()
 
 fig, ax = plt.subplots( 1, 1 )
 fig .suptitle( r'$\texttt{{{:}}}$'.format( ID ) )
-ax.loglog( dr, Eend, 'o' )
+Eend = Eend / Eend.max()
+ax.plot( dr, Eend, 'o' )
 ax.set_title( r'$y:=\int_{V}\alpha\,E\,dV$' )
 ax.set_ylabel( \
-r'$\left(y\left(t=1000\right)-y\left(t=0\right)+\widehat{F}_{y_{\textrm{off-grid}}}\right)/y\left(t=0\right)$', fontsize = 12 )
+r'$\left(y\left(t=1000\,\mathrm{ms}\right)-y\left(t=0\right)+\widehat{F}_{y_{\textrm{off-grid}}}\right)/y\left(t=0\right)$', fontsize = 12 )
 ax.set_xlabel( r'$dr\ \left[\mathrm{km}\right]$' )
 def y( x, m, b ):
     return m * x + b
@@ -142,10 +143,14 @@ m = popt[0]
 b = popt[1]
 
 ax.plot( dr, m * dr + b, label = r'$m={:.2e}$'.format( m ) )
+
+#ax.plot( dr, dr )
+#ax.set_xscale( 'log' )
+#ax.set_yscale( 'log' )
 ax.legend()
 
-#plt.show()
-plt.savefig( '/home/kkadoogan/fig.ConvergenceRate.png', dpi = 300 )
+plt.show()
+#plt.savefig( '/home/kkadoogan/fig.ConvergenceRate.png', dpi = 300 )
 
 plt.close()
 

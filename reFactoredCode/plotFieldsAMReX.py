@@ -24,7 +24,7 @@ Alernate usage, plot specific file in PlotfileDirectory:
 #### ========== User Input ==========
 
 # Specify name of problem
-ProblemName = 'NR1D_M1.4_Rpns040_Rs180_Mdot0.3'
+ProblemName = 'GR2D_M1.4_Rpns040_Rs180_Mdot0.3'
 
 # Specify title of figure
 FigTitle = ProblemName
@@ -39,7 +39,7 @@ PlotfileDirectory \
 PlotfileBaseName = ProblemName + '.plt'
 
 # Specify field to plot
-Field = 'AF_P'
+Field = 'dV1dr'
 
 # Specify to plot in log-scale
 UseLogScale_X  = False
@@ -105,7 +105,7 @@ Data, DataUnit, X1_C, X2_C, X3_C, dX1, dX2, dX3, xL, xH, nX, Time \
              MaxLevel = MaxLevel, \
              ReturnTime = True, ReturnMesh = True, Verbose = True )
 
-Data = ( Data0 - Data ) / Data
+#Data = ( Data0 - Data ) / Data
 
 nDims = 1
 if nX[1] > 1: nDims += 1

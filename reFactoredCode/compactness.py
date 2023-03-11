@@ -52,9 +52,6 @@ for r in range( R.shape[0] ):
             else:
                 model = 'M{:.1f}_Mdot0.3_Rs{:d}'.format( M[m], Rs[rs] )
 
-            file = '{:}NR2D_{:}_Fit.dat' \
-                   .format( growthRateFileDirectory, model )
-
             data_NR \
               = np.loadtxt( '{:}NR2D_{:}_Fit.dat' \
                             .format( growthRateFileDirectory, model ) )
@@ -74,8 +71,8 @@ for r in range( R.shape[0] ):
 
             else:
 
-              G_NR = data_NR[3]
-              G_GR = data_GR[3]
+                G_NR = data_NR[3]
+                G_GR = data_GR[3]
 
             y[m,rs] = G_GR - G_NR
 
@@ -107,9 +104,6 @@ for r in range( R.shape[0] ):
             else:
                 model = 'M{:.1f}_Mdot0.3_Rs{:d}'.format( M[m], Rs[rs] )
 
-            file = '{:}NR2D_{:}_Fit.dat' \
-                   .format( growthRateFileDirectory, model )
-
             if rs < 3:
                 model = model[0:4] + '_Rs{:}_Rpns020' \
                         .format( str( Rs[rs] ).zfill( 3 ) )
@@ -135,9 +129,10 @@ ax.legend( loc = loc )
 
 ax.set_xlabel( r'$\xi:=M/M_{\odot}/\left(R_{\mathrm{PNS}}/10\,\mathrm{km}\right)$' )
 
-plt.show()
+ax.grid()
+#plt.show()
 
-#if usePeriods:
-#    plt.savefig( '/home/kkadoogan/fig.Compactness_AllRuns_Period.png', dpi = 300 )
-#else:
-#    plt.savefig( '/home/kkadoogan/fig.Compactness_AllRuns_GrowthRate.png', dpi = 300 )
+if usePeriods:
+    plt.savefig( '/home/kkadoogan/fig.Compactness_Suite01_Period.png', dpi = 300 )
+else:
+    plt.savefig( '/home/kkadoogan/fig.Compactness_AllRuns_GrowthRate.png', dpi = 300 )

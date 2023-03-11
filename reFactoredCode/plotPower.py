@@ -8,10 +8,10 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR', 'NR' ], str )
+R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '120', '150', '180' ], str )
+Rs   = np.array( [ '180' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -155,8 +155,8 @@ for m in range( M.shape[0] ):
 
         ind = np.where( ( t_NR < 710.0 ) & ( t_NR >= 0.0 ) )[0]
 
-        ax.plot( t_NR[ind]/tau, P1_NR[ind], '-', label = 'Rs{:}'.format(Rs[rs]) )
-#        ax.plot( t_GR[ind]/tau, P1_GR[ind], 'k-', label = 'GR' )
+        ax.plot( t_NR[ind]/tau, P1_NR[ind], 'r-', label = 'NR' )
+        ax.plot( t_GR[ind]/tau, P1_GR[ind], 'k-', label = 'GR' )
         #ax.plot( t_NR[:-1]/tau , P1_NR[:-1], 'r-', label = 'NR' )
         #ax.plot( t_GR[:-1]/tau , P1_GR[:-1], 'k-', label = 'GR' )
 #        ax.plot( tF_NR, np.exp( F_NR ) )
@@ -178,7 +178,7 @@ for m in range( M.shape[0] ):
 #ax.set_xticklabels( xticklabels )
 #ax.set_title( r'$\texttt{{M{:}_Rpns040_Rs{:}}}$'.format( M[0], Rs[0] ), \
 #              fontsize = 15 )
-ax.set_title( r'$\texttt{{NR2D_M{:}_Rpns040}}$'.format( M[0] ), \
+ax.set_title( r'$\texttt{{2D_M{:}_Rpns040}}$'.format( M[0] ), \
               fontsize = 15 )
 
 #ax.axvline( 150/T_SASI[0,0,0,0], label = r'$t=150\,\mathrm{ms}$' )

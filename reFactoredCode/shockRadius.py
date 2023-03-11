@@ -128,17 +128,17 @@ if __name__ == "__main__":
     #rootDirectory = '/lump/data/accretionShockStudy/'
     rootDirectory = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/'
 
-    rel  = [ 'NR' ]
+    rel  = [ 'GR' ]
     M    = [ '1.4' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '120' ]
-    nX   = [ '280' ]
+    Rs   = [ '150' ]
+    nX   = [ '370' ]
     xL   = [ 4.00e1 ]
-    xH   = [ 1.80e2 ]
+    xH   = [ 2.25e2 ]
 
     fig, ax = plt.subplots( 1, 1 )
 
-    ID = 'NR2D_M1.4_Rpns040'
+    ID = 'GR1D_M1.4_Rpns040'
     ax.set_title( ID )
 
     # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
@@ -179,10 +179,10 @@ if __name__ == "__main__":
         lab = 'dr = {:.2f} km'.format( dr )
         ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
                  c = color[i], ls = '-' , label = 'ave' )
-        ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
-                 c = color[i], ls = '--', label = 'min' )
-        ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
-                 c = color[i], ls = ':' , label = 'max' )
+        #ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
+        #         c = color[i], ls = '--', label = 'min' )
+        #ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
+        #         c = color[i], ls = ':' , label = 'max' )
 
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \
