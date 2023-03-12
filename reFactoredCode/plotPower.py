@@ -172,6 +172,7 @@ for m in range( M.shape[0] ):
         if( m < M.shape[0]-1 ): ax.set_xticklabels( '' )
         ax.grid()
 
+ax.set_xlim( 0, 1.0e2 )
 #xticks = np.linspace( 0, 12, 13, dtype = np.int64 )
 #xticklabels = [ str( i ) for i in xticks ]
 #ax.set_xticks( xticks )
@@ -188,8 +189,8 @@ fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-#plt.show()
+#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )
