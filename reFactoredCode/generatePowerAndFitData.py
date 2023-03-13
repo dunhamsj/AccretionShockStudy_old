@@ -31,7 +31,7 @@ for r in range( R.shape[0] ):
                      ( R[r], M[m], Rs[rs], Mdot[mdot] )
 
                 plotFileDirectory \
-                  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}_oldPert/'.format( ID )
+                  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}_PA1.0e-05/'.format( ID )
 
                 if not isdir( plotFileDirectory ):
                     print( '\n{:} does not exist. Skipping.\n' \
