@@ -204,13 +204,30 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
     xL = np.copy( xL.to_ndarray() )
     xH = np.copy( xH.to_ndarray() )
 
-    X1 = np.copy( CoveringGrid['X1_C'].to_ndarray() )
-    X2 = np.copy( CoveringGrid['X2_C'].to_ndarray() )
-    X3 = np.copy( CoveringGrid['X3_C'].to_ndarray() )
+    #X1 = np.copy( CoveringGrid['X1_C'].to_ndarray() )
+    #X2 = np.copy( CoveringGrid['X2_C'].to_ndarray() )
+    #X3 = np.copy( CoveringGrid['X3_C'].to_ndarray() )
 
-    dX1 = np.copy( CoveringGrid['dX1'].to_ndarray() )
-    dX2 = np.copy( CoveringGrid['dX2'].to_ndarray() )
-    dX3 = np.copy( CoveringGrid['dX3'].to_ndarray() )
+    #dX1 = np.copy( CoveringGrid['dX1'].to_ndarray() )
+    #dX2 = np.copy( CoveringGrid['dX2'].to_ndarray() )
+    #dX3 = np.copy( CoveringGrid['dX3'].to_ndarray() )
+
+    dX1 = np.empty( nX, np.float64 )
+    dX2 = np.empty( nX, np.float64 )
+    dX3 = np.empty( nX, np.float64 )
+    X1  = np.empty( nX, np.float64 )
+    X2  = np.empty( nX, np.float64 )
+    X3  = np.empty( nX, np.float64 )
+
+    for iX1 in range( nX[0] ):
+        for iX2 in range( nX[1] ):
+            for iX3 in range( nX[2] ):
+                dX1[iX1,iX2,iX3] = ( xH[0] - xL[0] ) / nX[0]
+                dX2[iX1,iX2,iX3] = ( xH[1] - xL[1] ) / nX[1]
+                dX3[iX1,iX2,iX3] = ( xH[2] - xL[2] ) / nX[2]
+                X1 [iX1,iX2,iX3] = xL[0] + ( 0.5 + iX1 ) * dX1[iX1,iX2,iX3]
+                X2 [iX1,iX2,iX3] = xL[1] + ( 0.5 + iX2 ) * dX2[iX1,iX2,iX3]
+                X3 [iX1,iX2,iX3] = xL[2] + ( 0.5 + iX3 ) * dX3[iX1,iX2,iX3]
 
     if   Field == 'MPIProcess':
 
@@ -758,7 +775,8 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         return Data, DataUnits
 
 
-def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100 ):
+def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100, \
+             linthresh = 1.0e-2 ):
 
     import matplotlib.pyplot as plt
     from matplotlib.colors import LogNorm, SymLogNorm
@@ -771,7 +789,7 @@ def GetNorm( UseLogScale, Data, vmin = +1.0e100, vmax = -1.0e100 ):
         if np.any( Data <= 0.0 ):
 
             Norm = SymLogNorm( vmin = vmin, vmax = vmax, \
-                               linthresh = 1.0e-2, base = 10 )
+                               linthresh = linthresh, base = 10 )
 
         else:
 

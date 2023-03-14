@@ -50,30 +50,32 @@ im                = np.empty( nPanels, object )
 cbar              = np.empty( nPanels, object )
 
 # ID to be used for naming purposes
-ID[0] = 'NR2D_M1.4_Rpns040_Rs150_Mdot0.3'
+ID[0] = 'NR2D_M1.4_Mdot0.3_Rs180'
 ID[1] = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
 
-title = 'NR2D_M1.4_Rpns040_Mdot0.3'
+title = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
 
 # Directory containing AMReX plotfiles
 plotfileDirectory[0] = '/lump/data/accretionShockStudy/\
-newRuns/newProductionRuns/{:}/'.format( ID[0] )
+{:}/'.format( ID[0] )
 plotfileDirectory[1] = '/lump/data/accretionShockStudy/\
-newRuns/newProductionRuns/{:}/'.format( ID[1] )
+newRuns/newProductionRuns/{:}_origPert/'.format( ID[1] )
 
 # plotfile base name (e.g., Advection2D.plt######## -> Advection2D.plt )
 for i in range( nPanels ):
     plotfileBaseName[i] = ID[i] + '.plt'
+    if i == 0:
+        plotfileBaseName[i] = ID[i] + '.plt_'
 
 # Field to plot
-field[0] = 'PolytropicConstant'
-field[1] = 'PolytropicConstant'
+field[0] = 'PF_V2'
+field[1] = 'PF_V2'
 
 # Plot data in log10-scale?
 useLogScale = True
 
 # Only use every <plotEvery> plotfile
-plotEvery = 10
+plotEvery = 1
 
 # Colormap
 cmap[0] = 'RdBu'
@@ -87,7 +89,7 @@ nSS = -1 # -1 -> plotfileArray.shape[0]
 Verbose = True
 
 for i in range( nPanels ):
-    useCustomLimits[i] = True
+    useCustomLimits[i] = False
     vmin[i] = -1.0e-6
     vmax[i] = +1.0e-6
 
@@ -113,10 +115,13 @@ for i in range( nPanels ):
       = MakeDataFile( field[i], plotfileDirectory[i], dataDirectory[i], \
                       plotfileBaseName[i], 'spherical', \
                       SSi = SSi, SSf = SSf, nSS = nSS, \
+                      forceChoiceD = False, owD = False, \
+                      forceChoiceF = False, owF = False, \
                       UsePhysicalUnits = True, \
                       MaxLevel = -1, Verbose = Verbose )
-    plotfileArray[i] = np.copy( plotfileArray[i][:-1] )
-    plotfileArray[i] = np.copy( plotfileArray[i][::plotEvery] )
+    if i == 1:
+        plotfileArray[i] = np.copy( plotfileArray[i][:-1] )
+        plotfileArray[i] = np.copy( plotfileArray[i][::4] )
 
     nSSS = min( nSSS, plotfileArray[i].shape[0] )
 
@@ -180,27 +185,14 @@ for i in range( nPanels ):
 
     X1c[i], X2c[i] = MapCenterToCorners( X1_C[i], X2_C[i], dX1[i], dX2[i] )
 
-    if i == 1:
+    X1c[i] = np.copy( X1c[i][:,0] )
+    X2c[i] = np.copy( X2c[i][0,:] )
 
-        X1c[i] = np.copy( X1c[i][:,0] )
-        X2c[i] = 2.0 * np.pi - np.copy( X2c[i][0,:] )
-
-    else:
-
-        X1c[i] = np.copy( X1c[i][:,0] )
-        X2c[i] = np.copy( X2c[i][0,:] )
+    if i == 1: X2c[i] = 2.0 * np.pi - np.copy( X2c[i] )
 
     X1c[i], X2c[i] = np.meshgrid( X2c[i], X1c[i] )
 
 ax.grid( False )
-
-ax.set_thetamin( 0.0 )
-ax.set_thetamax( 360.0 )
-ax.set_rmin( 0.0 )
-rmax  = 0.0
-for i in range( nPanels ):
-    rmax = max( x1H[i], rmax )
-ax.set_rmax( rmax )
 
 ax.set_theta_zero_location( 'N' ) # z-axis vertical
 ax.set_theta_direction( -1 )
@@ -222,11 +214,11 @@ if field[0] == field[1] and not useCustomLimits[0]:
         vmin[i] = mn
         vmax[i] = mx
 
-time_text = ax.set_title( '' )
 
 for i in range( nPanels ):
-    d = ( Data1[i] - Data0[i] ) / Data0[i] + 1.0e-17
-    d[0] -= 2.0e-17
+    d = Data0[i]
+#    d = ( Data1[i] - Data0[i] ) / Data0[i] + 1.0e-17
+#    d[0] -= 2.0e-17
 
     norm[i] = GetNorm( useLogScale, d, vmin = vmin[i], vmax = vmax[i] )
 
@@ -243,17 +235,25 @@ for i in range( nPanels ):
         labelpad = 0
 
     cbar[i] = fig.colorbar( im[i], location = location )
-    cbar[i].set_label( r'$dK/K$' + ' {:}'.format( ID[i][-13:-8] ) )
       #cbar[i].set_label \
       #  ( field[i] + ' ' + r'$\mathrm{{{:}}}$' \
       #                    .format( dataUnits[i][1:-1] ), labelpad = labelpad )
+
+cbar[0].set_label \
+  ( field[0] + ' '+r'$\mathrm{{{:}}}$'.format( dataUnits[0][1:-1] ) + '(Original)' )
+cbar[1].set_label \
+  ( field[1] + ' '+r'$\mathrm{{{:}}}$'.format( dataUnits[1][1:-1] ) + '(New)' )
+#cbar[0].set_label( r'$dK/K$' + ' (Original)' )
+#cbar[1].set_label( r'$dK/K$' + ' (New)' )
+
+time_text = ax.set_title( '' )
 
 def InitializeFrame():
 
     ret = []
     Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(0)
     for i in range( nPanels ):
-        Data[i] = ( Data[i] - Data0[i] ) / Data0[i] + 1.0e-17
+#        Data[i] = ( Data[i] - Data0[i] ) / Data0[i] + 1.0e-17
         im[i].set_array( Data[i].flatten() )
         ret.append( im[i] )
 
@@ -269,15 +269,23 @@ def UpdateFrame(t):
     ret = []
     Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(t)
     for i in range( nPanels ):
-        Data[i] = ( Data[i] - Data0[i] ) / Data0[i] + 1.0e-17
+#        Data[i] = ( Data[i] - Data0[i] ) / Data0[i] + 1.0e-17
         im[i].set_array( Data[i].flatten() )
         ret.append( im[i] )
 
     time_text.set_text( r'$t={:.3e}\ \left[\mathrm{{{:}}}\right]$' \
-                        .format( Time[i], TimeUnits ) )
+                        .format( Time[0], TimeUnits ) )
     ret.append( time_text )
 
     return ret
+
+ax.set_thetamin( 0.0 )
+ax.set_thetamax( 360.0 )
+ax.set_rmin( 0.0 )
+rmax  = 0.0
+for i in range( nPanels ):
+    rmax = max( x1H[i], rmax )
+ax.set_rmax( 200. )
 
 # Call the animator
 anim \

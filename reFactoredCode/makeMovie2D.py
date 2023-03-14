@@ -21,7 +21,7 @@ Usage:
 #### ========== User Input ==========
 
 # ID to be used for naming purposes
-ID = 'NR2D_M1.4_Rpns040_Rs150_Mdot0.3'
+ID = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
 
 # Directory containing AMReX plotfiles
 plotfileDirectory \
@@ -58,9 +58,9 @@ MaxLevel = -1 # -1 -> use all levels
 
 Verbose = True
 
-UseCustomLimits = False
-vmin = -1.0e0
-vmax = +1.0e0
+UseCustomLimits = True
+vmin = -1.0e-6
+vmax = +1.0e-6
 
 MovieRunTime = 10.0 # seconds
 
@@ -120,7 +120,7 @@ def f(t):
 
     return Data, DataUnits, X1_C, X2_C, dX1, dX2, Time
 
-Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(0)
+Data0, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(0)
 
 if nSS < 0: nSS = plotfileArray.shape[0]
 
@@ -175,15 +175,15 @@ elif CoordinateSystem == 'cartesian':
       ( r'$x^{{2}}\ \left[\mathrm{{{:}}}\right]$'.format( X2Units ), \
         fontsize = 15 )
 
-vmn = vmin
-vmx = vmax
+#vmn = vmin
+#vmx = vmax
+#
+#vmin = min( vmn, -vmx )
+#vmax = max( vmx, -vmn )
 
-vmin = min( vmn, -vmx )
-vmax = max( vmx, -vmn )
+Norm = GetNorm( UseLogScale, Data0, vmin = vmin, vmax = vmax )
 
-Norm = GetNorm( UseLogScale, Data, vmin = vmin, vmax = vmax )
-
-im = ax.pcolormesh( X1c, X2c, Data, \
+im = ax.pcolormesh( X1c, X2c, Data0, \
                     cmap = cmap, \
                     norm = Norm, \
                     shading = 'flat' )

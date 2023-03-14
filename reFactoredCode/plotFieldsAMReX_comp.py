@@ -24,24 +24,24 @@ Alernate usage, plot specific file in PlotfileDirectory:
 #### ========== User Input ==========
 
 # Specify name of problem
-ProblemName = [ 'NR1D_M1.4_Rpns040_Rs150_Mdot0.3', \
-                'NR1D_M1.4_Rpns040_Rs180_Mdot0.3' ]
+ProblemName = [ 'NR2D_M1.4_Mdot0.3_Rs180', \
+                'NR2D_M1.4_Rpns040_Rs180_Mdot0.3' ]
 
 # Specify title of figure
-FigTitle = ProblemName[0][0:17]
+FigTitle = ProblemName[1]
 
 # Specify directory containing amrex Plotfiles
 PlotfileDirectory \
-  = [ '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/' \
+  = [ '/lump/data/accretionShockStudy/{:}/' \
       .format( ProblemName[0] ), \
       '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/' \
       .format( ProblemName[1] ) ]
 
 # Specify plot file base name
-PlotfileBaseName = [ ProblemName[0] + '.plt', ProblemName[1] + '.plt' ]
+PlotfileBaseName = [ ProblemName[0] + '.plt_', ProblemName[1] + '.plt' ]
 
 # Specify field to plot
-Field = 'PF_V1'
+Field = 'PF_D'
 
 # Specify to plot in log-scale
 UseLogScale_X  = False
@@ -66,7 +66,7 @@ vmin = 0.0
 vmax = 2.0
 
 # Save figure (True) or plot figure (False)
-SaveFig = True
+SaveFig = False
 
 # Specify colormap (2D only)
 cmap = 'viridis'
@@ -86,7 +86,7 @@ Data00, DataUnit0, X1_C0, X2_C0, X3_C0, dX10, dX20, dX30, xL0, xH0, nX0, Time0 \
              ReturnTime = True, ReturnMesh = True, Verbose = True )
 Data0, DataUnit0, X1_C0, X2_C0, X3_C0, dX10, dX20, dX30, xL0, xH0, nX0, Time0 \
   = GetData( PlotfileDirectory[0], PlotfileBaseName[0], Field, \
-             CoordinateSystem, UsePhysicalUnits, argv = argv, \
+             CoordinateSystem, UsePhysicalUnits, argv = ['a','0'], \
              MaxLevel = MaxLevel, \
              ReturnTime = True, ReturnMesh = True, Verbose = True )
 #Data0 = ( Data00 - Data0 ) / Data0
@@ -98,7 +98,7 @@ Data10, DataUnit1, X1_C1, X2_C1, X3_C1, dX11, dX21, dX31, xL1, xH1, nX1, Time1 \
              ReturnTime = True, ReturnMesh = True, Verbose = True )
 Data1, DataUnit1, X1_C1, X2_C1, X3_C1, dX11, dX21, dX31, xL1, xH1, nX1, Time1 \
   = GetData( PlotfileDirectory[1], PlotfileBaseName[1], Field, \
-             CoordinateSystem, UsePhysicalUnits, argv = argv, \
+             CoordinateSystem, UsePhysicalUnits, argv = ['a','0'], \
              MaxLevel = MaxLevel, \
              ReturnTime = True, ReturnMesh = True, Verbose = True )
 #Data1 = ( Data10 - Data1 ) / Data1

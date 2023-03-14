@@ -8,7 +8,7 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR', 'NR', 'NR' ], str )
+R    = np.array( [ 'NR', 'NR', 'NR', 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
 Rs   = np.array( [ '180' ], str )
@@ -65,9 +65,10 @@ for r in range( R.shape[0] ):
                            .format( plotFileDirectory ) )
                     continue
 
-                plotFileBaseName = '{:}.plt'.format( ID[r,m,mdot,rs] )
                 if r == 0:
                     plotFileBaseName = '{:}.plt_'.format( ID[r,m,mdot,rs] )
+                else:
+                    plotFileBaseName = '{:}.plt'.format( ID[r,m,mdot,rs] )
 
                 rInner = 4.00e1
                 rOuter = np.float64( Rs[rs] )
@@ -78,14 +79,18 @@ for r in range( R.shape[0] ):
 
                 T_SASI[r,m,mdot,rs] = tAd + tAc
 
-                dataFileName \
-                  = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,m,mdot,rs] )
+                if r == 0:
+                    dataFileName \
+                      = '.{:}_LegendrePowerSpectrum_original.dat'.format( ID[r,m,mdot,rs] )
                 if r == 1:
                     dataFileName \
                       = '.{:}_LegendrePowerSpectrum_PA1.0e-05.dat'.format( ID[r,m,mdot,rs] )
                 if r == 2:
                     dataFileName \
                       = '.{:}_LegendrePowerSpectrum_oldPert.dat'.format( ID[r,m,mdot,rs] )
+                if r == 3:
+                    dataFileName \
+                      = '.{:}_LegendrePowerSpectrum_origPert.dat'.format( ID[r,m,mdot,rs] )
 
                 t [r,m,mdot,rs], \
                 P0[r,m,mdot,rs], \
@@ -113,7 +118,10 @@ fig, ax = plt.subplots( 1, 1 )#, figsize = (12,9) )
 
 mdot = 0
 
-lab = [ 'Original', 'PA1.0e-05', 'oldPerturbationMethod' ]
+lab = [ 'Original', \
+        r'$\Delta p/p=10^{{-5}}$', \
+        'Old Perturbation Method (xH = 270 km)', \
+        'Old Perturbation Method (xH = 360 km)' ]
 
 for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
