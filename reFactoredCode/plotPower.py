@@ -11,7 +11,7 @@ from computeTimeScales import ComputeTimeScales
 R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '180' ], str )
+Rs   = np.array( [ '150' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -151,41 +151,27 @@ for m in range( M.shape[0] ):
         #F_GR = FittingFunction \
         #         ( tF_GR - tF_GR[0], logF_GR, omegaR_GR, omegaI_GR, delta_GR )
 
-        tau = 1.0#T_SASI[0,m,mdot,rs]
+        tau = T_SASI[0,m,mdot,rs]
 
         ind = np.where( ( t_NR < 710.0 ) & ( t_NR >= 0.0 ) )[0]
 
         ax.plot( t_NR[ind]/tau, P1_NR[ind], 'r-', label = 'NR' )
         ax.plot( t_GR[ind]/tau, P1_GR[ind], 'k-', label = 'GR' )
-        #ax.plot( t_NR[:-1]/tau , P1_NR[:-1], 'r-', label = 'NR' )
-        #ax.plot( t_GR[:-1]/tau , P1_GR[:-1], 'k-', label = 'GR' )
-#        ax.plot( tF_NR, np.exp( F_NR ) )
-#        ax.plot( tF_GR, np.exp( F_GR ) )
 
-#        ax.text( 0.1, 0.8, r'$\texttt{{M{:}_Rpns040_Rs{:}}}$'.format( M[m], Rs[rs] ), \
-#                     transform = ax.transAxes, fontsize = 15 )
-
-#        ax.set_xlim( 0.0, 10.0 )
-        #ax.set_ylim( 1.0e10, 1.0e19)
-        ax.set_yscale( 'log' )
-
-        if( m < M.shape[0]-1 ): ax.set_xticklabels( '' )
-        ax.grid()
-
-ax.set_xlim( 0, 1.0e2 )
-#xticks = np.linspace( 0, 12, 13, dtype = np.int64 )
-#xticklabels = [ str( i ) for i in xticks ]
-#ax.set_xticks( xticks )
-#ax.set_xticklabels( xticklabels )
-#ax.set_title( r'$\texttt{{M{:}_Rpns040_Rs{:}}}$'.format( M[0], Rs[0] ), \
-#              fontsize = 15 )
-ax.set_title( r'$\texttt{{2D_M{:}_Rpns040}}$'.format( M[0] ), \
+ax.grid()
+ax.set_yscale( 'log' )
+ax.set_xlim( 0, 12 )
+xticks = np.linspace( 0, 12, 13, dtype = np.int64 )
+xticklabels = [ str( i ) for i in xticks ]
+ax.set_xticks( xticks )
+ax.set_xticklabels( xticklabels )
+ax.set_title( r'$\texttt{{2D_M{:}_Rpns040_Rs{:}}}$'.format( M[0], Rs[0] ), \
               fontsize = 15 )
 
 #ax.axvline( 150/T_SASI[0,0,0,0], label = r'$t=150\,\mathrm{ms}$' )
 ax.legend()
-#fig.supxlabel( r'$t/T_{\mathrm{SASI,GR}}$' )
-fig.supxlabel( 'Time [ms]' )
+fig.supxlabel( r'$t/T_{\mathrm{SASI,NR}}$' )
+#fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 

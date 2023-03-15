@@ -15,9 +15,9 @@ M    = np.array( [ '1.4', '2.0', '2.8' ], str )
 Rs   = np.array( [ '120', '150', '180' ], str )
 Rpns = np.array( [ 4.00e1 ], np.float64 )
 
-R    = np.array( [ 'NR' ], str )
+R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '2.8' ], str )
-Rs   = np.array( [ '180' ], str )
+Rs   = np.array( [ '120' ], str )
 Rpns = np.array( [ 4.00e1 ], np.float64 )
 
 arrShape = ( R.shape[0], M.shape[0], Rs.shape[0], Rpns.shape[0] )
@@ -74,7 +74,12 @@ for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
         for rs in range( Rs.shape[0] ):
             for rpns in range( Rpns.shape[0] ):
-                ax[0].plot( eta[r,m,rs,rpns], v[r,m,rs,rpns] )
-                ax[1].plot( eta[r,m,rs,rpns], dvdr[r,m,rs,rpns] )
-ax[1].set_xlabel( r'$\eta:=r/R_{\mathrm{S}}$' )
-plt.show()
+                ax[0].plot( eta[r,m,rs,rpns], v[r,m,rs,rpns], label = R[r] )
+                ax[1].plot( eta[r,m,rs,rpns], dvdr[r,m,rs,rpns], label = R[r] )
+ax[0].set_ylabel( 'v' )
+ax[1].set_ylabel( r'$dv/dr / ( abs(Vsh) / ( Rsh - Rpns ) )$' )
+fig.suptitle( 'M2.8_Rpns040_Rs120' )
+ax[1].set_xlabel( r'$\eta:=\left(r-R_{\mathrm{S}}\right)/\left(R_{\mathrm{PNS}}-R_{\mathrm{S}}\right)$' )
+ax[0].legend()
+#plt.show()
+plt.savefig( '/home/kkadoogan/fig.velGrad.png' )

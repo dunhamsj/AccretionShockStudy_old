@@ -14,34 +14,35 @@ Rs   = np.array( [ '6.00e1', '7.50e1', '9.00e1' ], str )
 R    = np.array( [ 'NR' ], str )
 Rs   = np.array( [ '7.50e1'], str )
 
-R    = np.array( [ 'NR' ], str )
+R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '180' ], str )
+Rs   = np.array( [ '150' ], str )
 
 for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
         for mdot in range( Mdot.shape[0] ):
             for rs in range( Rs.shape[0] ):
 
-                ID = '{:}2D_M{:}_Mdot{:}_Rs{:}'.format \
-                     ( R[r], M[m], Mdot[mdot], Rs[rs] )
-                #ID = '{:}2D_M{:}_Rpns040_Rs{:}_Mdot{:}'.format \
-                #     ( R[r], M[m], Rs[rs], Mdot[mdot] )
+                #ID = '{:}2D_M{:}_Mdot{:}_Rs{:}'.format \
+                #     ( R[r], M[m], Mdot[mdot], Rs[rs] )
+                ID = '{:}2D_M{:}_Rpns040_Rs{:}_Mdot{:}'.format \
+                     ( R[r], M[m], Rs[rs], Mdot[mdot] )
 
-                plotFileDirectory \
-                  = '/lump/data/accretionShockStudy/{:}/'.format( ID )
                 #plotFileDirectory \
-                #  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}_origPert/'.format( ID )
+                #  = '/lump/data/accretionShockStudy/{:}/'.format( ID )
+                plotFileDirectory \
+                  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format( ID )
 
                 if not isdir( plotFileDirectory ):
                     print( '\n{:} does not exist. Skipping.\n' \
                            .format( plotFileDirectory ) )
                     continue
 
-                plotFileBaseName = '{:}.plt_'.format( ID )
+                #plotFileBaseName = '{:}.plt_'.format( ID )
+                plotFileBaseName = '{:}.plt'.format( ID )
 
-                dataFileName = '.{:}_LegendrePowerSpectrum_original.dat'.format( ID )
+                dataFileName = '.{:}_LegendrePowerSpectrum.dat'.format( ID )
 
                 ComputePowerInLegendreModes \
                   ( plotFileDirectory, plotFileBaseName, dataFileName, \

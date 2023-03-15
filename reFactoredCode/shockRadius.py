@@ -131,10 +131,10 @@ if __name__ == "__main__":
     rel  = [ 'GR' ]
     M    = [ '1.4' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '150' ]
-    nX   = [ '370' ]
+    Rs   = [ '120' ]
+    nX   = [ '280' ]
     xL   = [ 4.00e1 ]
-    xH   = [ 2.25e2 ]
+    xH   = [ 1.80e2 ]
 
     fig, ax = plt.subplots( 1, 1 )
 
