@@ -8,10 +8,10 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR', 'GR' ], str )
+R    = np.array( [ 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '150' ], str )
+Rs   = np.array( [ '170', '180', '190' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -110,68 +110,50 @@ for r in range( R.shape[0] ):
 
 fig, ax = plt.subplots( 1, 1 )#, figsize = (12,9) )
 
-nr   = 0
-gr   = 1
 mdot = 0
-for m in range( M.shape[0] ):
-    for rs in range( Rs.shape[0] ):
+for r in range( R.shape[0] ):
+    for m in range( M.shape[0] ):
+        for rs in range( Rs.shape[0] ):
 
-        t_NR = t[nr,m,mdot,rs]
-        t_GR = t[gr,m,mdot,rs]
+            tt  = t [r,m,mdot,rs]
+            P1t = P1[r,m,mdot,rs]
+            t0t = t0[r,m,mdot,rs]
+            t1t = t1[r,m,mdot,rs]
 
-        P1_NR = P1[nr,m,mdot,rs]
-        P1_GR = P1[gr,m,mdot,rs]
+            ind = np.where( ( tt >= t0t ) & ( tt <= t1t ) )[0]
 
-        t0_NR = t0[nr,m,mdot,rs]
-        t0_GR = t0[gr,m,mdot,rs]
+            tF = tt[ind]
 
-        t1_NR = t1[nr,m,mdot,rs]
-        t1_GR = t1[gr,m,mdot,rs]
+            logFt   = LogF  [r,m,mdot,rs]
+            omegaRt = omegaR[r,m,mdot,rs]
+            omegaIt = omegaI[r,m,mdot,rs]
+            deltat  = delta [r,m,mdot,rs]
 
-        ind_NR = np.where( ( t_NR >= t0_NR ) & ( t_NR <= t1_NR ) )[0]
-        ind_GR = np.where( ( t_GR >= t0_GR ) & ( t_GR <= t1_GR ) )[0]
+            F = FittingFunction \
+                 ( tF - tF[0], logFt, \
+                   omegaRt, omegaIt, deltat )
 
-        tF_NR = t_NR[ind_NR]
-        tF_GR = t_GR[ind_GR]
+            tau = 1.0#T_SASI[0,m,mdot,rs]
 
-        logF_NR = LogF[nr,m,mdot,rs]
-        logF_GR = LogF[gr,m,mdot,rs]
+            ind = np.where( ( tt < 710.0 ) & ( tt >= 0.0 ) )[0]
 
-        omegaR_NR = omegaR[nr,m,mdot,rs]
-        omegaR_GR = omegaR[gr,m,mdot,rs]
-
-        omegaI_NR = omegaI[nr,m,mdot,rs]
-        omegaI_GR = omegaI[gr,m,mdot,rs]
-
-        delta_NR = delta[nr,m,mdot,rs]
-        delta_GR = delta[gr,m,mdot,rs]
-
-        #F_NR = FittingFunction \
-        #         ( tF_NR - tF_NR[0], logF_NR, omegaR_NR, omegaI_NR, delta_NR )
-        #F_GR = FittingFunction \
-        #         ( tF_GR - tF_GR[0], logF_GR, omegaR_GR, omegaI_GR, delta_GR )
-
-        tau = T_SASI[0,m,mdot,rs]
-
-        ind = np.where( ( t_NR < 710.0 ) & ( t_NR >= 0.0 ) )[0]
-
-        ax.plot( t_NR[ind]/tau, P1_NR[ind], 'r-', label = 'NR' )
-        ax.plot( t_GR[ind]/tau, P1_GR[ind], 'k-', label = 'GR' )
+            ax.plot( tt[ind]/tau, P1t[ind], '-', label = R[r] )
 
 ax.grid()
 ax.set_yscale( 'log' )
-ax.set_xlim( 0, 12 )
-xticks = np.linspace( 0, 12, 13, dtype = np.int64 )
-xticklabels = [ str( i ) for i in xticks ]
-ax.set_xticks( xticks )
-ax.set_xticklabels( xticklabels )
-ax.set_title( r'$\texttt{{2D_M{:}_Rpns040_Rs{:}}}$'.format( M[0], Rs[0] ), \
+#ax.set_xlim( 0, 12 )
+#xticks = np.linspace( 0, 12, 13, dtype = np.int64 )
+#xticklabels = [ str( i ) for i in xticks ]
+#ax.set_xticks( xticks )
+#ax.set_xticklabels( xticklabels )
+##ax.axvline( 150/T_SASI[0,0,0,0], label = r'$t=150\,\mathrm{ms}$' )
+
+ax.set_title( r'$\texttt{{NR2D_M{:}_Rpns040_Rs{:}}}$'.format( M[0], Rs[0] ), \
               fontsize = 15 )
 
-#ax.axvline( 150/T_SASI[0,0,0,0], label = r'$t=150\,\mathrm{ms}$' )
 ax.legend()
-fig.supxlabel( r'$t/T_{\mathrm{SASI,NR}}$' )
-#fig.supxlabel( 'Time [ms]' )
+#fig.supxlabel( r'$t/T_{\mathrm{SASI,NR}}$' )
+fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
