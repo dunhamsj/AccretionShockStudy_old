@@ -137,7 +137,9 @@ for r in range( R.shape[0] ):
 
             ind = np.where( ( tt < 710.0 ) & ( tt >= 0.0 ) )[0]
 
-            ax.plot( tt[ind]/tau, P1t[ind], '-', label = R[r] )
+            ax.plot \
+              ( tt[ind]/tau, P1t[ind], '-', \
+                label = 'Rs={:} km'.format( Rs[rs] ) )
 
 ax.grid()
 ax.set_yscale( 'log' )
@@ -148,7 +150,7 @@ ax.set_yscale( 'log' )
 #ax.set_xticklabels( xticklabels )
 ##ax.axvline( 150/T_SASI[0,0,0,0], label = r'$t=150\,\mathrm{ms}$' )
 
-ax.set_title( r'$\texttt{{NR2D_M{:}_Rpns040_Rs{:}}}$'.format( M[0], Rs[0] ), \
+ax.set_title( r'$\texttt{{NR2D_M{:}_Rpns040}}$'.format( M[0] ), \
               fontsize = 15 )
 
 ax.legend()
@@ -157,8 +159,8 @@ fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-plt.show()
+plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+#plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )
