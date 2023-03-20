@@ -11,7 +11,7 @@ from computeTimeScales import ComputeTimeScales
 R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '180' ], str )
+Rs   = np.array( [ '170', '175', '180', '185', '190' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -115,10 +115,21 @@ for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
         for rs in range( Rs.shape[0] ):
 
+            plotFileDirectory \
+              = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format \
+                ( ID[r,m,mdot,rs] )
+
+            if not isdir( plotFileDirectory ):
+                print( '{:} does not exist. Skipping.' \
+                       .format( plotFileDirectory ) )
+                continue
+
             tt  = t [r,m,mdot,rs]
             P1t = P1[r,m,mdot,rs]
             t0t = t0[r,m,mdot,rs]
             t1t = t1[r,m,mdot,rs]
+
+            print( R[r], Rs[rs] )
 
             ind = np.where( ( tt >= t0t ) & ( tt <= t1t ) )[0]
 
@@ -136,11 +147,17 @@ for r in range( R.shape[0] ):
             tau = 1.0#T_SASI[0,m,mdot,rs]
 
             ind = np.where( ( tt < 710.0 ) & ( tt >= 0.0 ) )[0]
+            ind = np.where( tt < 100.0 )[0]
 
-            ax.plot \
-              ( tt[ind]/tau, P1t[ind], '-', \
-                label = 'Rs={:} km'.format( Rs[rs] ) )
+            if r == 1:
+                ax.plot \
+                  ( tt[ind]/tau, P1t[ind], 'g--', \
+                    label = 'Rs={:} km (GR)'.format( Rs[rs] ) )
 
+            else:
+                ax.plot \
+                  ( tt[ind]/tau, P1t[ind], '-', \
+                    label = 'Rs={:} km'.format( Rs[rs] ) )
 ax.grid()
 ax.set_yscale( 'log' )
 #ax.set_xlim( 0, 12 )
@@ -159,8 +176,8 @@ fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-plt.show()
+plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+#plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )
