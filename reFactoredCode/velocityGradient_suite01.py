@@ -10,14 +10,11 @@ rootDirectory = '/lump/data/accretionShockStudy/'
 
 # Read in data
 
-R    = np.array( [ 'GR', 'NR' ], str )
+R    = np.array( [ 'NR', 'GR' ], str )
+nr   = 0
+gr   = 1
 M    = np.array( [ '1.4', '2.0', '2.8' ], str )
 Rs   = np.array( [ '120', '150', '180' ], str )
-Rpns = np.array( [ 4.00e1 ], np.float64 )
-
-R    = np.array( [ 'NR', 'GR' ], str )
-M    = np.array( [ '2.8' ], str )
-Rs   = np.array( [ '120' ], str )
 Rpns = np.array( [ 4.00e1 ], np.float64 )
 
 arrShape = ( R.shape[0], M.shape[0], Rs.shape[0], Rpns.shape[0] )
@@ -64,22 +61,35 @@ for r in range( R.shape[0] ):
 
                 eta [r,m,rs,rpns] = np.copy( eta[r,m,rs,rpns][ind] )
 
-                Norm = abs( vsh ) / ( rsh - Rpns[rpns] )
+                Norm = 1.0#abs( vsh ) / ( rsh - Rpns[rpns] )
                 dvdr[r,m,rs,rpns] = np.copy( Data[ind,0,0] ) / Norm
                 v   [r,m,rs,rpns] = np.copy( v1  [ind,0,0] )
 
-fig, ax = plt.subplots( 2, 1 )
+fig, ax = plt.subplots( M.shape[0], Rs.shape[0] )
 
-for r in range( R.shape[0] ):
-    for m in range( M.shape[0] ):
-        for rs in range( Rs.shape[0] ):
-            for rpns in range( Rpns.shape[0] ):
-                ax[0].plot( eta[r,m,rs,rpns], v[r,m,rs,rpns], label = R[r] )
-                ax[1].plot( eta[r,m,rs,rpns], dvdr[r,m,rs,rpns], label = R[r] )
-ax[0].set_ylabel( 'v' )
-ax[1].set_ylabel( r'$dv/dr / ( abs(Vsh) / ( Rsh - Rpns ) )$' )
-fig.suptitle( 'M2.8_Rpns040_Rs120' )
-ax[1].set_xlabel( r'$\eta:=\left(r-R_{\mathrm{S}}\right)/\left(R_{\mathrm{PNS}}-R_{\mathrm{S}}\right)$' )
-ax[0].legend()
+# colorblind-friendly palette: https://gist.github.com/thriveth/8560036
+color = ['#377eb8', '#ff7f00', '#4daf4a', \
+         '#f781bf', '#a65628', '#984ea3', \
+         '#999999', '#e41a1c', '#dede00']
+color = [ 'k' for i in range( 9 ) ]
+
+i = -1
+ls = [ '-', '--' ]
+for m in range( M.shape[0] ):
+    for rs in range( Rs.shape[0] ):
+        for rpns in range( Rpns.shape[0] ):
+            i += 1
+            ax[m,rs].plot( eta[gr,m,rs,rpns], dvdr[gr,m,rs,rpns], \
+                           ls = ls[gr], c = color[i], label = R[gr] )
+            ax[m,rs].plot( eta[nr,m,rs,rpns], dvdr[nr,m,rs,rpns], \
+                           ls = ls[nr], c = color[i], label = R[nr] )
+            ax[m,rs].text( 0.4, 0.85, r'$\texttt{{M{:}_Rs{:}}}$' \
+                                      .format( M[m], Rs[rs] ), \
+                           transform = ax[m,rs].transAxes )
+ax[0,0].legend()
+fig.supylabel( r'$dv/dr\ \left[\mathrm{s^{-1}}\right]$')# / ( abs(Vsh) / ( Rsh - Rpns ) )$' )
+fig.suptitle( 'Suite 1 (Rpns = 40 km)' )
+fig.supxlabel( r'$\eta:=\left(r-R_{\mathrm{S}}\right)/\left(R_{\mathrm{PNS}}-R_{\mathrm{S}}\right)$' )
+plt.subplots_adjust( wspace = 0.3 )
 #plt.show()
-plt.savefig( '/home/kkadoogan/fig.velGrad.png' )
+plt.savefig( '/home/kkadoogan/fig.velGrad_suite01.png' )
