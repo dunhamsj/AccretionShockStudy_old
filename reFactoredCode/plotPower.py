@@ -8,10 +8,10 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR', 'GR' ], str )
+R    = np.array( [ 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '170', '175', '180', '185', '190' ], str )
+Rs   = np.array( [ '170', '175', '179', '180', '185', '190' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -68,18 +68,20 @@ for r in range( R.shape[0] ):
                   = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format \
                     ( ID[r,m,mdot,rs] )
 
-                if not isdir( plotFileDirectory ):
-                    print( '{:} does not exist. Skipping.' \
-                           .format( plotFileDirectory ) )
-                    continue
+                #if not isdir( plotFileDirectory ):
+                #    print( '{:} does not exist. Skipping.' \
+                #           .format( plotFileDirectory ) )
+                #    continue
 
                 plotFileBaseName = '{:}.plt'.format( ID[r,m,mdot,rs] )
                 rInner = 4.00e1
                 rOuter = np.float64( Rs[rs] )
-                tAd, tAc \
-                  = ComputeTimeScales \
-                      ( plotFileDirectory+plotFileBaseName+'00000000', \
-                        rInner, rOuter, R[r] )
+                tAd = 0
+                tAc = 0
+                #tAd, tAc \
+                #  = ComputeTimeScales \
+                #      ( plotFileDirectory+plotFileBaseName+'00000000', \
+                #        rInner, rOuter, R[r] )
 
                 T_SASI[r,m,mdot,rs] = tAd + tAc
 
@@ -119,10 +121,10 @@ for r in range( R.shape[0] ):
               = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format \
                 ( ID[r,m,mdot,rs] )
 
-            if not isdir( plotFileDirectory ):
-                print( '{:} does not exist. Skipping.' \
-                       .format( plotFileDirectory ) )
-                continue
+            #if not isdir( plotFileDirectory ):
+            #    print( '{:} does not exist. Skipping.' \
+            #           .format( plotFileDirectory ) )
+            #    continue
 
             tt  = t [r,m,mdot,rs]
             P1t = P1[r,m,mdot,rs]
@@ -147,7 +149,7 @@ for r in range( R.shape[0] ):
             tau = 1.0#T_SASI[0,m,mdot,rs]
 
             ind = np.where( ( tt < 710.0 ) & ( tt >= 0.0 ) )[0]
-            ind = np.where( tt < 100.0 )[0]
+            #ind = np.where( tt < 100.0 )[0]
 
             if r == 1:
                 ax.plot \
@@ -176,8 +178,8 @@ fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-#plt.show()
+#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )
