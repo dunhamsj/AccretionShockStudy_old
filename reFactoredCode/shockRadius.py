@@ -129,16 +129,16 @@ if __name__ == "__main__":
     rootDirectory = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/'
 
     rel  = [ 'GR' ]
-    M    = [ '1.4' ]
+    M    = [ '2.8' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '120' ]
-    nX   = [ '280' ]
-    xL   = [ 4.00e1 ]
-    xH   = [ 1.80e2 ]
+    Rs   = [ '090' ]
+    nX   = [ '230', '460', '575', '1150' ]
+    xL   = [ 2.00e1 ]
+    xH   = [ 1.35e2 ]
 
     fig, ax = plt.subplots( 1, 1 )
 
-    ID = 'GR1D_M1.4_Rpns040'
+    ID = 'GR1D_M2.8_Rpns020_Rs090_Mdot0.3'
     ax.set_title( ID )
 
     # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
@@ -146,39 +146,41 @@ if __name__ == "__main__":
              '#f781bf', '#a65628', '#984ea3', \
              '#999999', '#e41a1c', '#dede00']
 
-    for i in range( len( Rs ) ):
+    for i in range( len( nX ) ):
 
-        IDD = ID + '_Rs{:}_Mdot0.3'.format( Rs[i] )
+        IDD = ID + '_nX{:}'.format( nX[i] )
 
-        plotfileDirectory = rootDirectory + IDD + '/'
-        plotfileBaseName = IDD + '.plt'
-        entropyThreshold = 1.0e15
+#        plotfileDirectory = rootDirectory + IDD + '/'
+#        plotfileBaseName = IDD + '.plt'
+#        entropyThreshold = 1.0e15
 
         #MakeLineOutPlot \
         #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
         dataFileName = '{:}_ShockRadiusVsTime.dat'.format( IDD )
-        forceChoice = False
-        OW = False
-        MakeDataFile \
-          ( plotfileDirectory, plotfileBaseName, dataFileName, \
-            entropyThreshold, markEvery = 10, forceChoice = forceChoice, \
-            OW = OW )
+#        forceChoice = False
+#        OW = False
+#        MakeDataFile \
+#          ( plotfileDirectory, plotfileBaseName, dataFileName, \
+#            entropyThreshold, markEvery = 10, forceChoice = forceChoice, \
+#            OW = OW )
 
         Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
 
-        dr = ( xH[i] - xL[0] ) / np.float64( nX[i] )
+        dr = ( xH[0] - xL[0] ) / np.float64( nX[i] )
+        print( dr, nX[i] )
 
-        ind = np.where( RsMax > 0.9 * xH[i] )[0]
-        if not len( ind ) == 0:
-            ind = np.copy( ind[0] )
-        else:
-            ind = -1
-        print( ind, Time[ind] )
+        ind = -1
+        #ind = np.where( RsMax > 0.9 * xH[0] )[0]
+        #if not len( ind ) == 0:
+        #    ind = np.copy( ind[0] )
+        #else:
+        #    ind = -1
+        #print( ind, Time[ind] )
 
         lab = 'dr = {:.2f} km'.format( dr )
         ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
-                 c = color[i], ls = '-' , label = 'ave' )
+                 c = color[i], ls = '-' , label = lab )
         #ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
         #         c = color[i], ls = '--', label = 'min' )
         #ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
@@ -187,6 +189,8 @@ if __name__ == "__main__":
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \
                    labelpad = +10.0 )
+    ax.axhline( 1.01 )
+    ax.axhline( 0.99 )
     ax.grid()
     ax.legend()
 

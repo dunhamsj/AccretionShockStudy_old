@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from os.path import isdir
+from os.path import isfile
 import matplotlib.pyplot as plt
 plt.style.use( 'publication.sty' )
 
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR' ], str )
+R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '170', '175', '179', '180', '185', '190' ], str )
+Rs   = np.array( [ '170', '175', '179', '180', '181', '185', '190' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -88,6 +88,11 @@ for r in range( R.shape[0] ):
                 dataFileName \
                   = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,m,mdot,rs] )
 
+                if not isfile( dataFileName ):
+                    print( '{:} does not exist. Skipping.' \
+                           .format( dataFileName ) )
+                    continue
+
                 t [r,m,mdot,rs], \
                 P0[r,m,mdot,rs], \
                 P1[r,m,mdot,rs], \
@@ -110,6 +115,11 @@ for r in range( R.shape[0] ):
                 dummy1 \
                   = np.loadtxt( dataFileName )
 
+# colorblind-friendly palette: https://gist.github.com/thriveth/8560036
+color = ['#377eb8', '#ff7f00', '#4daf4a', \
+         '#f781bf', '#a65628', '#984ea3', \
+         '#999999', '#e41a1c', '#dede00']
+
 fig, ax = plt.subplots( 1, 1 )#, figsize = (12,9) )
 
 mdot = 0
@@ -117,14 +127,13 @@ for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
         for rs in range( Rs.shape[0] ):
 
-            plotFileDirectory \
-              = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format \
-                ( ID[r,m,mdot,rs] )
+            dataFileName \
+              = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,m,mdot,rs] )
 
-            #if not isdir( plotFileDirectory ):
-            #    print( '{:} does not exist. Skipping.' \
-            #           .format( plotFileDirectory ) )
-            #    continue
+            if not isfile( dataFileName ):
+                print( '{:} does not exist. Skipping.' \
+                       .format( dataFileName ) )
+                continue
 
             tt  = t [r,m,mdot,rs]
             P1t = P1[r,m,mdot,rs]
@@ -149,16 +158,16 @@ for r in range( R.shape[0] ):
             tau = 1.0#T_SASI[0,m,mdot,rs]
 
             ind = np.where( ( tt < 710.0 ) & ( tt >= 0.0 ) )[0]
-            #ind = np.where( tt < 100.0 )[0]
+            ind = np.where( tt < 100.0 )[0]
 
             if r == 1:
                 ax.plot \
-                  ( tt[ind]/tau, P1t[ind], 'g--', \
+                  ( tt[ind]/tau, P1t[ind], '--', color = color[rs], \
                     label = 'Rs={:} km (GR)'.format( Rs[rs] ) )
 
             else:
                 ax.plot \
-                  ( tt[ind]/tau, P1t[ind], '-', \
+                  ( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
                     label = 'Rs={:} km'.format( Rs[rs] ) )
 ax.grid()
 ax.set_yscale( 'log' )
@@ -178,8 +187,8 @@ fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-plt.show()
+plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+#plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )
