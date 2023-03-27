@@ -61,7 +61,7 @@ for r in range( R.shape[0] ):
                 #        ( ID[r,m,mdot,rs] )
 
                 ID[r,m,mdot,rs] \
-                  = '{:}2D_M{:}_Rpns040_Rs{:}_Mdot0.3'.format \
+                  = '{:}2D_M{:}_Rpns040_Rs{:}'.format \
                      ( R[r], M[m], Rs[rs] )
 
                 plotFileDirectory \
@@ -187,8 +187,8 @@ fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-plt.show()
+plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+#plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )
