@@ -382,6 +382,27 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
 
     # --- Derived Fields ---
 
+    elif Field == 'PressureScaleHeight':
+
+        Data = np.zeros( nX, np.float64 )
+
+        AF_P = np.copy( CoveringGrid['AF_P'].to_ndarray() )
+
+        indX1 = np.linspace( 1, nX[0]-2, nX[0]-2, dtype = np.int64 )
+        indX2 = np.linspace( 0, nX[1]-1, nX[1]  , dtype = np.int64 )
+        indX3 = np.linspace( 0, nX[2]  , nX[2]  , dtype = np.int64 )
+
+        for i in indX1:
+            for j in indX2:
+                for k in indX3:
+
+                    Data[i,j,k] \
+                      = AF_P[i,j,k] \
+                          / ( abs( AF_P[i+1,j,k] - AF_P[i-1,j,k] ) \
+                              / ( X1[i+1,j,k] - X1[i-1,j,k] ) )
+
+        DataUnits = 'km'
+
     elif Field == 'dV1dr':
 
         Data = np.zeros( nX, np.float64 )
@@ -737,6 +758,7 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         print( '  GF_Alpha' )
         print( '  GF_Beta1' )
         print( '  DF_TCI' )
+        print( '  PressureScaleHeight' )
         print( '  dV1dr' )
         print( '  DivV2' )
         print( '  alphaE' )

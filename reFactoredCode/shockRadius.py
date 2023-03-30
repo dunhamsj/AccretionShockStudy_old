@@ -126,20 +126,20 @@ def MakeDataFile \
 if __name__ == "__main__":
 
     #rootDirectory = '/lump/data/accretionShockStudy/'
-    rootDirectory = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/'
+    rootDirectory = '/lump/data/accretionShockStudy/newData/resolutionStudy_lateStage/'
 
     rel  = [ 'GR' ]
     M    = [ '2.8' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '090' ]
-    nX   = [ '230', '460', '575', '1150' ]
+    Rs   = [ '6.00e1' ]
+    nX   = [ '0140', '0280', '0560', '1120' ]
     xL   = [ 2.00e1 ]
-    xH   = [ 1.35e2 ]
+    xH   = [ 9.00e1 ]
 
     fig, ax = plt.subplots( 1, 1 )
 
-    ID = 'GR1D_M2.8_Rpns020_Rs090_Mdot0.3'
-    ax.set_title( ID )
+    ID = 'GR1D_M2.8_Rpns020_Rs6.00e1'
+    ax.set_title( r'$\texttt{{{:}}}$'.format( ID ) )
 
     # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
     color = ['#377eb8', '#ff7f00', '#4daf4a', \
@@ -150,20 +150,20 @@ if __name__ == "__main__":
 
         IDD = ID + '_nX{:}'.format( nX[i] )
 
-#        plotfileDirectory = rootDirectory + IDD + '/'
-#        plotfileBaseName = IDD + '.plt'
-#        entropyThreshold = 1.0e15
+        plotfileDirectory = rootDirectory + IDD + '/'
+        plotfileBaseName = IDD + '.plt'
+        entropyThreshold = 1.0e15
 
         #MakeLineOutPlot \
         #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
         dataFileName = '{:}_ShockRadiusVsTime.dat'.format( IDD )
-#        forceChoice = False
-#        OW = False
-#        MakeDataFile \
-#          ( plotfileDirectory, plotfileBaseName, dataFileName, \
-#            entropyThreshold, markEvery = 10, forceChoice = forceChoice, \
-#            OW = OW )
+        forceChoice = True
+        OW = False
+        MakeDataFile \
+          ( plotfileDirectory, plotfileBaseName, dataFileName, \
+            entropyThreshold, markEvery = 10, forceChoice = forceChoice, \
+            OW = OW )
 
         Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
 
@@ -189,8 +189,8 @@ if __name__ == "__main__":
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \
                    labelpad = +10.0 )
-    ax.axhline( 1.01 )
-    ax.axhline( 0.99 )
+    #ax.axhline( 1.01 )
+    #ax.axhline( 0.99 )
     ax.grid()
     ax.legend()
 
