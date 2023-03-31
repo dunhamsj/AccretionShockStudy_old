@@ -157,7 +157,7 @@ if __name__ == "__main__":
         #MakeLineOutPlot \
         #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
-        dataFileName = '{:}_ShockRadiusVsTime.dat'.format( IDD )
+        dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( IDD )
         forceChoice = True
         OW = False
         MakeDataFile \

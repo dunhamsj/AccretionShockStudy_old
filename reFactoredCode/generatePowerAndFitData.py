@@ -14,10 +14,10 @@ Rs   = np.array( [ '6.00e1', '7.50e1', '9.00e1' ], str )
 R    = np.array( [ 'NR' ], str )
 Rs   = np.array( [ '7.50e1'], str )
 
-R    = np.array( [ 'NR' ], str )
+R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '175' ], str )
+Rs   = np.array( [ '1.75e2' ], str )
 
 for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
@@ -26,13 +26,13 @@ for r in range( R.shape[0] ):
 
                 #ID = '{:}2D_M{:}_Mdot{:}_Rs{:}'.format \
                 #     ( R[r], M[m], Mdot[mdot], Rs[rs] )
-                ID = '{:}2D_M{:}_Rpns040_Rs{:}_Mdot{:}'.format \
-                     ( R[r], M[m], Rs[rs], Mdot[mdot] )
+                ID = '{:}2D_M{:}_Rpns040_Rs{:}'.format \
+                     ( R[r], M[m], Rs[rs] )
 
                 #plotFileDirectory \
                 #  = '/lump/data/accretionShockStudy/{:}/'.format( ID )
                 plotFileDirectory \
-                  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format( ID )
+                  = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format( ID )
 
                 if not isdir( plotFileDirectory ):
                     print( '\n{:} does not exist. Skipping.\n' \

@@ -11,7 +11,7 @@ from computeTimeScales import ComputeTimeScales
 R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '170', '175', '179', '180', '181', '185', '190' ], str )
+Rs   = np.array( [ '1.75e2' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -65,7 +65,7 @@ for r in range( R.shape[0] ):
                      ( R[r], M[m], Rs[rs] )
 
                 plotFileDirectory \
-                  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format \
+                  = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format \
                     ( ID[r,m,mdot,rs] )
 
                 #if not isdir( plotFileDirectory ):
@@ -158,7 +158,7 @@ for r in range( R.shape[0] ):
             tau = 1.0#T_SASI[0,m,mdot,rs]
 
             ind = np.where( ( tt < 710.0 ) & ( tt >= 0.0 ) )[0]
-            ind = np.where( tt < 100.0 )[0]
+            #ind = np.where( tt < 100.0 )[0]
 
             if r == 1:
                 ax.plot \
@@ -187,8 +187,8 @@ fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 
-plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-#plt.show()
+#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )
