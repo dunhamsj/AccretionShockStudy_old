@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from os.path import isfile
+from os.path import isfile, isdir
 import matplotlib.pyplot as plt
 plt.style.use( 'publication.sty' )
 
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'GR' ], str )
+R    = np.array( [ 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '1.50e2' ], str )
+Rs   = np.array( [ '1.75e2' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Mdot.shape[0],Rs.shape[0])
 
@@ -40,26 +40,6 @@ for r in range( R.shape[0] ):
         for mdot in range( Mdot.shape[0] ):
             for rs in range( Rs.shape[0] ):
 
-                #if r == 0:
-
-                #    ID[r,m,mdot,rs] \
-                #      = '{:}2D_M{:}_Mdot{:}_Rs{:}'.format \
-                #         ( R[r], M[m], Mdot[mdot], Rs[rs] )
-
-                #    plotFileDirectory \
-                #      = '/lump/data/accretionShockStudy/{:}/'.format \
-                #        ( ID[r,m,mdot,rs] )
-
-                #else:
-
-                #    ID[r,m,mdot,rs] \
-                #      = '{:}2D_M{:}_Rpns040_Rs{:}_Mdot{:}'.format \
-                #         ( R[r], M[m], Rs[rs], Mdot[mdot] )
-
-                #    plotFileDirectory \
-                #      = '/lump/data/accretionShockStudy/newRuns/{:}/'.format \
-                #        ( ID[r,m,mdot,rs] )
-
                 ID[r,m,mdot,rs] \
                   = '{:}2D_M{:}_Rpns040_Rs{:}'.format \
                      ( R[r], M[m], Rs[rs] )
@@ -68,20 +48,20 @@ for r in range( R.shape[0] ):
                   = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format \
                     ( ID[r,m,mdot,rs] )
 
-                #if not isdir( plotFileDirectory ):
-                #    print( '{:} does not exist. Skipping.' \
-                #           .format( plotFileDirectory ) )
-                #    continue
+                if not isdir( plotFileDirectory ):
+                    print( '{:} does not exist. Skipping.' \
+                           .format( plotFileDirectory ) )
+                    continue
 
                 plotFileBaseName = '{:}.plt'.format( ID[r,m,mdot,rs] )
                 rInner = 4.00e1
                 rOuter = np.float64( Rs[rs] )
                 tAd = 0
                 tAc = 0
-                #tAd, tAc \
-                #  = ComputeTimeScales \
-                #      ( plotFileDirectory+plotFileBaseName+'00000000', \
-                #        rInner, rOuter, R[r] )
+                tAd, tAc \
+                  = ComputeTimeScales \
+                      ( plotFileDirectory+plotFileBaseName+'00000000', \
+                        rInner, rOuter, R[r] )
 
                 T_SASI[r,m,mdot,rs] = tAd + tAc
 
@@ -101,19 +81,33 @@ for r in range( R.shape[0] ):
                 P4[r,m,mdot,rs] \
                   = np.loadtxt( dataFileName )
 
-                dataFileName = '.{:}_Fit.dat'.format( ID[r,m,mdot,rs] )
+                # Read in fit data
 
-                t0        [r,m,mdot,rs], \
-                t1        [r,m,mdot,rs], \
-                LogF      [r,m,mdot,rs], \
-                omegaR    [r,m,mdot,rs], \
-                omegaI    [r,m,mdot,rs], \
-                delta     [r,m,mdot,rs], \
-                dummy0, \
-                omegaR_err[r,m,mdot,rs], \
-                omegaI_err[r,m,mdot,rs], \
-                dummy1 \
-                  = np.loadtxt( dataFileName )
+                f = open( dataFileName )
+
+                dum = f.readline()
+
+                s = f.readline(); ind = s.find( '#' )+1
+                tmp \
+                  = np.array( list( map( np.float64, s[ind:].split() ) ), \
+                              np.float64 )
+                t0    [r,m,mdot,rs] = tmp[0]
+                t1    [r,m,mdot,rs] = tmp[1]
+                LogF  [r,m,mdot,rs] = tmp[2]
+                omegaR[r,m,mdot,rs] = tmp[3]
+                omegaI[r,m,mdot,rs] = tmp[4]
+                delta [r,m,mdot,rs] = tmp[5]
+
+                dum = f.readline()
+
+                s = f.readline(); ind = s.find( '#' )+1
+                tmp \
+                  = np.array( list( map( np.float64, s[ind:].split() ) ), \
+                              np.float64 )
+                omegaR_err[r,m,mdot,rs] = tmp[1]
+                omegaI_err[r,m,mdot,rs] = tmp[2]
+
+                f.close()
 
 # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
 color = ['#377eb8', '#ff7f00', '#4daf4a', \
@@ -140,8 +134,6 @@ for r in range( R.shape[0] ):
             t0t = t0[r,m,mdot,rs]
             t1t = t1[r,m,mdot,rs]
 
-            print( R[r], Rs[rs] )
-
             ind = np.where( ( tt >= t0t ) & ( tt <= t1t ) )[0]
 
             tF = tt[ind]
@@ -155,10 +147,9 @@ for r in range( R.shape[0] ):
 #                 ( tF - tF[0], logFt, \
 #                   omegaRt, omegaIt, deltat )
 
-            tau = 1.0#T_SASI[0,m,mdot,rs]
+            tau = T_SASI[0,m,mdot,rs]
 
-            ind = np.where( ( tt < 710.0 ) & ( tt >= 0.0 ) )[0]
-            #ind = np.where( tt < 100.0 )[0]
+            ind = np.where( ( tt < 601.0 ) & ( tt >= 0.0 ) )[0]
 
             if r == 1:
                 ax.plot \
@@ -182,8 +173,8 @@ ax.set_title( r'$\texttt{{NR2D_M{:}_Rpns040}}$'.format( M[0] ), \
               fontsize = 15 )
 
 ax.legend()
-#fig.supxlabel( r'$t/T_{\mathrm{SASI,NR}}$' )
-fig.supxlabel( 'Time [ms]' )
+fig.supxlabel( r'$t/T_{\mathrm{SASI,NR}}$' )
+#fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 

@@ -30,7 +30,7 @@ def ComputePowerInLegendreModes \
 
     plotFileArray \
       = GetFileArray( plotFileDirectory, plotFileBaseName )
-    plotFileArray = np.copy( plotFileArray[:-1] )
+    plotFileArray = np.copy( plotFileArray[:-1] ) # remove 99999999 file
 
     nSS = plotFileArray.shape[0]
 

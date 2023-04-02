@@ -3,7 +3,7 @@
 import numpy as np
 from scipy.optimize import curve_fit
 
-def FitPowerToModel( t0, t1, t, P1, InitialGuess, dataFileName ):
+def FitPowerToModel( t0, t1, t, P1, InitialGuess ):
 
     ind = np.where( ( t >= t0 ) & ( t <= t1 ) )[0]
 
@@ -14,13 +14,7 @@ def FitPowerToModel( t0, t1, t, P1, InitialGuess, dataFileName ):
 
     perr = np.sqrt( np.diag( pcov ) )
 
-    np.savetxt \
-      ( dataFileName, \
-        [ t0, t1, \
-          beta[0], beta[1], beta[2], beta[3], \
-          perr[0], perr[1], perr[2], perr[3] ], \
-          header = \
-'t0, t1, LogF1, omegaR, omegaI, delta, dLogF1, domegaR, domegaI, ddelta' )
+    return beta, perr
 
 def FittingFunction( t, logF1, omega_r, omega_i, delta ):
 
