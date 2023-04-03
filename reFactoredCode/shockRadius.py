@@ -126,19 +126,20 @@ def MakeDataFile \
 if __name__ == "__main__":
 
     #rootDirectory = '/lump/data/accretionShockStudy/'
-    rootDirectory = '/lump/data/accretionShockStudy/newData/resolutionStudy_lateStage/'
+    rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
-    rel  = [ 'GR' ]
-    M    = [ '2.8' ]
+    rel  = [ 'NR', 'GR' ]
+    M    = [ '1.4' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '6.00e1' ]
+    Rs   = [ '1.75e2' ]
     nX   = [ '0140', '0280', '0560', '1120' ]
-    xL   = [ 2.00e1 ]
-    xH   = [ 9.00e1 ]
+    xL   = [ 4.00e1 ]
+    xH   = [ 1.125e2 ]
 
     fig, ax = plt.subplots( 1, 1 )
 
-    ID = 'GR1D_M2.8_Rpns020_Rs6.00e1'
+    ID = '2D_M1.4_Rpns040_Rs1.75e2'
+
     ax.set_title( r'$\texttt{{{:}}}$'.format( ID ) )
 
     # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
@@ -146,9 +147,9 @@ if __name__ == "__main__":
              '#f781bf', '#a65628', '#984ea3', \
              '#999999', '#e41a1c', '#dede00']
 
-    for i in range( len( nX ) ):
+    for r in range( len( rel ) ):
 
-        IDD = ID + '_nX{:}'.format( nX[i] )
+        IDD = rel[r] + ID
 
         plotfileDirectory = rootDirectory + IDD + '/'
         plotfileBaseName = IDD + '.plt'
@@ -158,7 +159,7 @@ if __name__ == "__main__":
         #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
         dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( IDD )
-        forceChoice = True
+        forceChoice = False
         OW = False
         MakeDataFile \
           ( plotfileDirectory, plotfileBaseName, dataFileName, \
@@ -166,9 +167,6 @@ if __name__ == "__main__":
             OW = OW )
 
         Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
-
-        dr = ( xH[0] - xL[0] ) / np.float64( nX[i] )
-        print( dr, nX[i] )
 
         ind = -1
         #ind = np.where( RsMax > 0.9 * xH[0] )[0]
@@ -178,13 +176,12 @@ if __name__ == "__main__":
         #    ind = -1
         #print( ind, Time[ind] )
 
-        lab = 'dr = {:.2f} km'.format( dr )
         ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
-                 c = color[i], ls = '-' , label = lab )
-        #ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
-        #         c = color[i], ls = '--', label = 'min' )
-        #ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
-        #         c = color[i], ls = ':' , label = 'max' )
+                 c = color[r], ls = '-' , label = rel[r] )
+        ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
+                 c = color[r], ls = '--', label = 'min' )
+        ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
+                 c = color[r], ls = ':' , label = 'max' )
 
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \
