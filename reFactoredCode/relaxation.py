@@ -146,15 +146,15 @@ def PlotRelaxationVsTime \
 
 if __name__ == '__main__':
 
-    nX = 460
+    nX = 280
 
     UseLogScale = True
 
-    ID = 'GR1D_M1.4_Rpns040_Rs180_Mdot0.3'
+    ID = 'GR1D_M1.4_Rpns040_Rs1.20e2_nX0280'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 
-    Root = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/'
+    Root = '/lump/data/accretionShockStudy/newData/resolutionStudy_earlyStage/'
 
     plotfileDirectory = Root + ID + '/'
 

@@ -8,9 +8,9 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR', 'GR' ], str )
+R    = np.array( [ 'NR' ], str )
 M    = np.array( [ '1.4' ], str )
-Rs   = np.array( [ '1.75e2' ], str )
+Rs   = np.array( [ '1.20e2' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Rs.shape[0])
 
