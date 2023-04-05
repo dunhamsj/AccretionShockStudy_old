@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from multiprocessing import Process, cpu_count, Manager
 
 from UtilitiesModule import Overwrite, GetFileArray, GetData
+from computeTimeScales import ComputeTimeScales
 
 def getData( plotfileDirectory, ID, field, nX, forceChoice, OW ):
 
