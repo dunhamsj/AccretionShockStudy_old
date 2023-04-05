@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from multiprocessing import Process, cpu_count, Manager
 
 from UtilitiesModule import Overwrite, GetFileArray, GetData
-from computeTimeScales import ComputeTimeScales
 
 def getData( plotfileDirectory, ID, field, nX, forceChoice, OW ):
 
@@ -114,20 +113,7 @@ def getData( plotfileDirectory, ID, field, nX, forceChoice, OW ):
 
             Gradient[i-1] = ( Num / Den ).max()
 
-        data, DataUnits, X1, X2, X3, dX1, dX2, dX3, xL, xH, nX
-          = GetData( plotfileDirectory, plotfileBaseName, field, \
-                     'spherical', True, argv = ['a','0'], \
-                     ReturnTime = False, ReturnMesh = True, \
-                     Verbose = False )
-
-        tauAd, tauAc \
-          = ComputeTimeScales \
-              ( plotfileDirectory + plotfileBaseName + '00000000/', \
-                xL[0], xH[0], ID[0:2] )
-
-        header = '{:.16e}'.format( tauAd )
-        np.savetxt( dataFileName, np.vstack( (Time[:-1],Gradient) ), \
-                    header = header )
+        np.savetxt( dataFileName, np.vstack( (Time[:-1],Gradient) ) )
 
         del plotfileBaseName, plotfileArray, \
             Data, Gradient, Time

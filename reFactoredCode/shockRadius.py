@@ -7,7 +7,6 @@ import os
 plt.style.use( 'publication.sty' )
 
 from UtilitiesModule import Overwrite, GetData, GetFileArray
-from computeTimeScales import ComputeTimeScales
 
 yt.funcs.mylog.setLevel(40) # Suppress initial yt output to screen
 
@@ -118,15 +117,8 @@ def MakeDataFile \
     # ==> Rs = ( Volume / ( 4/3 * pi ) )^( 1 / 3 )
     RsAve = ( Volume / ( 4.0 / 3.0 * np.pi ) )**( 1.0 / 3.0 )
 
-    tauAd, tauAc \
-      = ComputeTimeScales \
-          ( plotfileDirectory + plotfileBaseName + '00000000/', \
-            xL[0], xH[0], ID[0:2] )
-    header = '{:.16e}'.format( tauAd )
-
     np.savetxt( dataFileName, \
-                np.vstack( ( Time, RsAve, RsMin, RsMax ) ), \
-                header = header )
+                np.vstack( ( Time, RsAve, RsMin, RsMax ) ) )
 
     return
 
