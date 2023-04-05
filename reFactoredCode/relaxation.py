@@ -93,9 +93,11 @@ def getData( plotfileDirectory, ID, field, nX, forceChoice, OW ):
             for iProc in range( nProcs ):
 
                 iLo \
-                  = np.int64( np.float64( iProc     ) / np.float64( nProcs ) * nSS )
+                  = np.int64( np.float64( iProc     ) \
+                      / np.float64( nProcs ) * nSS )
                 iHi \
-                  = np.int64( np.float64( iProc + 1 ) / np.float64( nProcs ) * nSS )
+                  = np.int64( np.float64( iProc + 1 ) \
+                      / np.float64( nProcs ) * nSS )
 
                 Data[iLo:iHi] = return_data[iProc]
                 Time[iLo:iHi] = return_time[iProc]
@@ -111,10 +113,25 @@ def getData( plotfileDirectory, ID, field, nX, forceChoice, OW ):
 
             Gradient[i-1] = ( Num / Den ).max()
 
-        np.savetxt( dataFileName, np.vstack( (Time[:-1],Gradient) ) )
+        data, DataUnits, X1, X2, X3, dX1, dX2, dX3, xL, xH, nX
+          = GetData( plotfileDirectory, plotfileBaseName, field, \
+                     'spherical', True, argv = ['a','0'], \
+                     ReturnTime = False, ReturnMesh = True, \
+                     Verbose = False )
+
+        tauAd, tauAc \
+          = ComputeTimeScales \
+              ( plotfileDirectory + plotfileBaseName + '00000000/', \
+                xL[0], xH[0], ID[0:2] )
+
+        header = '{:.16e}'.format( tauAd )
+        np.savetxt( dataFileName, np.vstack( (Time[:-1],Gradient) ), \
+                    header = header )
 
         del plotfileBaseName, plotfileArray, \
             Data, Gradient, Time
+
+    # END if OW
 
     Time, Data = np.loadtxt( dataFileName )
 
