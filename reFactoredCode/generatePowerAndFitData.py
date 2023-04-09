@@ -15,17 +15,18 @@ R    = np.array( [ 'NR' ], str )
 Rs   = np.array( [ '7.50e1'], str )
 
 R    = np.array( [ 'NR' ], str )
-M    = np.array( [ '1.4' ], str )
+M    = np.array( [ '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '1.20e2', '1.50e2' ], str )
+Rs   = np.array( [ '7.50e1' ], str )
+Rpns = np.array( [ '020' ], str )
 
 for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
         for mdot in range( Mdot.shape[0] ):
             for rs in range( Rs.shape[0] ):
 
-                ID = '{:}2D_M{:}_Rpns040_Rs{:}'.format \
-                     ( R[r], M[m], Rs[rs] )
+                ID = '{:}2D_M{:}_Rpns{:}_Rs{:}'.format \
+                     ( R[r], M[m], Rpns[0], Rs[rs] )
 
                 plotFileDirectory \
                   = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format( ID )
@@ -50,7 +51,7 @@ for r in range( R.shape[0] ):
                 tauR  = 200.0
                 delta = 0.0
 
-                rInner = 4.00e1
+                rInner = np.float64( Rpns[0] )
                 rOuter = np.float64( Rs[rs] )
                 tAd, tAc \
                   = ComputeTimeScales \

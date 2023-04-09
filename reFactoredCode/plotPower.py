@@ -9,8 +9,9 @@ from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
 R    = np.array( [ 'NR' ], str )
-M    = np.array( [ '1.4' ], str )
-Rs   = np.array( [ '1.20e2' ], str )
+M    = np.array( [ '2.8' ], str )
+Rs   = np.array( [ '7.50e1' ], str )
+Rpns = np.array( [ '020' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Rs.shape[0])
 
@@ -39,8 +40,8 @@ for r in range( R.shape[0] ):
         for rs in range( Rs.shape[0] ):
 
             ID[r,m,rs] \
-              = '{:}2D_M{:}_Rpns040_Rs{:}'.format \
-                 ( R[r], M[m], Rs[rs] )
+              = '{:}2D_M{:}_Rpns{:}_Rs{:}'.format \
+                 ( R[r], M[m], Rpns[0], Rs[rs] )
 
             plotFileDirectory \
               = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format \
@@ -52,7 +53,7 @@ for r in range( R.shape[0] ):
                 continue
 
             plotFileBaseName = '{:}.plt'.format( ID[r,m,rs] )
-            rInner = 4.00e1
+            rInner = np.float64( Rpns[0] )
             rOuter = np.float64( Rs[rs] )
             tAd = 0
             tAc = 0
@@ -167,7 +168,7 @@ ax.set_yscale( 'log' )
 #ax.set_xticklabels( xticklabels )
 ##ax.axvline( 150/T_SASI[0,0,0,0], label = r'$t=150\,\mathrm{ms}$' )
 
-ax.set_title( r'$\texttt{{2D_M{:}_Rpns040}}$'.format( M[0] ), \
+ax.set_title( r'$\texttt{{2D_M{:}_Rpns{:}}}$'.format( M[0], Rpns[0] ), \
               fontsize = 15 )
 
 ax.legend()
