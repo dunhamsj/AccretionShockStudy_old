@@ -8,10 +8,10 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR' ], str )
-M    = np.array( [ '2.8' ], str )
-Rs   = np.array( [ '7.50e1' ], str )
-Rpns = np.array( [ '020' ], str )
+R    = np.array( [ 'NR', 'GR' ], str )
+M    = np.array( [ '1.4' ], str )
+Rs   = np.array( [ '1.20e2', '1.50e2', '1.75e2' ], str )
+Rpns = np.array( [ '040' ], str )
 
 arrShape = (R.shape[0],M.shape[0],Rs.shape[0])
 
@@ -146,7 +146,7 @@ for r in range( R.shape[0] ):
 #                 ( tF - tF[0], logFt, \
 #                   omegaRt, omegaIt, deltat )
 
-            tau = T_SASI[0,m,rs]
+            tau =1# T_SASI[0,m,rs]
 
             ind = np.where( ( tt < 601.0 ) & ( tt >= 0.0 ) )[0]
 
@@ -172,8 +172,8 @@ ax.set_title( r'$\texttt{{2D_M{:}_Rpns{:}}}$'.format( M[0], Rpns[0] ), \
               fontsize = 15 )
 
 ax.legend()
-fig.supxlabel( r'$t/T_{\mathrm{SASI,NR}}$' )
-#fig.supxlabel( 'Time [ms]' )
+#fig.supxlabel( r'$t/T_{\mathrm{SASI,NR}}$' )
+fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]' )
 plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
 

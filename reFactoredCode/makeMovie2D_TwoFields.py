@@ -50,26 +50,24 @@ im                = np.empty( nPanels, object )
 cbar              = np.empty( nPanels, object )
 
 # ID to be used for naming purposes
-ID[0] = 'NR2D_M1.4_Mdot0.3_Rs180'
-ID[1] = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
+ID[0] = 'GR2D_M2.8_Rpns020_Rs7.50e1'
+ID[1] = 'NR2D_M2.8_Rpns020_Rs7.50e1'
 
-title = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
+title = 'M2.8_Rpns020_Rs7.50e1'
 
 # Directory containing AMReX plotfiles
 plotfileDirectory[0] = '/lump/data/accretionShockStudy/\
-{:}/'.format( ID[0] )
+newData/2D/{:}/'.format( ID[0] )
 plotfileDirectory[1] = '/lump/data/accretionShockStudy/\
-newRuns/newProductionRuns/{:}_origPert/'.format( ID[1] )
+newData/2D/{:}/'.format( ID[1] )
 
 # plotfile base name (e.g., Advection2D.plt######## -> Advection2D.plt )
 for i in range( nPanels ):
     plotfileBaseName[i] = ID[i] + '.plt'
-    if i == 0:
-        plotfileBaseName[i] = ID[i] + '.plt_'
 
 # Field to plot
-field[0] = 'PF_V2'
-field[1] = 'PF_V2'
+field[0] = 'PolytropicConstant'
+field[1] = 'PolytropicConstant'
 
 # Plot data in log10-scale?
 useLogScale = True
@@ -78,8 +76,8 @@ useLogScale = True
 plotEvery = 1
 
 # Colormap
-cmap[0] = 'RdBu'
-cmap[1] = 'RdBu'
+cmap[0] = 'viridis'
+cmap[1] = 'viridis'
 
 # First and last snapshots and number of snapshots to include in movie
 SSi = -1 # -1 -> SSi = 0
@@ -121,7 +119,6 @@ for i in range( nPanels ):
                       MaxLevel = -1, Verbose = Verbose )
     if i == 1:
         plotfileArray[i] = np.copy( plotfileArray[i][:-1] )
-        plotfileArray[i] = np.copy( plotfileArray[i][::4] )
 
     nSSS = min( nSSS, plotfileArray[i].shape[0] )
 
@@ -264,10 +261,9 @@ def InitializeFrame():
 
 def UpdateFrame(t):
 
-    print( '    {:}/{:}'.format( t, nSS ) )
-
     ret = []
     Data, DataUnits, X1_C, X2_C, dX1, dX2, Time = f(t)
+    print( '    {:}/{:}, {:} ms'.format( t, nSS, Time[0] ) )
     for i in range( nPanels ):
 #        Data[i] = ( Data[i] - Data0[i] ) / Data0[i] + 1.0e-17
         im[i].set_array( Data[i].flatten() )
@@ -285,7 +281,6 @@ ax.set_rmin( 0.0 )
 rmax  = 0.0
 for i in range( nPanels ):
     rmax = max( x1H[i], rmax )
-ax.set_rmax( 200. )
 
 # Call the animator
 anim \

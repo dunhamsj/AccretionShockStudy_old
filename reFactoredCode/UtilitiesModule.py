@@ -4,6 +4,20 @@ import numpy as np
 import gc
 from charade import detect
 
+def ComputeAngleAverage( data, X2, dX2 ):
+
+    # Assume `data` is axisymmetric (dX3 = 2 * pi)
+
+    AA = np.zeros( data.shape[0], np.float64 )
+
+    for iX1 in range( data.shape[0] ):
+        for iX2 in range( data.shape[1] ):
+            AA[iX1] += data[iX1,iX2] * np.sin( X2[iX2] ) * dX2[iX2]
+
+    AA *= 0.5
+
+    return AA
+
 def Overwrite( FileOrDirName, ForceChoice = False, OW = False ):
 
     if ForceChoice: return OW
@@ -381,6 +395,45 @@ def GetData( DataDirectory, PlotFileBaseName, Field, \
         DataUnits = ''
 
     # --- Derived Fields ---
+
+    elif Field == 'LateralMomentumFluxInRadialDirectionGR':
+
+        cm = 1.0e5
+        c = 2.99792458e10
+
+        SqrtGm = np.copy( CoveringGrid['GF_SqrtGm'].to_ndarray() ) * cm**2
+        rho    = np.copy( CoveringGrid['PF_D'     ].to_ndarray() )
+        V1     = np.copy( CoveringGrid['PF_V1'    ].to_ndarray() ) * cm
+        V2     = np.copy( CoveringGrid['PF_V2'    ].to_ndarray() )
+        V3     = np.copy( CoveringGrid['PF_V3'    ].to_ndarray() )
+        Gm11   = np.copy( CoveringGrid['GF_Gm_11' ].to_ndarray() )
+        Gm22   = np.copy( CoveringGrid['GF_Gm_22' ].to_ndarray() ) * cm**2
+        Gm33   = np.copy( CoveringGrid['GF_Gm_33' ].to_ndarray() ) * cm**2
+        alpha  = np.copy( CoveringGrid['GF_Alpha' ].to_ndarray() )
+        p      = np.copy( CoveringGrid['AF_P'     ].to_ndarray() )
+        e      = np.copy( CoveringGrid['PF_E'     ].to_ndarray() )
+
+        VSq = Gm11 * V1**2 + Gm22 * V2**2 + Gm33 * V3**2
+
+        W = 1.0 / np.sqrt( 1.0 - VSq / c**2 )
+        h = c**2 + ( e + p ) / rho
+
+        Data = SqrtGm * rho * V1 * Gm22 * V2 * alpha * h / c**2 * W**2
+        DataUnits = 'g*cm^2/s^2'
+
+    elif Field == 'LateralMomentumFluxInRadialDirectionNR':
+
+        cm = 1.0e5
+        c = 2.99792458e10
+
+        SqrtGm = np.copy( CoveringGrid['GF_SqrtGm'].to_ndarray() ) * cm**2
+        rho    = np.copy( CoveringGrid['PF_D'     ].to_ndarray() )
+        V1     = np.copy( CoveringGrid['PF_V1'    ].to_ndarray() ) * cm
+        V2     = np.copy( CoveringGrid['PF_V2'    ].to_ndarray() )
+        Gm22   = np.copy( CoveringGrid['GF_Gm_22' ].to_ndarray() ) * cm**2
+
+        Data = SqrtGm * rho * V1 * Gm22 * V2
+        DataUnits = 'g*cm^2/s^2'
 
     elif Field == 'PressureScaleHeight':
 

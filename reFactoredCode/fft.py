@@ -7,10 +7,10 @@ plt.style.use( 'publication.sty' )
 
 from computeTimeScales import ComputeTimeScales
 
-Rs   = '6.00e1'
-RPNS = '2.00e1'
-ID = '2D_M2.8_Mdot0.3_Rs{:}_RPNS{:}'.format( Rs, RPNS )
-#ID = '2D_M2.8_Mdot0.3_Rs{:}'.format( Rs )
+M    = '2.8'
+Rs   = '7.50e1'
+Rpns = '020'
+ID = '2D_M{:}_Rpns{:}_Rs{:}'.format( M, Rpns, Rs )
 
 ID_GR = 'GR' + ID
 ID_NR = 'NR' + ID
@@ -19,7 +19,7 @@ timeNR, dataNR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_NR ) )
 
 indmax = min( timeGR.shape[0], timeNR.shape[0] )
 ind = np.linspace( 0, indmax-1, indmax, dtype = np.int64 )
-#ind = np.where( timeGR < 60.0 )[0]
+ind = np.where( timeGR < 90.0 )[0]
 
 timeGR = np.copy( timeGR[ind] )
 timeNR = np.copy( timeNR[ind] )
@@ -58,10 +58,10 @@ yGR = yGR[::-1]
 xNR = xNR[::-1]
 yNR = yNR[::-1]
 
-rInner = np.float64( RPNS )
+rInner = np.float64( Rpns )
 rOuter = np.float64( Rs )
 
-plotFileDirectory = '/lump/data/accretionShockStudy/'
+plotFileDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
 plotFileDirectory_NR = plotFileDirectory + ID_NR + '/'
 plotFileDirectory_NR += ID_NR + '.plt00000000/'
@@ -86,19 +86,24 @@ print( '|deltaT/T| (GR): {:.3e}' \
 print( 'Mulller (GR/NR): {:.3e}'.format( T_SASI_GR / T_SASI_NR ) )
 print( 'FFT     (GR/NR): {:.3e}'.format( xGR[yGR.argmax()] / xNR[yNR.argmax()] ) )
 
+# colorblind-friendly palette: https://gist.github.com/thriveth/8560036
+color = ['#377eb8', '#ff7f00', '#4daf4a', \
+         '#f781bf', '#a65628', '#984ea3', \
+         '#999999', '#e41a1c', '#dede00']
+
 fig, axs = plt.subplots( 2, 1 )
 fig.suptitle( r'\texttt{{{:}}}'.format( ID ) )
 
-axs[0].plot( timeGR, dataGR, label = 'GR' )
-axs[0].plot( timeNR, dataNR, label = 'NR' )
+axs[0].plot( timeGR, dataGR, color = color[0], label = 'GR' )
+axs[0].plot( timeNR, dataNR, color = color[1], label = 'NR' )
 
 axs[1].text( 0.5, 0.6, 'GR: {:.3e} ms'.format( xGR[yGR.argmax()] ), \
              transform = axs[1].transAxes )
 axs[1].text( 0.5, 0.5, 'NR: {:.3e} ms'.format( xNR[yNR.argmax()] ), \
              transform = axs[1].transAxes )
 
-axs[1].plot( xGR, np.abs( yGR / yGR.max() ), '-' )
-axs[1].plot( xNR, np.abs( yNR / yNR.max() ), '-' )
+axs[1].plot( xGR, np.abs( yGR / yGR.max() ), '-', color = color[0] )
+axs[1].plot( xNR, np.abs( yNR / yNR.max() ), '-', color = color[1] )
 
 axs[0].set_xlabel( 'Time [ms]' )
 axs[1].set_xlabel( 'Time [ms]' )

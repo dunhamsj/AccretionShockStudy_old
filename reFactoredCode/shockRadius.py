@@ -126,62 +126,60 @@ def MakeDataFile \
 if __name__ == "__main__":
 
     #rootDirectory = '/lump/data/accretionShockStudy/'
-    rootDirectory = '/lump/data/accretionShockStudy/newData/resolutionStudy_earlyStage/'
+    rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
-    rel  = [ 'GR' ]
+    rel  = [ 'NR', 'GR' ]
     M    = [ '1.4' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '1.20e2' ]
-    nX   = [ '0140', '0280', '0560', '1120' ]
+    Rs   = [ '1.20e2', '1.50e2', '1.75e2' ]
+#    nX   = [ '0140', '0280', '0560', '1120' ]
     xL   = [ 4.00e1 ]
-    xH   = [ 1.80e2 ]
+    xH   = [ 1.5 * x for x in np.float64( Rs ) ]
 
     fig, ax = plt.subplots( 1, 1 )
-
-    ID = 'GR1D_M1.4_Rpns040_Rs1.20e2'
-
-    ax.set_title( r'$\texttt{{{:}}}$'.format( ID ) )
 
     # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
     color = ['#377eb8', '#ff7f00', '#4daf4a', \
              '#f781bf', '#a65628', '#984ea3', \
              '#999999', '#e41a1c', '#dede00']
 
-    for nx in range( len( nX ) ):
+    for r in range( len( rel ) ):
+        for rs in range( len( Rs ) ):
 
-        IDD = ID + '_nX{:}'.format( nX[nx] )
+            IDD = '{:}2D_M{:}_Rpns040_Rs{:}'.format( rel[r], M[0], Rs[rs] )
 
-        plotfileDirectory = rootDirectory + IDD + '/'
-        plotfileBaseName = IDD + '.plt'
-        entropyThreshold = 1.0e15
+            plotfileDirectory = rootDirectory + IDD + '/'
+            plotfileBaseName = IDD + '.plt'
+            entropyThreshold = 1.0e15
 
-        #MakeLineOutPlot \
-        #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
+            #MakeLineOutPlot \
+            #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
-        dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( IDD )
-        forceChoice = False
-        OW = False
-        MakeDataFile \
-          ( plotfileDirectory, plotfileBaseName, dataFileName, \
-            entropyThreshold, markEvery = 10, forceChoice = forceChoice, \
-            OW = OW )
+            dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( IDD )
+            forceChoice = False
+            OW = False
+            MakeDataFile \
+              ( plotfileDirectory, plotfileBaseName, dataFileName, \
+                entropyThreshold, markEvery = 1, forceChoice = forceChoice, \
+                OW = OW )
 
-        Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
+            Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
 
-        ind = -1
-        #ind = np.where( RsMax > 0.9 * xH[0] )[0]
-        #if not len( ind ) == 0:
-        #    ind = np.copy( ind[0] )
-        #else:
-        #    ind = -1
-        #print( ind, Time[ind] )
+            ind = -1
+            ind = np.where( RsMax > 0.9 * xH[0] )[0]
+            if not len( ind ) == 0:
+                ind = np.copy( ind[0] )
+            else:
+                ind = -1
+            print( ind, Time[ind] )
 
-        ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
-                 c = color[nx], ls = '-' , label = nX[nx] )
-#        ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
-#                 c = color[r], ls = '--', label = 'min' )
-#        ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
-#                 c = color[r], ls = ':' , label = 'max' )
+            c = r * len(rel) + rs
+            ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
+                    c = color[c], ls = '-' , label = '{:}_Rs{:}'.format( rel[r], Rs[rs] ) )
+            ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
+                     c = color[c], ls = '--', label = 'min' )
+            ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
+                     c = color[c], ls = ':' , label = 'max' )
 
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \

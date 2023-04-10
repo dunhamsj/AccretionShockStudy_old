@@ -10,25 +10,23 @@ from UtilitiesModule import GetFileArray, GetData, ComputeAngleAverage, \
 
 #### ========== User Input ==========
 
-rootDirectory \
-  = '/lump/data/accretionShockStudy/'
-#rootDirectory \
-#  = '/home/kkadoogan/Work/Codes/thornado/SandBox/AMReX/Applications/\
-#StandingAccretionShock_Relativistic/'
+rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
-Rs = '180'
+M    = '2.8'
+Rpns = '020'
+Rs   = '7.50e1'
 
-ID = '2D_M2.8_Mdot0.3_Rs{:}'.format( Rs )
+ID = '2D_M{:}_Rpns{:}_Rs{:}'.format( M, Rpns, Rs )
+
+verbose = False
+
+#### ====== End of User Input =======
 
 Rs = np.float64( Rs )
 
 field = 'LateralMomentumFluxInRadialDirection'
 
 useLogScale = True
-
-verbose = False
-
-#### ====== End of User Input =======
 
 ID_GR = 'GR' + ID
 ID_NR = 'NR' + ID
@@ -38,22 +36,26 @@ plotFileBaseName = ID_GR + '.plt'
 plotFileDirectory = rootDirectory + ID_GR + '/'
 plotFileArray = GetFileArray( plotFileDirectory, plotFileBaseName )
 plotFile      = plotFileDirectory + plotFileArray[0]
-time, data, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-  = GetData( plotFile, field+'GR', verbose = True )
+data, dataUnits, X1, X2, X3, dX1, dX2, dX3, xL, xH, nX \
+  = GetData( plotFileDirectory, plotFileBaseName, field+'GR', \
+             'spherical', True, argv = [ 'a', plotFileArray[0] ], \
+             ReturnTime = False, ReturnMesh = True, Verbose = verbose )
 
-ind = np.where( ( X1 < 0.9 * Rs ) & ( X1 > 0.8 * Rs ) )[0]
+ind = np.where( ( X1[:,0,0] < 0.9 * Rs ) & ( X1[:,0,0] > 0.8 * Rs ) )[0]
 
 OW = Overwrite( 'LatFlux_{:}.dat'.format( ID_GR ) )
 if( OW ):
 
     plotFileBaseNameGR  = ID_GR + '.plt'
     plotFileDirectoryGR = rootDirectory + ID_GR + '/'
-    plotFileArrayGR     = GetFileArray( plotFileDirectoryGR, plotFileBaseNameGR )
+    plotFileArrayGR     = GetFileArray \
+                            ( plotFileDirectoryGR, plotFileBaseNameGR )
     nSS_GR              = plotFileArrayGR.shape[0]
 
     plotFileBaseNameNR  = ID_NR + '.plt'
     plotFileDirectoryNR = rootDirectory + ID_NR + '/'
-    plotFileArrayNR     = GetFileArray( plotFileDirectoryNR, plotFileBaseNameNR )
+    plotFileArrayNR     = GetFileArray \
+                            ( plotFileDirectoryNR, plotFileBaseNameNR )
     nSS_NR              = plotFileArrayNR.shape[0]
 
     nSS = min( nSS_GR, nSS_NR )
@@ -66,38 +68,39 @@ if( OW ):
 
     for iSS in range( nSS ):
 
+        if verbose: print('')
         print( '{:}/{:}'.format( iSS+1, nSS ) )
 
-        plotFileGR = plotFileDirectoryGR + plotFileArrayGR[iSS]
-        plotFileNR = plotFileDirectoryNR + plotFileArrayNR[iSS]
+        dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, xL, xH, nX, timeGR[iSS] \
+          = GetData( plotFileDirectoryGR, plotFileBaseNameGR, field+'GR', \
+                     'spherical', True, argv = [ 'a', plotFileArrayGR[iSS] ], \
+                     ReturnTime = True, ReturnMesh = True, Verbose = verbose )
 
-        timeGR[iSS], dataGR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-          = GetData( plotFileGR, field+'GR', verbose = verbose )
         AA = ComputeAngleAverage \
-               ( dataGR[ind], X2, dX2, dX3, \
-                 nX = [ dataGR[ind].shape[0], \
-                        dataGR[ind].shape[1], \
-                        dataGR[ind].shape[2] ] )
+                ( dataGR[ind], X2[0,:,0], dX2[0,:,0] )
+
         AA_GR[iSS] \
           = 4.0 * np.pi \
               * trapezoid \
-                  ( AA * X1[ind]**2, \
-                    x = X1[ind], dx = dX1[0] )
+                  ( AA, \
+                    x = X1[ind,0,0], dx = dX1[0,0,0] )
 
         del dataGR
 
-        timeNR[iSS], dataNR, dataUnits, X1, X2, X3, dX1, dX2, dX3, nX \
-          = GetData( plotFileNR, field+'GR', verbose = verbose )
+        dataNR, dataUnits, X1, X2, X3, dX1, dX2, dX3, xL, xH, nX, timeNR[iSS] \
+          = GetData( plotFileDirectoryNR, plotFileBaseNameNR, field+'NR', \
+                     'spherical', True, argv = [ 'a', plotFileArrayNR[iSS] ], \
+                     ReturnTime = True, ReturnMesh = True, Verbose = verbose )
+
         AA = ComputeAngleAverage \
-               ( dataNR[ind], X2, dX2, dX3, \
-                 nX = [ dataNR[ind].shape[0], \
-                        dataNR[ind].shape[1], \
-                        dataNR[ind].shape[2] ] )
+                ( dataNR[ind], X2[0,:,0], dX2[0,:,0] )
+
         AA_NR[iSS] \
           = 4.0 * np.pi \
               * trapezoid \
-                  ( AA * X1[ind]**2, \
-                    x = X1[ind], dx = dX1[0] )
+                  ( AA, \
+                    x = X1[ind,0,0], dx = dX1[0,0,0] )
+
 
         del dataNR
 
