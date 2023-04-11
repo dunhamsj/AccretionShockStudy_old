@@ -8,7 +8,7 @@ from PowerSpectrumUtilitiesModule import ReadFields
 
 def ComputePowerInLegendreModes \
       ( plotFileDirectory, plotFileBaseName, dataFileName, \
-        field, fL, fU, Rs, verbose = False ):
+        field, fL, fU, Rs, fc = False, ow = False, verbose = False ):
 
     if( verbose ):
         print()
@@ -24,7 +24,7 @@ def ComputePowerInLegendreModes \
         print( '{:>21} : {:} km'.format( 'Rs', Rs ) )
         print()
 
-    OW = Overwrite( dataFileName )
+    OW = Overwrite( dataFileName, ForceChoice = fc, OW = ow )
 
     if( not OW ): return
 

@@ -156,7 +156,7 @@ if __name__ == "__main__":
             #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
             dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( IDD )
-            forceChoice = False
+            forceChoice = True
             OW = False
             MakeDataFile \
               ( plotfileDirectory, plotfileBaseName, dataFileName, \
@@ -164,18 +164,23 @@ if __name__ == "__main__":
                 OW = OW )
 
             Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
+            Time  = np.copy( Time [:-1] )
+            RsAve = np.copy( RsAve[:-1] )
+            RsMin = np.copy( RsMin[:-1] )
+            RsMax = np.copy( RsMax[:-1] )
 
             ind = -1
-            ind = np.where( RsMax > 0.9 * xH[0] )[0]
+            ind = np.where( RsMax > 1.1 * np.float64( Rs[rs] ) )[0]
             if not len( ind ) == 0:
                 ind = np.copy( ind[0] )
             else:
                 ind = -1
-            print( ind, Time[ind] )
+            print( IDD, ind, Time[ind] )
 
             c = r * len(rel) + rs
             ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
-                    c = color[c], ls = '-' , label = '{:}_Rs{:}'.format( rel[r], Rs[rs] ) )
+                    c = color[c], ls = '-' , \
+                    label = '{:}_Rs{:}'.format( rel[r], Rs[rs] ) )
             ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
                      c = color[c], ls = '--', label = 'min' )
             ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \

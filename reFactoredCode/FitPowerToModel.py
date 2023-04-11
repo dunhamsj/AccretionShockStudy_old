@@ -9,8 +9,21 @@ def FitPowerToModel( t0, t1, t, P1, InitialGuess ):
 
     tFit = t[ind] - t0
 
-    beta, pcov = curve_fit( FittingFunction, tFit, np.log( P1[ind] ), \
-                            p0 = InitialGuess, jac = Jacobian )
+    LogF1_Lo  = 30.0
+    LogF1_Hi  = 35.0
+    omegaR_Lo = 1.0 / np.inf        # No growth of SASI
+    omegaR_Hi = 1.0 / 1.0           # Power increase by factor of e in 1 ms
+    omegaI_Lo = 2.0 * np.pi / 1.0e2 # Oscillatio period of 100 ms
+    omegaI_Hi = 2.0 * np.pi / 1.0e0 # Oscillatio period of 1 ms
+    delta_Lo  = 0.0
+    delta_Hi  = np.pi
+
+    bLo = [ LogF1_Lo, omegaR_Lo, omegaI_Lo, delta_Lo ]
+    bHi = [ LogF1_Hi, omegaR_Hi, omegaI_Hi, delta_Hi ]
+    beta, pcov \
+      = curve_fit \
+          ( FittingFunction, tFit, np.log( P1[ind] ), \
+            p0 = InitialGuess, jac = Jacobian)#, bounds = ( bLo, bHi ) )
 
     perr = np.sqrt( np.diag( pcov ) )
 

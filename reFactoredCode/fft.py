@@ -7,9 +7,9 @@ plt.style.use( 'publication.sty' )
 
 from computeTimeScales import ComputeTimeScales
 
-M    = '2.8'
-Rs   = '7.50e1'
-Rpns = '020'
+M    = '1.4'
+Rs   = '1.20e2'
+Rpns = '040'
 ID = '2D_M{:}_Rpns{:}_Rs{:}'.format( M, Rpns, Rs )
 
 ID_GR = 'GR' + ID
@@ -18,13 +18,15 @@ timeGR, dataGR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_GR ) )
 timeNR, dataNR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_NR ) )
 
 indmax = min( timeGR.shape[0], timeNR.shape[0] )
-ind = np.linspace( 0, indmax-1, indmax, dtype = np.int64 )
-ind = np.where( timeGR < 90.0 )[0]
+#ind = np.linspace( 0, indmax-1, indmax, dtype = np.int64 )
+ind = 777  # Rs = 1.20e2
+#ind = 1330 # Rs = 1.50e2
+#ind = 1839 # Rs = 1.75e2
 
-timeGR = np.copy( timeGR[ind] )
-timeNR = np.copy( timeNR[ind] )
-dataGR = np.copy( dataGR[ind] )
-dataNR = np.copy( dataNR[ind] )
+timeGR = np.copy( timeGR[0:ind] )
+timeNR = np.copy( timeNR[0:ind] )
+dataGR = np.copy( dataGR[0:ind] )
+dataNR = np.copy( dataNR[0:ind] )
 
 dataFileNameGR = '{:}_FFT.dat'.format( ID_GR )
 dataFileNameNR = '{:}_FFT.dat'.format( ID_NR )
@@ -94,17 +96,19 @@ color = ['#377eb8', '#ff7f00', '#4daf4a', \
 fig, axs = plt.subplots( 2, 1 )
 fig.suptitle( r'\texttt{{{:}}}'.format( ID ) )
 
-axs[0].plot( timeGR, dataGR, color = color[0], label = 'GR' )
-axs[0].plot( timeNR, dataNR, color = color[1], label = 'NR' )
+axs[0].plot( timeNR, dataNR, color = color[0], label = 'NR' )
+axs[0].plot( timeGR, dataGR, color = color[1], label = 'GR' )
 
 axs[1].text( 0.5, 0.6, 'GR: {:.3e} ms'.format( xGR[yGR.argmax()] ), \
              transform = axs[1].transAxes )
 axs[1].text( 0.5, 0.5, 'NR: {:.3e} ms'.format( xNR[yNR.argmax()] ), \
              transform = axs[1].transAxes )
 
-axs[1].plot( xGR, np.abs( yGR / yGR.max() ), '-', color = color[0] )
-axs[1].plot( xNR, np.abs( yNR / yNR.max() ), '-', color = color[1] )
+axs[1].plot( xNR, np.abs( yNR / yNR.max() ), '-', color = color[0] )
+axs[1].plot( xGR, np.abs( yGR / yGR.max() ), '-', color = color[1] )
 
+axs[0].set_xlim( 0.0, 1.0e2 )
+axs[1].set_xlim( 0.0, 1.0e2 )
 axs[0].set_xlabel( 'Time [ms]' )
 axs[1].set_xlabel( 'Time [ms]' )
 axs[0].set_ylabel( 'Data' )

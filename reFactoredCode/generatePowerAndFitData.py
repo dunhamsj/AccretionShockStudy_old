@@ -29,7 +29,8 @@ for r in range( R.shape[0] ):
                      ( R[r], M[m], Rpns[0], Rs[rs] )
 
                 plotFileDirectory \
-                  = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format( ID )
+                  = '/lump/data/accretionShockStudy/newData/2D/{:}/' \
+                    .format( ID )
 
                 if not isdir( plotFileDirectory ):
                     print( '\n{:} does not exist. Skipping.\n' \
@@ -43,13 +44,14 @@ for r in range( R.shape[0] ):
 
                 ComputePowerInLegendreModes \
                   ( plotFileDirectory, plotFileBaseName, dataFileName, \
-                    'DivV2', 0.8, 0.9, np.float64( Rs[rs] ), verbose = True )
+                    'DivV2', 0.8, 0.9, np.float64( Rs[rs] ), \
+                    fc = True, ow = False, verbose = True )
 
                 t, P0, P1, P2, P3, P4 = np.loadtxt( dataFileName )
 
-                LogF  = np.log( 1.0e14 )
-                tauR  = 200.0
-                delta = 0.0
+                LogF  = 31.0
+                tauR  = 20.0
+                delta = np.pi/4.0
 
                 rInner = np.float64( Rpns[0] )
                 rOuter = np.float64( Rs[rs] )
@@ -59,64 +61,18 @@ for r in range( R.shape[0] ):
                         rInner, rOuter, R[r] )
 
                 T_SASI = tAd + tAc
-                tF0 = 1.0
-                tF1 = 120.0
+                tF0 = 1.0 * T_SASI
+                tF1 = 8.0 * T_SASI
 
-                if M[m] == '1.4':
-                    if Rs[rs] == '120':
-                        T_SASI = 25.0
-                        tF0    = 63.5
-                        tF1    = 140.0
-                    elif Rs[rs] == '150':
-                        T_SASI = 35.0
-                        tF0    = 25.0
-                        tF1    = 140.0
-                    elif Rs[rs] == '180':
-                        T_SASI = 55.0
-                        tF0    = 35.0
-                        tF1    = 140.0
-                elif M[m] == '2.0':
-                    if Rs[rs] == '120':
-                        T_SASI = 20.0
-                        tF0    = 1.0
-                        tF1    = 150.0
-                    elif Rs[rs] == '150':
-                        T_SASI = 30.0
-                        tF0    = 20.0
-                        tF1    = 140.0
-                    elif Rs[rs] == '180':
-                        T_SASI = 50.0
-                        tF0    = 1.0
-                        tF1    = 150.0
-                elif M[m] == '2.8':
-                    if Rs[rs] == '120':
-                        T_SASI = 20.0
-                        tF0    = 15.0
-                        tF1    = 150.0
-                    elif Rs[rs] == '150':
-                        T_SASI = 30.0
-                        tF0    = 55.0
-                        tF1    = 150.0
-                    elif Rs[rs] == '180':
-                        T_SASI = 40.0
-                        tF0    = 5.0
-                        tF1    = 150.0
-                    if R[r] == 'NR':
-                        if Rs[rs] == '6.00e1':
-                            tF0    = 1.0
-                            tF1    = 50.0
-                        elif Rs[rs] == '7.50e1':
-                            tF0    = 1.0
-                            tF1    = 90.0
-
-                omegaR = 2.0 * np.pi / tauR
+                omegaR = 1.0 / tauR
                 omegaI = 2.0 * np.pi / T_SASI
 
                 InitialGuess \
                   = np.array( [ LogF, omegaR, omegaI, delta ], np.float64 )
 
                 beta, perr \
-                  = FitPowerToModel( tF0, tF1, t, P1, InitialGuess )
+                  = FitPowerToModel \
+                      ( tF0, tF1, t, P1, InitialGuess )
 
                 b = ''
                 e = ''

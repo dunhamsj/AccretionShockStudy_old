@@ -12,9 +12,9 @@ from UtilitiesModule import GetFileArray, GetData, ComputeAngleAverage, \
 
 rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
-M    = '2.8'
-Rpns = '020'
-Rs   = '7.50e1'
+M    = '1.4'
+Rpns = '040'
+Rs   = '1.75e2'
 
 ID = '2D_M{:}_Rpns{:}_Rs{:}'.format( M, Rpns, Rs )
 
@@ -116,8 +116,8 @@ timeNR, dataNR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_NR ) )
 
 fig, ax  = plt.subplots( 1, 1 )#, figsize = (12,8) )
 
-ax.plot( timeGR, dataGR, label = 'GR' )
-ax.plot( timeNR, dataNR, label = 'NR' )
+ax.plot( timeGR[:-1], dataGR[:-1], label = 'GR' )
+ax.plot( timeNR[:-1], dataNR[:-1], label = 'NR' )
 if( useLogScale ):
     ax.set_yscale( 'symlog', linthresh = 1.0e40 )
     saveFigAs = '/home/kkadoogan/fig.{:}_{:}_SymLog_VsCoordinateTime.png'.format( field, ID )

@@ -17,6 +17,12 @@ arrShape = (R.shape[0],M.shape[0],Rs.shape[0])
 
 ID = np.empty( arrShape, object )
 
+indd = np.empty( arrShape, np.int64 )
+indd[0,0,0] = 777
+indd[0,0,1] = 1330
+indd[0,0,2] = 1839
+indd[1] = np.copy( indd[0] )
+
 t  = np.empty( arrShape, object )
 P0 = np.empty( arrShape, object )
 P1 = np.empty( arrShape, object )
@@ -113,12 +119,12 @@ color = ['#377eb8', '#ff7f00', '#4daf4a', \
          '#f781bf', '#a65628', '#984ea3', \
          '#999999', '#e41a1c', '#dede00']
 
-fig, ax = plt.subplots( 1, 1 )#, figsize = (12,9) )
+fig, axs = plt.subplots( R.shape[0], Rs.shape[0], figsize = (16,9) )
 
 mdot = 0
 for r in range( R.shape[0] ):
-    for m in range( M.shape[0] ):
-        for rs in range( Rs.shape[0] ):
+    for rs in range( Rs.shape[0] ):
+        for m in range( M.shape[0] ):
 
             dataFileName \
               = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,m,rs] )
@@ -133,6 +139,9 @@ for r in range( R.shape[0] ):
             t0t = t0[r,m,rs]
             t1t = t1[r,m,rs]
 
+            tt  = np.copy( tt [0:indd[r,m,rs]] )
+            P1t = np.copy( P1t[0:indd[r,m,rs]] )
+
             ind = np.where( ( tt >= t0t ) & ( tt <= t1t ) )[0]
 
             tF = tt[ind]
@@ -142,43 +151,28 @@ for r in range( R.shape[0] ):
             omegaIt = omegaI[r,m,rs]
             deltat  = delta [r,m,rs]
 
-#            F = FittingFunction \
-#                 ( tF - tF[0], logFt, \
-#                   omegaRt, omegaIt, deltat )
+            F = np.exp( FittingFunction \
+                          ( tF - tF[0], logFt, \
+                            omegaRt, omegaIt, deltat ) )
 
-            tau =1# T_SASI[0,m,rs]
+            tau = T_SASI[r,m,rs]
 
-            ind = np.where( ( tt < 601.0 ) & ( tt >= 0.0 ) )[0]
+            axs[r,rs].plot( tt/tau, P1t, '-', color = color[rs] )
+            axs[r,rs].plot( tF/tau, F  , '-', color = 'k' )
 
-            if r == 1:
-                ax.plot \
-                  ( tt[ind]/tau, P1t[ind], '--', color = color[rs], \
-                    label = 'Rs={:} km (GR)'.format( Rs[rs] ) )
+        axs[r,rs].grid()
+        axs[r,rs].set_yscale( 'log' )
+        axs[r,rs].set_xlim( -0.5, 10.5 )
+        axs[r,rs].set_ylim( 1.0e10, 1.0e25 )
+        axs[r,rs].set_title( r'$\texttt{{{:}}}$'.format( ID[r,m,rs] ), \
+                             fontsize = 15 )
 
-            else:
-                ax.plot \
-                  ( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
-                    label = 'Rs={:} km'.format( Rs[rs] ) )
-ax.grid()
-ax.set_yscale( 'log' )
-#ax.set_xlim( 0, 12 )
-#xticks = np.linspace( 0, 12, 13, dtype = np.int64 )
-#xticklabels = [ str( i ) for i in xticks ]
-#ax.set_xticks( xticks )
-#ax.set_xticklabels( xticklabels )
-##ax.axvline( 150/T_SASI[0,0,0,0], label = r'$t=150\,\mathrm{ms}$' )
+fig.supxlabel( r'$t/T_{\mathrm{SASI}}$', y = +0.05, fontsize = 15 )
+#fig.supxlabel( 'Time [ms]' )
+fig.supylabel( r'$H_{1}$ [cgs]', x = +0.075, fontsize = 15 )
 
-ax.set_title( r'$\texttt{{2D_M{:}_Rpns{:}}}$'.format( M[0], Rpns[0] ), \
-              fontsize = 15 )
-
-ax.legend()
-#fig.supxlabel( r'$t/T_{\mathrm{SASI,NR}}$' )
-fig.supxlabel( 'Time [ms]' )
-fig.supylabel( r'$H_{1}$ [cgs]' )
-plt.subplots_adjust( hspace = 0.0, wspace = 0.3 )
-
-#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-plt.show()
+plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+#plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )
