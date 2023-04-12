@@ -13,15 +13,21 @@ M    = np.array( [ '1.4' ], str )
 Rs   = np.array( [ '1.20e2', '1.50e2', '1.75e2' ], str )
 Rpns = np.array( [ '040' ], str )
 
+R    = np.array( [ 'NR', 'GR' ], str )
+M    = np.array( [ '2.8' ], str )
+Rs   = np.array( [ '6.00e1', '7.50e1' ], str )
+Rpns = np.array( [ '020' ], str )
+
 arrShape = (R.shape[0],M.shape[0],Rs.shape[0])
 
 ID = np.empty( arrShape, object )
 
 indd = np.empty( arrShape, np.int64 )
-indd[0,0,0] = 777
-indd[0,0,1] = 1330
-indd[0,0,2] = 1839
-indd[1] = np.copy( indd[0] )
+indd[:,:,:] = -1
+#indd[0,0,0] = 777
+#indd[0,0,1] = 1330
+#indd[0,0,2] = 1839
+#indd[1] = np.copy( indd[0] )
 
 t  = np.empty( arrShape, object )
 P0 = np.empty( arrShape, object )
@@ -155,24 +161,24 @@ for r in range( R.shape[0] ):
                           ( tF - tF[0], logFt, \
                             omegaRt, omegaIt, deltat ) )
 
-            tau = T_SASI[r,m,rs]
+            tau = 1.0#T_SASI[r,m,rs]
 
             axs[r,rs].plot( tt/tau, P1t, '-', color = color[rs] )
             axs[r,rs].plot( tF/tau, F  , '-', color = 'k' )
 
         axs[r,rs].grid()
         axs[r,rs].set_yscale( 'log' )
-        axs[r,rs].set_xlim( -0.5, 10.5 )
-        axs[r,rs].set_ylim( 1.0e10, 1.0e25 )
+#        axs[r,rs].set_xlim( -0.5, 10.5 )
+#        axs[r,rs].set_ylim( 1.0e10, 1.0e25 )
         axs[r,rs].set_title( r'$\texttt{{{:}}}$'.format( ID[r,m,rs] ), \
                              fontsize = 15 )
 
-fig.supxlabel( r'$t/T_{\mathrm{SASI}}$', y = +0.05, fontsize = 15 )
-#fig.supxlabel( 'Time [ms]' )
+#fig.supxlabel( r'$t/T_{\mathrm{SASI}}$', y = +0.05, fontsize = 15 )
+fig.supxlabel( 'Time [ms]' )
 fig.supylabel( r'$H_{1}$ [cgs]', x = +0.075, fontsize = 15 )
 
-plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-#plt.show()
+#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
+plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )

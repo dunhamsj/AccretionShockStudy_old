@@ -129,11 +129,11 @@ if __name__ == "__main__":
     rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
     rel  = [ 'NR', 'GR' ]
-    M    = [ '1.4' ]
+    M    = [ '2.8' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '1.20e2', '1.50e2', '1.75e2' ]
+    Rs   = [ '6.00e1' ]
 #    nX   = [ '0140', '0280', '0560', '1120' ]
-    xL   = [ 4.00e1 ]
+    xL   = [ 2.00e1 ]
     xH   = [ 1.5 * x for x in np.float64( Rs ) ]
 
     fig, ax = plt.subplots( 1, 1 )
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     for r in range( len( rel ) ):
         for rs in range( len( Rs ) ):
 
-            IDD = '{:}2D_M{:}_Rpns040_Rs{:}'.format( rel[r], M[0], Rs[rs] )
+            IDD = '{:}2D_M{:}_Rpns020_Rs{:}'.format( rel[r], M[0], Rs[rs] )
 
             plotfileDirectory = rootDirectory + IDD + '/'
             plotfileBaseName = IDD + '.plt'
@@ -156,7 +156,7 @@ if __name__ == "__main__":
             #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
             dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( IDD )
-            forceChoice = True
+            forceChoice = False
             OW = False
             MakeDataFile \
               ( plotfileDirectory, plotfileBaseName, dataFileName, \

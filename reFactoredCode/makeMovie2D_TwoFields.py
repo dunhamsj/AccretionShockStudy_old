@@ -66,8 +66,8 @@ for i in range( nPanels ):
     plotfileBaseName[i] = ID[i] + '.plt'
 
 # Field to plot
-field[0] = 'PolytropicConstant'
-field[1] = 'PolytropicConstant'
+field[0] = 'DivV2'
+field[1] = 'DivV2'
 
 # Plot data in log10-scale?
 useLogScale = True
@@ -76,8 +76,8 @@ useLogScale = True
 plotEvery = 1
 
 # Colormap
-cmap[0] = 'viridis'
-cmap[1] = 'viridis'
+cmap[0] = 'RdBu'
+cmap[1] = 'RdBu'
 
 # First and last snapshots and number of snapshots to include in movie
 SSi = -1 # -1 -> SSi = 0
@@ -237,9 +237,9 @@ for i in range( nPanels ):
       #                    .format( dataUnits[i][1:-1] ), labelpad = labelpad )
 
 cbar[0].set_label \
-  ( field[0] + ' '+r'$\mathrm{{{:}}}$'.format( dataUnits[0][1:-1] ) + '(Original)' )
+  ( field[0] + ' '+r'$\mathrm{{{:}}}$'.format( dataUnits[0][1:-1] ) + '(GR)' )
 cbar[1].set_label \
-  ( field[1] + ' '+r'$\mathrm{{{:}}}$'.format( dataUnits[1][1:-1] ) + '(New)' )
+  ( field[1] + ' '+r'$\mathrm{{{:}}}$'.format( dataUnits[1][1:-1] ) + '(NR)' )
 #cbar[0].set_label( r'$dK/K$' + ' (Original)' )
 #cbar[1].set_label( r'$dK/K$' + ' (New)' )
 

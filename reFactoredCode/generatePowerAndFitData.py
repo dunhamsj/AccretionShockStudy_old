@@ -15,10 +15,10 @@ R    = np.array( [ 'NR' ], str )
 Rs   = np.array( [ '7.50e1'], str )
 
 R    = np.array( [ 'NR', 'GR' ], str )
-M    = np.array( [ '1.4' ], str )
+M    = np.array( [ '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '1.20e2', '1.50e2', '1.75e2' ], str )
-Rpns = np.array( [ '040' ], str )
+Rs   = np.array( [ '7.50e1' ], str )
+Rpns = np.array( [ '020' ], str )
 
 for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
@@ -45,7 +45,7 @@ for r in range( R.shape[0] ):
                 ComputePowerInLegendreModes \
                   ( plotFileDirectory, plotFileBaseName, dataFileName, \
                     'DivV2', 0.8, 0.9, np.float64( Rs[rs] ), \
-                    fc = True, ow = False, verbose = True )
+                    fc = False, ow = False, verbose = True )
 
                 t, P0, P1, P2, P3, P4 = np.loadtxt( dataFileName )
 
