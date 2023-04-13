@@ -8,15 +8,26 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR', 'GR' ], str )
-M    = np.array( [ '1.4' ], str )
-Rs   = np.array( [ '1.20e2', '1.50e2', '1.75e2' ], str )
-Rpns = np.array( [ '040' ], str )
+stage = 'late'
+vsTau = False
+saveFig = True
 
-R    = np.array( [ 'NR', 'GR' ], str )
-M    = np.array( [ '2.8' ], str )
-Rs   = np.array( [ '6.00e1', '7.50e1' ], str )
-Rpns = np.array( [ '020' ], str )
+if stage == 'early':
+
+    R    = np.array( [ 'NR', 'GR' ], str )
+    M    = np.array( [ '1.4' ], str )
+    Rs   = np.array( [ '1.20e2', '1.50e2', '1.75e2' ], str )
+    Rpns = np.array( [ '040' ], str )
+
+elif stage == 'late':
+
+    R    = np.array( [ 'NR', 'GR' ], str )
+    M    = np.array( [ '2.8' ], str )
+    Rs   = np.array( [ '6.00e1', '7.50e1' ], str )
+    Rpns = np.array( [ '020' ], str )
+
+else:
+    exit('Ya done fucked up')
 
 arrShape = (R.shape[0],M.shape[0],Rs.shape[0])
 
@@ -125,60 +136,108 @@ color = ['#377eb8', '#ff7f00', '#4daf4a', \
          '#f781bf', '#a65628', '#984ea3', \
          '#999999', '#e41a1c', '#dede00']
 
-fig, axs = plt.subplots( R.shape[0], Rs.shape[0], figsize = (16,9) )
+fig, axs = plt.subplots( R.shape[0], 1)#, figsize = (16,9) )
 
-mdot = 0
+m = 0
 for r in range( R.shape[0] ):
     for rs in range( Rs.shape[0] ):
-        for m in range( M.shape[0] ):
 
-            dataFileName \
-              = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,m,rs] )
+        dataFileName \
+          = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,m,rs] )
 
-            if not isfile( dataFileName ):
-                print( '{:} does not exist. Skipping.' \
-                       .format( dataFileName ) )
-                continue
+        if not isfile( dataFileName ):
+            print( '{:} does not exist. Skipping.' \
+                   .format( dataFileName ) )
+            continue
 
-            tt  = t [r,m,rs]
-            P1t = P1[r,m,rs]
-            t0t = t0[r,m,rs]
-            t1t = t1[r,m,rs]
+        tt  = t [r,m,rs]
+        P1t = P1[r,m,rs]
+        t0t = t0[r,m,rs]
+        t1t = t1[r,m,rs]
 
-            tt  = np.copy( tt [0:indd[r,m,rs]] )
-            P1t = np.copy( P1t[0:indd[r,m,rs]] )
+        tt  = np.copy( tt [0:indd[r,m,rs]] )
+        P1t = np.copy( P1t[0:indd[r,m,rs]] )
 
-            ind = np.where( ( tt >= t0t ) & ( tt <= t1t ) )[0]
+        indF = np.where( ( tt >= t0t ) & ( tt <= t1t ) )[0]
 
-            tF = tt[ind]
+        tF = tt[indF]
 
-            logFt   = LogF  [r,m,rs]
-            omegaRt = omegaR[r,m,rs]
-            omegaIt = omegaI[r,m,rs]
-            deltat  = delta [r,m,rs]
+        logFt   = LogF  [r,m,rs]
+        omegaRt = omegaR[r,m,rs]
+        omegaIt = omegaI[r,m,rs]
+        deltat  = delta [r,m,rs]
 
-            F = np.exp( FittingFunction \
-                          ( tF - tF[0], logFt, \
-                            omegaRt, omegaIt, deltat ) )
+        F = np.exp( FittingFunction \
+                      ( tF - tF[0], logFt, \
+                        omegaRt, omegaIt, deltat ) )
 
-            tau = 1.0#T_SASI[r,m,rs]
+        tau = T_SASI[r,m,rs]
 
-            axs[r,rs].plot( tt/tau, P1t, '-', color = color[rs] )
-            axs[r,rs].plot( tF/tau, F  , '-', color = 'k' )
+        ind = np.where( tt/tau <= 10.0 )[0]
 
-        axs[r,rs].grid()
-        axs[r,rs].set_yscale( 'log' )
-#        axs[r,rs].set_xlim( -0.5, 10.5 )
-#        axs[r,rs].set_ylim( 1.0e10, 1.0e25 )
-        axs[r,rs].set_title( r'$\texttt{{{:}}}$'.format( ID[r,m,rs] ), \
-                             fontsize = 15 )
+        if not vsTau: tau = 1.0
 
-#fig.supxlabel( r'$t/T_{\mathrm{SASI}}$', y = +0.05, fontsize = 15 )
-fig.supxlabel( 'Time [ms]' )
-fig.supylabel( r'$H_{1}$ [cgs]', x = +0.075, fontsize = 15 )
+        axs[r].plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
+                     label = r'$\texttt{{{:}}}$'.format( ID[r,m,rs] ) )
+        #axs[r].plot( tF/tau, F  , '-', color = 'k' )
 
-#plt.savefig( '/home/kkadoogan/fig.PowerInLegendreMode.png', dpi = 300 )
-plt.show()
+        # END for rs in range( Rs.shape[0] )
+
+    axs[r].grid()
+    axs[r].legend()
+    axs[r].set_yscale( 'log' )
+    axs[r].set_ylim( 1.0e11, 5.0e26 )
+
+    if vsTau:
+        axs[r].set_xlim( -0.5, 10.5 )
+    else:
+        if stage == 'early':
+            axs[r].set_xlim( -10.0, 600.0 )
+        elif stage == 'late':
+            axs[r].set_xlim( -1.0, 140.0 )
+
+    # END for r in range( R.shape[0] )
+
+axs[0].xaxis.set_ticklabels( '' )
+
+if vsTau:
+    fig.supxlabel \
+      ( r'$t/T_{\mathrm{SASI}}$', y = +0.025, fontsize = 15 )
+else:
+    fig.supxlabel \
+      ( 'Time [ms]'             , y = +0.025, fontsize = 15 )
+
+if stage == 'early':
+    fig.suptitle( 'Early-Stage Models', y = 0.95 )
+elif stage == 'late':
+    fig.suptitle( 'Late-Stage Models' , y = 0.95 )
+
+fig.supylabel( r'$H_{1}$ [cgs]', x = +0.025, fontsize = 15 )
+
+plt.subplots_adjust( hspace = 0.0 )
+
+if saveFig:
+
+    if stage == 'early':
+        if vsTau:
+            fileName \
+              = '/home/kkadoogan/fig.PowerInLegendreMode_earlyStage_tau.png'
+        else:
+            fileName \
+              = '/home/kkadoogan/fig.PowerInLegendreMode_earlyStage_t.png'
+    elif stage == 'late':
+        if vsTau:
+            fileName \
+              = '/home/kkadoogan/fig.PowerInLegendreMode_lateStage_tau.png'
+        else:
+            fileName \
+              = '/home/kkadoogan/fig.PowerInLegendreMode_lateStage_t.png'
+
+    plt.savefig( fileName, dpi = 300 )
+
+else:
+
+    plt.show()
 
 import os
 os.system( 'rm -rf __pycache__ ' )

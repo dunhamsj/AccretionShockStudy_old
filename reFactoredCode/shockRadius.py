@@ -126,14 +126,14 @@ def MakeDataFile \
 if __name__ == "__main__":
 
     #rootDirectory = '/lump/data/accretionShockStudy/'
-    rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
+    rootDirectory = '/lump/data/accretionShockStudy/newData/'
 
-    rel  = [ 'NR', 'GR' ]
-    M    = [ '2.8' ]
+    rel  = [ 'NR' ]
+    M    = [ '1.4' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '6.00e1' ]
-#    nX   = [ '0140', '0280', '0560', '1120' ]
-    xL   = [ 2.00e1 ]
+    Rs   = [ '1.80e2' ]
+    xL   = [ 4.00e1 ]
+    suffix = [ '_BetaTVD1.00', '_ST1.00e-10' ]
     xH   = [ 1.5 * x for x in np.float64( Rs ) ]
 
     fig, ax = plt.subplots( 1, 1 )
@@ -143,48 +143,47 @@ if __name__ == "__main__":
              '#f781bf', '#a65628', '#984ea3', \
              '#999999', '#e41a1c', '#dede00']
 
-    for r in range( len( rel ) ):
-        for rs in range( len( Rs ) ):
+    for i in range( len( suffix ) ):
 
-            IDD = '{:}2D_M{:}_Rpns020_Rs{:}'.format( rel[r], M[0], Rs[rs] )
+        ID = 'NR1D_M1.4_Rpns040_Rs1.80e2{:}'.format( suffix[i] )
 
-            plotfileDirectory = rootDirectory + IDD + '/'
-            plotfileBaseName = IDD + '.plt'
-            entropyThreshold = 1.0e15
+        plotfileDirectory = rootDirectory + ID + '/'
+        plotfileBaseName = ID + '.plt'
+        entropyThreshold = 1.0e15
 
-            #MakeLineOutPlot \
-            #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
+        #MakeLineOutPlot \
+        #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
-            dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( IDD )
-            forceChoice = False
-            OW = False
-            MakeDataFile \
-              ( plotfileDirectory, plotfileBaseName, dataFileName, \
-                entropyThreshold, markEvery = 1, forceChoice = forceChoice, \
-                OW = OW )
+        dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( ID )
+        forceChoice = True
+        OW = False
+        MakeDataFile \
+          ( plotfileDirectory, plotfileBaseName, dataFileName, \
+            entropyThreshold, markEvery = 10, forceChoice = forceChoice, \
+            OW = OW )
 
-            Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
-            Time  = np.copy( Time [:-1] )
-            RsAve = np.copy( RsAve[:-1] )
-            RsMin = np.copy( RsMin[:-1] )
-            RsMax = np.copy( RsMax[:-1] )
+        Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
+        Time  = np.copy( Time [:-1] )
+        RsAve = np.copy( RsAve[:-1] )
+        RsMin = np.copy( RsMin[:-1] )
+        RsMax = np.copy( RsMax[:-1] )
 
-            ind = -1
-            ind = np.where( RsMax > 1.1 * np.float64( Rs[rs] ) )[0]
-            if not len( ind ) == 0:
-                ind = np.copy( ind[0] )
-            else:
-                ind = -1
-            print( IDD, ind, Time[ind] )
+        ind = -1
+#        ind = np.where( RsMax > 1.1 * np.float64( Rs[rs] ) )[0]
+#        if not len( ind ) == 0:
+#            ind = np.copy( ind[0] )
+#        else:
+#            ind = -1
+#        print( ID, ind, Time[ind] )
 
-            c = r * len(rel) + rs
-            ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
-                    c = color[c], ls = '-' , \
-                    label = '{:}_Rs{:}'.format( rel[r], Rs[rs] ) )
-            ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
-                     c = color[c], ls = '--', label = 'min' )
-            ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
-                     c = color[c], ls = ':' , label = 'max' )
+        c = i
+        ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
+                c = color[c], ls = '-' , \
+                label = '{:}'.format( suffix[i][1:] ) )
+#        ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
+#                 c = color[c], ls = '--', label = 'min' )
+#        ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
+#                 c = color[c], ls = ':' , label = 'max' )
 
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \

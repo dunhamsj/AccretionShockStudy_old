@@ -11,54 +11,34 @@ def PlotRelaxationVsTime \
 
 if __name__ == '__main__':
 
-    nX = [ 128, 256, 512, 1024 ]
-
     UseLogScale = True
 
-    ID = 'GR1D_M2.8_Mdot0.3_Rs7.50e1_RPNS2.00e1'
+    ID = [ 'NR1D_M1.4_Rpns040_Rs1.80e2_ST1.00e-10', \
+           'NR1D_M1.4_Rpns040_Rs180_Mdot0.3' ]
 
+    ST = [ 'ST = 1.00e-10', 'ST = 1.00e-06' ]
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 
-#    Root = '/home/dunhamsj/AccretionShockData/'
-    Root = '/lump/data/accretionShockStudy/'
+    fig, ax = plt.subplots( 1, 1 )
 
-    fig, axs = plt.subplots( 3, 1 )
+    for i in range( len( ID ) ):
 
-    fig.suptitle( r'$\texttt{{{:}}}$'.format( ID ) )
-
-    for n in nX:
-
-        dataFileName = '.{:}_Relaxation_{:}_nX{:}.dat' \
-                       .format( ID, 'PF_D', str( n ).zfill(4) )
+        dataFileName = '.{:}_Relaxation_{:}_nX0460.dat' \
+                       .format( ID[i], 'PF_D' )
         Time, D = np.loadtxt( dataFileName )
 
-        dataFileName = '.{:}_Relaxation_{:}_nX{:}.dat' \
-                       .format( ID, 'PF_V1', str( n ).zfill(4) )
-        Time, V = np.loadtxt( dataFileName )
+        ax.plot( Time, np.abs( D ), '.', \
+                 markersize = 3.0-2*i, markevery = 1, label = ST[i] )
 
-        dataFileName = '.{:}_Relaxation_{:}_nX{:}.dat' \
-                       .format( ID, 'AF_P', str( n ).zfill(4) )
-        Time, P = np.loadtxt( dataFileName )
+        ax.grid()
+        ax.set_yscale( 'log' )
 
-        axs[0].plot( Time, np.abs( D ), '.', \
-                 markersize = 2.0, markevery = 1, label = n )
-        axs[1].plot( Time, np.abs( V ), '.', \
-                 markersize = 2.0, markevery = 1 )
-        axs[2].plot( Time, np.abs( P ), '.', \
-                 markersize = 2.0, markevery = 1 )
-
-    for i in range( axs.shape[0] ):
-        axs[i].grid()
-        axs[i].set_yscale( 'log' )
-
-    axs[0].legend()
-    axs[-1].set_xlabel( 'Time [ms]' )
-    axs[0].set_ylabel( r'$\mathrm{max}\left(\left|\dot{\rho}/\rho\right|\right)$' )
-    axs[1].set_ylabel( r'$\mathrm{max}\left(\left|\dot{v}/v\right|\right)$' )
-    axs[2].set_ylabel( r'$\mathrm{max}\left(\left|\dot{p}/p\right|\right)$' )
+    ax.legend()
+    ax.set_xlabel( 'Time [ms]' )
+    ax.set_ylabel( r'$\mathrm{max}\left(\left|\dot{\rho}/\rho\right|\right)$' )
 
 #    plt.show()
-    plt.savefig( 'fig.Relaxation_{:}.png'.format( ID ), dpi = 300 )
+    plt.savefig( 'fig.Relaxation_{:}.png'.format( 'ST' ), dpi = 300 )
 
     plt.close()
 

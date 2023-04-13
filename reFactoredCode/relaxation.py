@@ -150,17 +150,19 @@ def PlotRelaxationVsTime \
 
 if __name__ == '__main__':
 
-    nX = 280
+    nX = 460
 
     UseLogScale = True
 
-    ID = 'GR1D_M1.4_Rpns040_Rs1.20e2_nX0280'
+    #ID = 'NR1D_M1.4_Rpns040_Rs1.80e2_ST1.00e-6'
+    ID = 'NR1D_M1.4_Rpns040_Rs1.80e2_ST1.00e-6'
 
     SaveFileAs = 'fig.Relaxation_{:}.png'.format( ID )
 
-    Root = '/lump/data/accretionShockStudy/newData/resolutionStudy_earlyStage/'
+    Root = '/lump/data/accretionShockStudy/newData/'
 
     plotfileDirectory = Root + ID + '/'
+    ID = 'NR1D_M1.4_Rpns040_Rs180_Mdot0.3'
 
     D = 'PF_D'
     Time, Data = getData( plotfileDirectory, ID, D, nX, False, True )
