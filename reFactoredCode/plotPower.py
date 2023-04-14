@@ -8,8 +8,8 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-stage = 'late'
-vsTau = False
+stage   = 'early'
+vsTau   = False
 saveFig = True
 
 if stage == 'early':
@@ -19,14 +19,21 @@ if stage == 'early':
     Rs   = np.array( [ '1.20e2', '1.50e2', '1.75e2' ], str )
     Rpns = np.array( [ '040' ], str )
 
+    R    = np.array( [ 'NR' ], str )
+    Rs   = np.array( [ '1.80e2' ], str )
+    suffix = '_ST1.00e-10'
+
 elif stage == 'late':
 
     R    = np.array( [ 'NR', 'GR' ], str )
     M    = np.array( [ '2.8' ], str )
-    Rs   = np.array( [ '6.00e1', '7.50e1' ], str )
+    Rs   = np.array( [ '6.00e1', '7.50e1', '8.75e1' ], str )
     Rpns = np.array( [ '020' ], str )
 
+    R    = np.array( [ 'NR', 'NR' ], str )
+
 else:
+
     exit('Ya done fucked up')
 
 arrShape = (R.shape[0],M.shape[0],Rs.shape[0])
@@ -63,11 +70,11 @@ for r in range( R.shape[0] ):
         for rs in range( Rs.shape[0] ):
 
             ID[r,m,rs] \
-              = '{:}2D_M{:}_Rpns{:}_Rs{:}'.format \
-                 ( R[r], M[m], Rpns[0], Rs[rs] )
+              = '{:}2D_M{:}_Rpns{:}_Rs{:}{:}'.format \
+                 ( R[r], M[m], Rpns[0], Rs[rs], suffix )
 
             plotFileDirectory \
-              = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format \
+              = '/lump/data/accretionShockStudy/newData/{:}/'.format \
                 ( ID[r,m,rs] )
 
             if not isdir( plotFileDirectory ):
@@ -177,28 +184,49 @@ for r in range( R.shape[0] ):
 
         if not vsTau: tau = 1.0
 
-        axs[r].plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
-                     label = r'$\texttt{{{:}}}$'.format( ID[r,m,rs] ) )
-        #axs[r].plot( tF/tau, F  , '-', color = 'k' )
+        if R.shape[0] == 1:
+            axs.plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
+                      label = r'$\texttt{{{:}}}$'.format( ID[r,m,rs] ) )
+        else:
+            axs[r].plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
+                         label = r'$\texttt{{{:}}}$'.format( ID[r,m,rs] ) )
+            #axs[r].plot( tF/tau, F  , '-', color = 'k' )
 
         # END for rs in range( Rs.shape[0] )
 
-    axs[r].grid()
-    axs[r].legend()
-    axs[r].set_yscale( 'log' )
-    axs[r].set_ylim( 1.0e11, 5.0e26 )
-
-    if vsTau:
-        axs[r].set_xlim( -0.5, 10.5 )
+    if R.shape[0] == 1:
+        axs.grid()
+        axs.legend()
+        axs.set_yscale( 'log' )
     else:
-        if stage == 'early':
-            axs[r].set_xlim( -10.0, 600.0 )
-        elif stage == 'late':
-            axs[r].set_xlim( -1.0, 140.0 )
+        axs[r].grid()
+        axs[r].legend()
+        axs[r].set_yscale( 'log' )
+#        axs[r].set_ylim( 1.0e11, 5.0e26 )
+
+#    if R.shape[0] == 1:
+#        if vsTau:
+#            axs.set_xlim( -0.5, 10.5 )
+#        else:
+#            if stage == 'early':
+#                axs.set_xlim( -10.0, 600.0 )
+#            elif stage == 'late':
+#                axs.set_xlim( -1.0, 140.0 )
+#    else:
+#        if vsTau:
+#            axs[r].set_xlim( -0.5, 10.5 )
+#        else:
+#            if stage == 'early':
+#                axs[r].set_xlim( -10.0, 600.0 )
+#            elif stage == 'late':
+#                axs[r].set_xlim( -1.0, 140.0 )
 
     # END for r in range( R.shape[0] )
 
-axs[0].xaxis.set_ticklabels( '' )
+#if R.shape[0] == 1:
+#    axs.xaxis.set_ticklabels( '' )
+#else:
+#    axs[0].xaxis.set_ticklabels( '' )
 
 if vsTau:
     fig.supxlabel \

@@ -14,22 +14,23 @@ Rs   = np.array( [ '6.00e1', '7.50e1', '9.00e1' ], str )
 R    = np.array( [ 'NR' ], str )
 Rs   = np.array( [ '7.50e1'], str )
 
-R    = np.array( [ 'NR', 'GR' ], str )
-M    = np.array( [ '2.8' ], str )
+R    = np.array( [ 'NR' ], str )
+M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '7.50e1' ], str )
-Rpns = np.array( [ '020' ], str )
+Rs   = np.array( [ '1.80e2' ], str )
+Rpns = np.array( [ '040' ], str )
+suffix = '_ST1.00e-10'
 
 for r in range( R.shape[0] ):
     for m in range( M.shape[0] ):
         for mdot in range( Mdot.shape[0] ):
             for rs in range( Rs.shape[0] ):
 
-                ID = '{:}2D_M{:}_Rpns{:}_Rs{:}'.format \
-                     ( R[r], M[m], Rpns[0], Rs[rs] )
+                ID = '{:}2D_M{:}_Rpns{:}_Rs{:}{:}'.format \
+                     ( R[r], M[m], Rpns[0], Rs[rs], suffix )
 
                 plotFileDirectory \
-                  = '/lump/data/accretionShockStudy/newData/2D/{:}/' \
+                  = '/lump/data/accretionShockStudy/newData/{:}/' \
                     .format( ID )
 
                 if not isdir( plotFileDirectory ):
