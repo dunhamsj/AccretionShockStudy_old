@@ -8,7 +8,7 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-stage   = 'late'
+stage   = 'early'
 vsTau   = True
 saveFig = True
 
@@ -27,9 +27,10 @@ elif stage == 'late':
 
     R    = np.array( [ 'NR', 'GR' ], str )
     M    = np.array( [ '2.8' ], str )
-    Rs   = np.array( [ '7.00e1' ], str )
+    Rs   = np.array( [ '6.00e1', '7.50e1', '8.75e1' ], str )
     Rpns = np.array( [ '020' ], str )
-    suffix = ''
+
+    R    = np.array( [ 'NR', 'NR' ], str )
 
 else:
 
@@ -73,7 +74,7 @@ for r in range( R.shape[0] ):
                  ( R[r], M[m], Rpns[0], Rs[rs], suffix )
 
             plotFileDirectory \
-              = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format \
+              = '/lump/data/accretionShockStudy/newData/{:}/'.format \
                 ( ID[r,m,rs] )
 
             if not isdir( plotFileDirectory ):
