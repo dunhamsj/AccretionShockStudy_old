@@ -8,7 +8,7 @@ plt.style.use( 'publication.sty' )
 from computeTimeScales import ComputeTimeScales
 
 M    = '2.8'
-Rs   = '6.00e1'
+Rs   = '8.75e1'
 Rpns = '020'
 ID = '2D_M{:}_Rpns{:}_Rs{:}'.format( M, Rpns, Rs )
 
@@ -19,7 +19,8 @@ timeNR, dataNR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_NR ) )
 
 indmax = min( timeGR.shape[0], timeNR.shape[0] )
 #ind = np.linspace( 0, indmax-1, indmax, dtype = np.int64 )
-ind = 195  # Rs = 6.00e1
+ind = 47 # Rs = 8.75e1
+#ind = 195  # Rs = 6.00e1
 #ind = 777  # Rs = 1.20e2
 #ind = 1330 # Rs = 1.50e2
 #ind = 1839 # Rs = 1.75e2
@@ -108,8 +109,8 @@ axs[1].text( 0.5, 0.5, 'NR: {:.3e} ms'.format( xNR[yNR.argmax()] ), \
 axs[1].plot( xNR, np.abs( yNR / yNR.max() ), '-', color = color[0] )
 axs[1].plot( xGR, np.abs( yGR / yGR.max() ), '-', color = color[1] )
 
-axs[0].set_xlim( 0.0, 20)#1.0e2 )
-axs[1].set_xlim( 0.0, 20)#1.0e2 )
+#axs[0].set_xlim( 0.0, 20)#1.0e2 )
+#axs[1].set_xlim( 0.0, 20)#1.0e2 )
 axs[0].set_xlabel( 'Time [ms]' )
 axs[1].set_xlabel( 'Time [ms]' )
 axs[0].set_ylabel( 'Data' )

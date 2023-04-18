@@ -7,14 +7,7 @@ from ComputePowerInLegendreModes import ComputePowerInLegendreModes
 from FitPowerToModel import FitPowerToModel
 from computeTimeScales import ComputeTimeScales
 
-R    = np.array( [ 'NR', 'GR' ], str )
-M    = np.array( [ '2.8' ], str )
-Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '6.00e1', '7.50e1', '9.00e1' ], str )
 R    = np.array( [ 'NR' ], str )
-Rs   = np.array( [ '7.50e1'], str )
-
-R    = np.array( [ 'NR', 'GR' ], str )
 M    = np.array( [ '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
 Rs   = np.array( [ '7.00e1' ], str )

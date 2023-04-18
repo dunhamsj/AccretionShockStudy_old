@@ -126,14 +126,14 @@ def MakeDataFile \
 if __name__ == "__main__":
 
     #rootDirectory = '/lump/data/accretionShockStudy/'
-    rootDirectory = '/lump/data/accretionShockStudy/newData/'
+    rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
-    rel  = [ 'NR' ]
-    M    = [ '1.4' ]
+    rel  = [ 'NR', 'GR', ]
+    M    = [ '2.8' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '1.80e2' ]
-    xL   = [ 4.00e1 ]
-    suffix = [ '_BetaTVD1.00', '_ST1.00e-10' ]
+    Rs   = [ '8.75e1' ]
+    xL   = [ '020' ]
+    suffix = [ '' ]
     xH   = [ 1.5 * x for x in np.float64( Rs ) ]
 
     fig, ax = plt.subplots( 1, 1 )
@@ -143,9 +143,10 @@ if __name__ == "__main__":
              '#f781bf', '#a65628', '#984ea3', \
              '#999999', '#e41a1c', '#dede00']
 
-    for i in range( len( suffix ) ):
+    for i in range( len( rel ) ):
 
-        ID = 'NR1D_M1.4_Rpns040_Rs1.80e2{:}'.format( suffix[i] )
+        ID = '{:}2D_M{:}_Rpns{:}_Rs{:}{:}' \
+             .format( rel[i], M[0], xL[0], Rs[0], suffix[0] )
 
         plotfileDirectory = rootDirectory + ID + '/'
         plotfileBaseName = ID + '.plt'
@@ -155,11 +156,11 @@ if __name__ == "__main__":
         #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
         dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( ID )
-        forceChoice = True
+        forceChoice = False
         OW = False
         MakeDataFile \
           ( plotfileDirectory, plotfileBaseName, dataFileName, \
-            entropyThreshold, markEvery = 10, forceChoice = forceChoice, \
+            entropyThreshold, markEvery = 1, forceChoice = forceChoice, \
             OW = OW )
 
         Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
@@ -169,21 +170,21 @@ if __name__ == "__main__":
         RsMax = np.copy( RsMax[:-1] )
 
         ind = -1
-#        ind = np.where( RsMax > 1.1 * np.float64( Rs[rs] ) )[0]
-#        if not len( ind ) == 0:
-#            ind = np.copy( ind[0] )
-#        else:
-#            ind = -1
-#        print( ID, ind, Time[ind] )
+        ind = np.where( RsMax > 1.1 * np.float64( Rs[0] ) )[0]
+        if not len( ind ) == 0:
+            ind = np.copy( ind[0] )
+        else:
+            ind = -1
+        print( ID, ind, Time[ind] )
 
         c = i
         ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
                 c = color[c], ls = '-' , \
-                label = '{:}'.format( suffix[i][1:] ) )
-#        ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
-#                 c = color[c], ls = '--', label = 'min' )
-#        ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
-#                 c = color[c], ls = ':' , label = 'max' )
+                label = '{:}'.format( rel[i] ) )
+        ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
+                 c = color[c], ls = '--', label = 'min' )
+        ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
+                 c = color[c], ls = ':' , label = 'max' )
 
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \

@@ -14,7 +14,7 @@ rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
 M    = '2.8'
 Rpns = '020'
-Rs   = '6.00e1'
+Rs   = '7.00e1'
 
 ID = '2D_M{:}_Rpns{:}_Rs{:}'.format( M, Rpns, Rs )
 

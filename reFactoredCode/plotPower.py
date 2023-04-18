@@ -10,7 +10,7 @@ from computeTimeScales import ComputeTimeScales
 
 stage   = 'late'
 vsTau   = True
-saveFig = True
+saveFig = False
 
 if stage == 'early':
 
@@ -27,7 +27,7 @@ elif stage == 'late':
 
     R    = np.array( [ 'NR', 'GR' ], str )
     M    = np.array( [ '2.8' ], str )
-    Rs   = np.array( [ '7.00e1' ], str )
+    Rs   = np.array( [ '6.00e1', '7.00e1', '8.75e1' ], str )
     Rpns = np.array( [ '020' ], str )
     suffix = ''
 
@@ -173,9 +173,9 @@ for r in range( R.shape[0] ):
         omegaIt = omegaI[r,m,rs]
         deltat  = delta [r,m,rs]
 
-        F = np.exp( FittingFunction \
-                      ( tF - tF[0], logFt, \
-                        omegaRt, omegaIt, deltat ) )
+#        F = np.exp( FittingFunction \
+#                      ( tF - tF[0], logFt, \
+#                        omegaRt, omegaIt, deltat ) )
 
         tau = T_SASI[r,m,rs]
 

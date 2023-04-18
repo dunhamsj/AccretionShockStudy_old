@@ -50,10 +50,10 @@ im                = np.empty( nPanels, object )
 cbar              = np.empty( nPanels, object )
 
 # ID to be used for naming purposes
-ID[0] = 'GR2D_M2.8_Rpns020_Rs7.50e1'
-ID[1] = 'NR2D_M2.8_Rpns020_Rs7.50e1'
+ID[0] = 'GR2D_M2.8_Rpns020_Rs8.75e1'
+ID[1] = 'NR2D_M2.8_Rpns020_Rs8.75e1'
 
-title = 'M2.8_Rpns020_Rs7.50e1'
+title = 'M2.8_Rpns020_Rs8.75e1'
 
 # Directory containing AMReX plotfiles
 plotfileDirectory[0] = '/lump/data/accretionShockStudy/\
