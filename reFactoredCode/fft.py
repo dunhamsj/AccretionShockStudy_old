@@ -19,7 +19,7 @@ timeNR, dataNR = np.loadtxt( 'LatFlux_{:}.dat'.format( ID_NR ) )
 
 indmax = min( timeGR.shape[0], timeNR.shape[0] )
 #ind = np.linspace( 0, indmax-1, indmax, dtype = np.int64 )
-ind = 47 # Rs = 8.75e1
+ind = -1#461 # Rs = 8.75e1
 #ind = 195  # Rs = 6.00e1
 #ind = 777  # Rs = 1.20e2
 #ind = 1330 # Rs = 1.50e2

@@ -129,10 +129,10 @@ if __name__ == "__main__":
     rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
     rel  = [ 'NR', 'GR', ]
-    M    = [ '2.8' ]
+    M    = [ '1.4' ]
     Mdot = [ '0.3' ]
-    Rs   = [ '8.75e1' ]
-    xL   = [ '020' ]
+    Rs   = [ '1.75e2' ]
+    xL   = [ '040' ]
     suffix = [ '' ]
     xH   = [ 1.5 * x for x in np.float64( Rs ) ]
 
@@ -156,8 +156,8 @@ if __name__ == "__main__":
         #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
 
         dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( ID )
-        forceChoice = False
-        OW = False
+        forceChoice = True
+        OW = True
         MakeDataFile \
           ( plotfileDirectory, plotfileBaseName, dataFileName, \
             entropyThreshold, markEvery = 1, forceChoice = forceChoice, \
@@ -170,7 +170,7 @@ if __name__ == "__main__":
         RsMax = np.copy( RsMax[:-1] )
 
         ind = -1
-        ind = np.where( RsMax > 1.1 * np.float64( Rs[0] ) )[0]
+        ind = np.where( RsMax > 1.45 * np.float64( Rs[0] ) )[0]
         if not len( ind ) == 0:
             ind = np.copy( ind[0] )
         else:

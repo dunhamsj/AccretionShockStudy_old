@@ -9,8 +9,8 @@ from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
 stage   = 'late'
-vsTau   = True
-saveFig = False
+vsTau   = False
+saveFig = True
 
 if stage == 'early':
 
@@ -18,10 +18,7 @@ if stage == 'early':
     M    = np.array( [ '1.4' ], str )
     Rs   = np.array( [ '1.20e2', '1.50e2', '1.75e2' ], str )
     Rpns = np.array( [ '040' ], str )
-
-    R    = np.array( [ 'NR' ], str )
-    Rs   = np.array( [ '1.80e2' ], str )
-    suffix = '_BetaTVD1.00'
+    suffix = ''
 
 elif stage == 'late':
 
