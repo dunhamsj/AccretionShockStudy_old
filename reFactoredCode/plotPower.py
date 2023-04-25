@@ -9,8 +9,8 @@ from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
 stage   = 'late'
-vsTau   = True
-saveFig = True
+vsTau   = False
+saveFig = False
 
 arrShape = (2,3)
 
@@ -71,77 +71,76 @@ omegaI_err = np.empty( arrShape, object )
 T_SASI     = np.empty( arrShape, object )
 
 for r in range( R.shape[0] ):
-    for m in range( M.shape[0] ):
-        for rs in range( Rs.shape[0] ):
+    for rs in range( Rs.shape[0] ):
 
-            ID[r,rs] \
-              = '{:}2D_M{:}_Rpns{:}_Rs{:}{:}'.format \
-                 ( R[r], M[m], Rpns[0], Rs[rs], suffix )
+        ID[r,rs] \
+          = '{:}2D_M{:}_Rpns{:}_Rs{:}{:}'.format \
+             ( R[r], M[0], Rpns[0], Rs[rs], suffix )
 
-            plotFileDirectory \
-              = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format \
-                ( ID[r,rs] )
+        plotFileDirectory \
+          = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format \
+            ( ID[r,rs] )
 
-            if not isdir( plotFileDirectory ):
-                print( '{:} does not exist. Skipping.' \
-                       .format( plotFileDirectory ) )
-                continue
+        if not isdir( plotFileDirectory ):
+            print( '{:} does not exist. Skipping.' \
+                   .format( plotFileDirectory ) )
+            continue
 
-            plotFileBaseName = '{:}.plt'.format( ID[r,rs] )
-            rInner = np.float64( Rpns[0] )
-            rOuter = np.float64( Rs[rs] )
-            tAd = 0
-            tAc = 0
-            tAd, tAc \
-              = ComputeTimeScales \
-                  ( plotFileDirectory+plotFileBaseName+'00000000', \
-                    rInner, rOuter, R[r] )
+        plotFileBaseName = '{:}.plt'.format( ID[r,rs] )
+        rInner = np.float64( Rpns[0] )
+        rOuter = np.float64( Rs[rs] )
+        tAd = 0
+        tAc = 0
+        tAd, tAc \
+          = ComputeTimeScales \
+              ( plotFileDirectory+plotFileBaseName+'00000000', \
+                rInner, rOuter, R[r] )
 
-            T_SASI[r,rs] = tAd + tAc
+        T_SASI[r,rs] = tAd + tAc
 
-            dataFileName \
-              = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,rs] )
+        dataFileName \
+          = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,rs] )
 
-            if not isfile( dataFileName ):
-                print( '{:} does not exist. Skipping.' \
-                       .format( dataFileName ) )
-                continue
+        if not isfile( dataFileName ):
+            print( '{:} does not exist. Skipping.' \
+                   .format( dataFileName ) )
+            continue
 
-            t [r,rs], \
-            P0[r,rs], \
-            P1[r,rs], \
-            P2[r,rs], \
-            P3[r,rs], \
-            P4[r,rs] \
-              = np.loadtxt( dataFileName )
+        t [r,rs], \
+        P0[r,rs], \
+        P1[r,rs], \
+        P2[r,rs], \
+        P3[r,rs], \
+        P4[r,rs] \
+          = np.loadtxt( dataFileName )
 
-            # Read in fit data
+        # Read in fit data
 
-            f = open( dataFileName )
+        f = open( dataFileName )
 
-            dum = f.readline()
+        dum = f.readline()
 
-            s = f.readline(); ind = s.find( '#' )+1
-            tmp \
-              = np.array( list( map( np.float64, s[ind:].split() ) ), \
-                          np.float64 )
-            t0    [r,rs] = tmp[0]
-            t1    [r,rs] = tmp[1]
-            LogF  [r,rs] = tmp[2]
-            omegaR[r,rs] = tmp[3]
-            omegaI[r,rs] = tmp[4]
-            delta [r,rs] = tmp[5]
+        s = f.readline(); ind = s.find( '#' )+1
+        tmp \
+          = np.array( list( map( np.float64, s[ind:].split() ) ), \
+                      np.float64 )
+        t0    [r,rs] = tmp[0]
+        t1    [r,rs] = tmp[1]
+        LogF  [r,rs] = tmp[2]
+        omegaR[r,rs] = tmp[3]
+        omegaI[r,rs] = tmp[4]
+        delta [r,rs] = tmp[5]
 
-            dum = f.readline()
+        dum = f.readline()
 
-            s = f.readline(); ind = s.find( '#' )+1
-            tmp \
-              = np.array( list( map( np.float64, s[ind:].split() ) ), \
-                          np.float64 )
-            omegaR_err[r,rs] = tmp[1]
-            omegaI_err[r,rs] = tmp[2]
+        s = f.readline(); ind = s.find( '#' )+1
+        tmp \
+          = np.array( list( map( np.float64, s[ind:].split() ) ), \
+                      np.float64 )
+        omegaR_err[r,rs] = tmp[1]
+        omegaI_err[r,rs] = tmp[2]
 
-            f.close()
+        f.close()
 
 # colorblind-friendly palette: https://gist.github.com/thriveth/8560036
 color = ['#377eb8', '#ff7f00', '#4daf4a', \
@@ -179,9 +178,9 @@ for r in range( R.shape[0] ):
         omegaIt = omegaI[r,rs]
         deltat  = delta [r,rs]
 
-#        F = np.exp( FittingFunction \
-#                      ( tF - tF[0], logFt, \
-#                        omegaRt, omegaIt, deltat ) )
+        F = np.exp( FittingFunction \
+                      ( tF - tF[0], logFt, \
+                        omegaRt, omegaIt, deltat ) )
 
         tau = T_SASI[r,rs]
 
@@ -190,41 +189,37 @@ for r in range( R.shape[0] ):
         if not vsTau: tau = 1.0
 
         if R.shape[0] == 1:
-            axs.plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
-                      label = r'$\texttt{{{:}}}$'.format( ID[r,rs] ) )
+            axs   .plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
+                         label = r'$\texttt{{{:}}}$'.format( ID[r,rs] ) )
         else:
             axs[r].plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
                          label = r'$\texttt{{{:}}}$'.format( ID[r,rs] ) )
-            #axs[r].plot( tF/tau, F  , '-', color = 'k' )
+#            axs[r].plot( tF / tau, F, color = 'r' )
 
         # END for rs in range( Rs.shape[0] )
 
-    if R.shape[0] == 1:
-        axs.grid()
-        axs.legend()
-        axs.set_yscale( 'log' )
-    else:
-        axs[r].grid()
-        axs[r].legend()
-        axs[r].set_yscale( 'log' )
-#        axs[r].set_ylim( 1.0e11, 5.0e26 )
+    axs[r].grid()
+    axs[r].legend()
+    axs[r].set_yscale( 'log' )
+    axs[r].set_ylim( 1.0e11, 5.0e26 )
 
-#    if R.shape[0] == 1:
-#        if vsTau:
-#            axs.set_xlim( -0.5, 10.5 )
-#        else:
-#            if stage == 'early':
-#                axs.set_xlim( -10.0, 600.0 )
-#            elif stage == 'late':
-#                axs.set_xlim( -1.0, 140.0 )
-#    else:
-#        if vsTau:
-#            axs[r].set_xlim( -0.5, 10.5 )
-#        else:
-#            if stage == 'early':
-#                axs[r].set_xlim( -10.0, 600.0 )
-#            elif stage == 'late':
-#                axs[r].set_xlim( -1.0, 140.0 )
+    if R.shape[0] == 1:
+        if vsTau:
+            axs.set_xlim( -0.5, 10.5 )
+        else:
+            if stage == 'early':
+                axs.set_xlim( -10.0, 600.0 )
+            elif stage == 'late':
+                axs.set_xlim( -1.0, 140.0 )
+    else:
+        if vsTau:
+            axs[r].set_xlim( -0.5, 10.5 )
+        else:
+            if stage == 'early':
+                axs[r].set_xlim( -10.0, 600.0 )
+            elif stage == 'late':
+                axs[r].set_xlim( -1.0, 140.0 )
+        if r == 0: axs[r].xaxis.set_ticklabels( '' )
 
     # END for r in range( R.shape[0] )
 

@@ -8,7 +8,7 @@ plt.style.use( 'publication.sty' )
 from computeTimeScales import ComputeTimeScales
 
 M    = '2.8'
-Rs   = '8.75e1'
+Rs   = '7.00e1'
 Rpns = '020'
 ID = '2D_M{:}_Rpns{:}_Rs{:}'.format( M, Rpns, Rs )
 
