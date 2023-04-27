@@ -79,6 +79,7 @@ if( OW ):
         AA = ComputeAngleAverage \
                 ( dataGR[ind], X2[0,:,0], dX2[0,:,0] )
 
+        # AA includes \sqrt{\gamma} = \psi^6 * r^2
         AA_GR[iSS] \
           = 4.0 * np.pi \
               * trapezoid \

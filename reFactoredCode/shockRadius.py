@@ -128,18 +128,13 @@ if __name__ == "__main__":
     #rootDirectory = '/lump/data/accretionShockStudy/'
     rootDirectory = '/lump/data/accretionShockStudy/newData/2D/'
 
-#    M    = [ '1.4' ]
-#    Rs   = [ '1.20e2', '1.50e2', '1.75e2' ]
-#    xL   = [ '040' ]
-
-    M    = [ '2.8' ]
-    Rs   = [ '6.00e1', '7.00e1', '8.75e1' ]
-    xL   = [ '020' ]
-
+    S    = [ 'early', 'late' ]
     rel  = [ 'NR', 'GR', ]
-    Mdot = [ '0.3' ]
+    M    = [ '1.4', '2.8' ]
+    Rs   = [ [ '1.20e2', '1.50e2', '1.75e2' ], \
+             [ '6.00e1', '7.00e1', '8.75e1' ] ]
+    xL   = [ '040', '020' ]
     suffix = [ '' ]
-    xH   = [ 1.5 * x for x in np.float64( Rs ) ]
 
     fig, ax = plt.subplots( 1, 1 )
 
@@ -148,49 +143,88 @@ if __name__ == "__main__":
              '#f781bf', '#a65628', '#984ea3', \
              '#999999', '#e41a1c', '#dede00']
 
-    for i in range( len( rel ) ):
-        for j in range( len( Rs ) ):
+    RshCutOff = '1.45'
+    filename = 'indices_RshCutOff{:}.dat'.format( RshCutOff )
 
-            ID = '{:}2D_M{:}_Rpns{:}_Rs{:}{:}' \
-                 .format( rel[i], M[0], xL[0], Rs[j], suffix[0] )
+    RshCutOff = np.float64( RshCutOff )
 
-            plotfileDirectory = rootDirectory + ID + '/'
-            plotfileBaseName = ID + '.plt'
-            entropyThreshold = 1.0e15
+    with open( filename, 'w' ) as f:
 
-            #MakeLineOutPlot \
-            #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
+        f.write( '# Model index Time[index]/ms\n\n' )
 
-            dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( ID )
-            forceChoice = True
-            OW = False
-            MakeDataFile \
-              ( plotfileDirectory, plotfileBaseName, dataFileName, \
-                entropyThreshold, markEvery = 1, forceChoice = forceChoice, \
-                OW = OW )
+        for s in range( len( S ) ):
+            m = s
+            for rs in range( len( Rs[s] ) ):
+                for r in range( len( rel ) ):
 
-            Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
-            Time  = np.copy( Time [:-1] )
-            RsAve = np.copy( RsAve[:-1] )
-            RsMin = np.copy( RsMin[:-1] )
-            RsMax = np.copy( RsMax[:-1] )
+                    ID = '{:}2D_M{:}_Rpns{:}_Rs{:}{:}' \
+                         .format( rel[r], M[m], xL[s], Rs[s][rs], suffix[0] )
 
-            ind = -1
-            ind = np.where( RsMax > 1.45 * np.float64( Rs[j] ) )[0]
-            if not len( ind ) == 0:
-                ind = np.copy( ind[0] )
-            else:
+                    dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( ID )
+
+                    Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
+                    Time  = np.copy( Time [:-1] )
+                    RsMax = np.copy( RsMax[:-1] )
+
+                    ind = -1
+                    ind = np.where( RsMax > RshCutOff \
+                                              * np.float64( Rs[s][rs] ) )[0]
+                    if not len( ind ) == 0:
+                        ind = np.copy( ind[0] )
+                    else:
+                        ind = -1
+
+                    f.write( '{:} {:} {:}\n'.format( ID, ind, Time[ind] ) )
+
+    for s in range( len( S ) ):
+        m = s
+        for rs in range( len( Rs[s] ) ):
+            for r in range( len( rel ) ):
+
+                ID = '{:}2D_M{:}_Rpns{:}_Rs{:}{:}' \
+                     .format( rel[r], M[m], xL[s], Rs[s][rs], suffix[0] )
+
+                plotfileDirectory = rootDirectory + ID + '/'
+                plotfileBaseName = ID + '.plt'
+                entropyThreshold = 1.0e15
+
+#                if not os.path.isdir( plotfileDirectory ): continue
+
+                #MakeLineOutPlot \
+                #  ( plotfileDirectory, plotfileBaseName, entropyThreshold )
+
+                dataFileName = '.{:}_ShockRadiusVsTime.dat'.format( ID )
+                forceChoice = True
+                OW = False
+                MakeDataFile \
+                  ( plotfileDirectory, plotfileBaseName, dataFileName, \
+                    entropyThreshold, markEvery = 1, \
+                    forceChoice = forceChoice, \
+                    OW = OW )
+
+                Time, RsAve, RsMin, RsMax = np.loadtxt( dataFileName )
+                Time  = np.copy( Time [:-1] )
+                RsAve = np.copy( RsAve[:-1] )
+                RsMin = np.copy( RsMin[:-1] )
+                RsMax = np.copy( RsMax[:-1] )
+
                 ind = -1
-            print( ID, ind, Time[ind] )
+                ind = np.where( RsMax > RshCutOff \
+                                          * np.float64( Rs[s][rs] ) )[0]
+                if not len( ind ) == 0:
+                    ind = np.copy( ind[0] )
+                else:
+                    ind = -1
+                print( ID, ind, Time[ind] )
 
-            c = i
-            ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
-                    c = color[c], ls = '-' , \
-                    label = '{:}'.format( rel[i] ) )
-            ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
-                     c = color[c], ls = '--', label = 'min' )
-            ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
-                     c = color[c], ls = ':' , label = 'max' )
+                c = rs
+                ax.plot( Time[0:ind], RsAve[0:ind] / RsAve[0], \
+                        c = color[c], ls = '-' , \
+                        label = '{:}'.format( rel[r] ) )
+                ax.plot( Time[0:ind], RsMin[0:ind] / RsAve[0], \
+                         c = color[c], ls = '--', label = 'min' )
+                ax.plot( Time[0:ind], RsMax[0:ind] / RsAve[0], \
+                         c = color[c], ls = ':' , label = 'max' )
 
     ax.set_xlabel( 'Time [ms]' )
     ax.set_ylabel( r'$R_{\mathrm{S}}/R_{\mathrm{S}}\left(0\right)$', \
