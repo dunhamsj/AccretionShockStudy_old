@@ -35,7 +35,7 @@ elif stage == 'late':
 
     R    = np.array( [ 'NR', 'GR' ], str )
     M    = np.array( [ '2.8' ], str )
-    Rs   = np.array( [ '6.00e1', '7.00e1', '8.75e1' ], str )
+    Rs   = np.array( [ '6.00e1', '7.00e1', '8.00e1' ], str )
     Rpns = np.array( [ '020' ], str )
     # RsMax < 1.45 * Rs(t=0)
     indd[0,0] = 217

@@ -10,7 +10,7 @@ from computeTimeScales import ComputeTimeScales
 R    = np.array( [ 'NR' ], str )
 M    = np.array( [ '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '7.00e1' ], str )
+Rs   = np.array( [ '8.00e1' ], str )
 Rpns = np.array( [ '020' ], str )
 suffix = ''
 

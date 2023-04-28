@@ -18,6 +18,18 @@ def ComputeAngleAverage( data, X2, dX2 ):
 
     return AA
 
+def ProjectOntoP1( data, X2, dX2 ):
+
+    G1 = np.zeros( data.shape[0], np.float64 )
+
+    P1 = np.cos( X2 ) * np.sqrt( 3.0 / 2.0 )
+
+    for iX1 in range( data.shape[0] ):
+        for iX2 in range( data.shape[1] ):
+            G1[iX1] += data[iX1,iX2] * P1[iX2] * np.sin( X2[iX2] ) * dX2[iX2]
+
+    return G1
+
 def Overwrite( FileOrDirName, ForceChoice = False, OW = False ):
 
     if ForceChoice: return OW
