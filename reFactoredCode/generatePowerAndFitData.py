@@ -8,10 +8,10 @@ from FitPowerToModel import FitPowerToModel
 from computeTimeScales import ComputeTimeScales
 
 R    = np.array( [ 'NR' ], str )
-M    = np.array( [ '2.8' ], str )
+M    = np.array( [ '1.4' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '8.00e1' ], str )
-Rpns = np.array( [ '020' ], str )
+Rs   = np.array( [ '1.80e2' ], str )
+Rpns = np.array( [ '040' ], str )
 suffix = ''
 
 for r in range( R.shape[0] ):

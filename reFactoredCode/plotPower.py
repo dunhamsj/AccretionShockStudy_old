@@ -8,7 +8,7 @@ plt.style.use( 'publication.sty' )
 from FitPowerToModel import FittingFunction
 from computeTimeScales import ComputeTimeScales
 
-stage   = 'late'
+stage   = 'early'
 vsTau   = False
 saveFig = False
 
@@ -29,6 +29,8 @@ if stage == 'early':
     indd[1,0] = 1071
     indd[1,1] = -1
     indd[1,2] = 2294
+    Rs   = np.array( [ '1.80e2', '1.80e2' ], str )
+    indd[:,:] = -1
     suffix = ''
 
 elif stage == 'late':
