@@ -8,10 +8,10 @@ from FitPowerToModel import FitPowerToModel
 from computeTimeScales import ComputeTimeScales
 
 R    = np.array( [ 'NR' ], str )
-M    = np.array( [ '1.4' ], str )
+M    = np.array( [ '2.8' ], str )
 Mdot = np.array( [ '0.3' ], str )
-Rs   = np.array( [ '1.80e2' ], str )
-Rpns = np.array( [ '040' ], str )
+Rs   = np.array( [ '9.00e1' ], str )
+Rpns = np.array( [ '020' ], str )
 suffix = ''
 
 for r in range( R.shape[0] ):
@@ -64,9 +64,11 @@ for r in range( R.shape[0] ):
                 InitialGuess \
                   = np.array( [ LogF, omegaR, omegaI, delta ], np.float64 )
 
-                beta, perr \
-                  = FitPowerToModel \
-                      ( tF0, tF1, t, P1, InitialGuess )
+#                beta, perr \
+#                  = FitPowerToModel \
+#                      ( tF0, tF1, t, P1, InitialGuess )
+                beta = np.zeros( 4 )
+                perr = np.zeros( 4 )
 
                 b = ''
                 e = ''

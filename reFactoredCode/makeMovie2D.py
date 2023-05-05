@@ -21,20 +21,20 @@ Usage:
 #### ========== User Input ==========
 
 # ID to be used for naming purposes
-ID = 'NR2D_M1.4_Rpns040_Rs180_Mdot0.3'
+ID = 'NR2D_M1.4_Rpns040_Rs1.80e2'
 
 # Directory containing AMReX plotfiles
 plotfileDirectory \
-  = '/lump/data/accretionShockStudy/newRuns/newProductionRuns/{:}/'.format( ID )
+  = '/lump/data/accretionShockStudy/newData/2D/{:}/'.format( ID )
 
 # plotfile base name (e.g., Advection2D.plt######## -> Advection2D.plt )
 plotfileBaseName = ID + '.plt'
 
 # Field to plot
-Field = 'DivV2'
+Field = 'PF_V1'
 
 # Plot data in log10-scale?
-UseLogScale = True
+UseLogScale = False
 
 # Unit system of the data
 UsePhysicalUnits = True
@@ -59,8 +59,8 @@ MaxLevel = -1 # -1 -> use all levels
 Verbose = True
 
 UseCustomLimits = True
-vmin = -1.0e-6
-vmax = +1.0e-6
+vmin = -1.0e-1 * 2.99792458e5
+vmax = -vmin
 
 MovieRunTime = 10.0 # seconds
 

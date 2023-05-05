@@ -10,7 +10,7 @@ from computeTimeScales import ComputeTimeScales
 
 stage   = 'late'
 vsTau   = False
-saveFig = False
+saveFig = True
 
 arrShape = (2,3)
 
@@ -23,24 +23,30 @@ if stage == 'early':
     Rs   = np.array( [ '1.20e2', '1.50e2', '1.75e2' ], str )
     Rpns = np.array( [ '040' ], str )
     # RsMax < 1.45 * Rs(t=0)
-    indd[0,0] = 847
+    indd[0,0] = -1
     indd[0,1] = 1473
     indd[0,2] = 2033
-    indd[1,0] = 1071
+    indd[1,0] = -1
     indd[1,1] = -1
     indd[1,2] = 2294
     Rs   = np.array( [ '1.80e2', '1.80e2' ], str )
     indd[:,:] = -1
-    suffix = ''
+    suffix = '_NoCharLimiting'
 
 elif stage == 'late':
 
-    R    = np.array( [ 'NR', 'GR' ], str )
+    R    = np.array( [ 'GR' ], str )
     M    = np.array( [ '2.8' ], str )
+    Rs   = np.array( [ '6.00e1', '7.00e1', '8.00e1' ], str )
     Rs   = np.array( [ '9.00e1', '9.00e1' ], str )
     Rpns = np.array( [ '020' ], str )
     # RsMax < 1.45 * Rs(t=0)
-    indd[:,:] = -1
+    indd[0,0] = -1
+    indd[0,1] = -1
+    indd[0,2] = -1
+    indd[1,0] = -1
+    indd[1,1] = -1
+    indd[1,2] = -1
     suffix = ''
 
 else:
@@ -150,6 +156,7 @@ m = 0
 for r in range( R.shape[0] ):
     for rs in range( Rs.shape[0] ):
 
+        if rs == 1: continue
         dataFileName \
           = '.{:}_LegendrePowerSpectrum.dat'.format( ID[r,rs] )
 
@@ -159,25 +166,33 @@ for r in range( R.shape[0] ):
             continue
 
         tt  = t [r,rs]
+        P0t = P0[r,rs]
         P1t = P1[r,rs]
+        P2t = P2[r,rs]
+        P3t = P3[r,rs]
+        P4t = P4[r,rs]
         t0t = t0[r,rs]
         t1t = t1[r,rs]
 
         tt  = np.copy( tt [0:indd[r,rs]] )
+        P0t = np.copy( P0t[0:indd[r,rs]] )
         P1t = np.copy( P1t[0:indd[r,rs]] )
+        P2t = np.copy( P2t[0:indd[r,rs]] )
+        P3t = np.copy( P3t[0:indd[r,rs]] )
+        P4t = np.copy( P4t[0:indd[r,rs]] )
 
-        indF = np.where( ( tt >= t0t ) & ( tt <= t1t ) )[0]
-
-        tF = tt[indF]
-
-        logFt   = LogF  [r,rs]
-        omegaRt = omegaR[r,rs]
-        omegaIt = omegaI[r,rs]
-        deltat  = delta [r,rs]
-
-        F = np.exp( FittingFunction \
-                      ( tF - tF[0], logFt, \
-                        omegaRt, omegaIt, deltat ) )
+#        indF = np.where( ( tt >= t0t ) & ( tt <= t1t ) )[0]
+#
+#        tF = tt[indF]
+#
+#        logFt   = LogF  [r,rs]
+#        omegaRt = omegaR[r,rs]
+#        omegaIt = omegaI[r,rs]
+#        deltat  = delta [r,rs]
+#
+#        F = np.exp( FittingFunction \
+#                      ( tF - tF[0], logFt, \
+#                        omegaRt, omegaIt, deltat ) )
 
         tau = T_SASI[r,rs]
 
@@ -186,8 +201,16 @@ for r in range( R.shape[0] ):
         if not vsTau: tau = 1.0
 
         if R.shape[0] == 1:
-            axs   .plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
-                         label = r'$\texttt{{{:}}}$'.format( ID[r,rs] ) )
+            axs   .plot( tt[ind]/tau, P0t[ind], '-', \
+                         label = 'P0' )
+            axs   .plot( tt[ind]/tau, P1t[ind], '-', \
+                         label = 'P1' )
+            axs   .plot( tt[ind]/tau, P2t[ind], '-', \
+                         label = 'P2' )
+            axs   .plot( tt[ind]/tau, P3t[ind], '-', \
+                         label = 'P3' )
+            axs   .plot( tt[ind]/tau, P4t[ind], '-', \
+                         label = 'P4' )
         else:
             axs[r].plot( tt[ind]/tau, P1t[ind], '-', color = color[rs], \
                          label = r'$\texttt{{{:}}}$'.format( ID[r,rs] ) )
@@ -196,12 +219,10 @@ for r in range( R.shape[0] ):
         # END for rs in range( Rs.shape[0] )
 
     if R.shape[0] == 1:
-
         axs.grid()
         axs.legend()
         axs.set_yscale( 'log' )
-#        axs.set_ylim( 1.0e11, 5.0e26 )
-
+        #axs.set_ylim( 1.0e11, 5.0e26 )
         if vsTau:
             axs.set_xlim( -0.5, 10.5 )
         else:
@@ -210,7 +231,6 @@ for r in range( R.shape[0] ):
             elif stage == 'late':
                 axs.set_xlim( -1.0, 140.0 )
     else:
-
         axs[r].grid()
         axs[r].legend()
         axs[r].set_yscale( 'log' )
@@ -242,7 +262,7 @@ else:
 if stage == 'early':
     fig.suptitle( 'Early-Stage Models', y = 0.95 )
 elif stage == 'late':
-    fig.suptitle( 'Late-Stage Models' , y = 0.95 )
+    fig.suptitle( r'$\texttt{GR2D\_M2.8\_Rpns020\_Rs9.00e1}$' , y = 0.95 )
 
 fig.supylabel( r'$H_{1}$ [cgs]', x = +0.025, fontsize = 15 )
 
